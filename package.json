@@ -1,6 +1,10 @@
 {
   "name": "portfolio",
   "version": "0.1.0",
+  "homepage": "https://fernandoas.com",
+  "description": "Portfolio site for Fernando Arias Santos",
+  "repository": "https://github.com/fariassdev/portfolio.git",
+  "author": "Fernando Arias Santos",
   "private": true,
   "scripts": {
     "dev": "next dev",
