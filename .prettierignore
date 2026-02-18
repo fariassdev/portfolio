@@ -1,0 +1,16 @@
+# Build outputs
+.next/
+dist/
+build/
+public/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
