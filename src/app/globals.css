@@ -1,39 +1,85 @@
-:root {
-  --color-bg: #080808;
-  --color-bg-elevated: #0d0d0d;
-  --color-bg-card: #121212;
-  --color-accent: #c5ff4a;
-  --color-text: #ffffff;
-  --color-text-muted: #888888;
-}
+@custom-media --mediaDesktop (max-width: 2080px);
+@custom-media --mediaLaptop (max-width: 1680px);
+@custom-media --mediaTablet (max-width: 1040px);
+@custom-media --mediaMobile (max-width: 696px);
+@custom-media --mediaMobileLS (max-height: 696px);
+@custom-media --mediaMobileS (max-width: 400px);
+@custom-media --mediaUseMotion (prefers-reduced-motion: no-preference);
+@custom-media --mediaReduceMotion (prefers-reduced-motion: reduce);
+@custom-media --mediaTouch (pointer: coarse);
+@custom-media --mediaNoTouch (pointer: fine);
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+@layer base, components, utilities;
 
-body {
-  color: var(--color-text);
-  background: var(--color-bg);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@layer base {
+  :root {
+    --color-bg: #080808;
+    --color-bg-elevated: #0d0d0d;
+    --color-bg-card: #121212;
+    --color-accent: #c5ff4a;
+    --color-text: #ffffff;
+    --color-text-muted: #888888;
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+    --spaceOuter: 24px;
+    --space2XL: 64px;
+    --mobileNavOffset: calc(var(--spaceOuter) * 2 + var(--space2XL));
+    --durationM: 0.3s;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  body {
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      background var(--durationM) ease,
+      opacity var(--durationM) ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: #000;
+  }
+
+  :focus {
+    outline: 2px solid var(--color-text);
+    outline-offset: 4px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html {
+      color-scheme: dark;
+    }
+  }
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 }
