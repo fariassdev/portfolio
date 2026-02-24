@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, Space_Mono } from 'next/font/google';
 import './globals.css';
-
+import { Navbar } from '@/components/ui/Navbar/navbar';
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-sans',
   subsets: ['latin'],
@@ -88,9 +88,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <header id="main-header" role="banner" aria-label="Site Header">
-          {/* Navigation will be implemented in future stories */}
-        </header>
+        <Navbar />
         <main id="main-content" role="main" aria-label="Main Content">
           {children}
         </main>
