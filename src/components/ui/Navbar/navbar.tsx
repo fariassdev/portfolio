@@ -1,7 +1,7 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import React from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { navItems } from './_data/nav-items';
 import styles from './navbar.module.css';
 import { useConnect } from './use-navbar';
@@ -9,6 +9,10 @@ import { useConnect } from './use-navbar';
 export function Navbar() {
   const { activeSection, isMobileMenuOpen, handleClick, toggleMobileMenu } =
     useConnect();
+  const shouldReduceMotion = useReducedMotion();
+  const trapRef = useFocusTrap(
+    isMobileMenuOpen,
+  ) as React.RefObject<HTMLDivElement | null>;
 
   return (
     <header className={styles.header} role="banner" aria-label="Site Header">
@@ -23,7 +27,11 @@ export function Navbar() {
                   <motion.div
                     layoutId="navbar-active-pill"
                     className={styles.activePill}
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { type: 'spring', stiffness: 380, damping: 30 }
+                    }
                   />
                 )}
                 <a
@@ -61,23 +69,12 @@ export function Navbar() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                initial={{ opacity: 0, rotate: -90, y: -15 }}
-                animate={{ opacity: 1, rotate: 0, y: 0 }}
-                exit={{ opacity: 0, rotate: 90, y: 15 }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                initial={{ opacity: 0, rotate: shouldReduceMotion ? 0 : -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: shouldReduceMotion ? 0 : 90 }}
+                transition={{ duration: 0.2 }}
               >
-                <motion.path
-                  d="M18 6L6 18"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                />
-                <motion.path
-                  d="M6 6l12 12"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                />
+                <path d="M18 6L6 18M6 6l12 12" />
               </motion.svg>
             ) : (
               <motion.svg
@@ -91,29 +88,12 @@ export function Navbar() {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                initial={{ opacity: 0, rotate: -90, y: -15 }}
-                animate={{ opacity: 1, rotate: 0, y: 0 }}
-                exit={{ opacity: 0, rotate: 90, y: 15 }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                initial={{ opacity: 0, rotate: shouldReduceMotion ? 0 : -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: shouldReduceMotion ? 0 : 90 }}
+                transition={{ duration: 0.2 }}
               >
-                <motion.path
-                  d="M3 6h18"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                />
-                <motion.path
-                  d="M3 12h18"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, delay: 0.15 }}
-                />
-                <motion.path
-                  d="M3 18h18"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                />
+                <path d="M3 6h18M3 12h18M3 18h18" />
               </motion.svg>
             )}
           </AnimatePresence>
@@ -124,15 +104,19 @@ export function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
+            ref={trapRef}
             className={styles.mobileNavOverlay}
             id="mobile-navigation"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile Navigation"
-            initial={{ opacity: 0, y: '-100%' }}
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : '-100%' }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '-100%' }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: shouldReduceMotion ? 0 : '-100%' }}
+            transition={{
+              duration: shouldReduceMotion ? 0.01 : 0.4,
+              ease: 'easeOut',
+            }}
           >
             <ul className={styles.mobileNavList}>
               {navItems.map((item, index) => {
@@ -141,13 +125,17 @@ export function Navbar() {
                   <motion.li
                     key={item.href}
                     className={styles.mobileNavItem}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.2 + index * 0.1,
-                      duration: 0.4,
-                      ease: 'easeOut',
-                    }}
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0.01 }
+                        : {
+                            delay: 0.2 + index * 0.1,
+                            duration: 0.4,
+                            ease: 'easeOut',
+                          }
+                    }
                   >
                     <a
                       href={item.href}
