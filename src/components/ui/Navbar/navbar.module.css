@@ -20,7 +20,11 @@
   gap: 2rem;
   align-items: center;
   border-radius: 4px;
-  background-color: rgba(13, 13, 13, 0.9);
+  background-color: color-mix(
+    in srgb,
+    var(--color-bg-elevated) 90%,
+    transparent
+  );
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -105,7 +109,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(8, 8, 8, 0.95);
+    background-color: color-mix(in srgb, var(--color-bg) 90%, transparent);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: 90;
