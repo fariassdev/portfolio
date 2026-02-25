@@ -21,8 +21,7 @@
     --color-text-muted: #888888;
 
     --spaceOuter: 24px;
-    --space2XL: 64px;
-    --mobileNavOffset: calc(var(--spaceOuter) * 2 + var(--space2XL));
+    --headerHeight: 64px;
     --durationM: 0.3s;
   }
 

@@ -5,10 +5,11 @@
   font-family: var(--font-sans);
   background-color: var(--color-bg);
   color: var(--color-text);
+  margin-top: calc(var(--headerHeight) * -1);
 }
 
-.main {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+@media (--mediaMobile) {
+  .page {
+    margin-top: 0;
+  }
 }
