@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
-import { navItems } from './_data/nav-items';
+import { navItems } from './navbar.constants';
 import styles from './navbar.module.css';
 import { useConnect } from './use-navbar';
 

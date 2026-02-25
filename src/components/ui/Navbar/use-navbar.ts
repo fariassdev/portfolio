@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { navItems } from './_data/nav-items';
+import { navItems } from './navbar.constants';
 
 export const useConnect = () => {
   const [activeSection, setActiveSection] = useState('#hero');
