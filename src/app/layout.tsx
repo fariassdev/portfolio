@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, Space_Mono } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '@/components/ui/Navbar/navbar';
+import { Navbar } from '@/components/ui/Navbar';
+
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-sans',
   subsets: ['latin'],
