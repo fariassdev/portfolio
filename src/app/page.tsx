@@ -1,14 +1,10 @@
+import { Hero } from '@/components/sections/Hero';
 import styles from './page.module.css';
 
 export default function Home() {
   return (
     <div className={styles.page}>
-      <section
-        id="hero"
-        style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-      >
-        <h1>Hero Section</h1>
-      </section>
+      <Hero />
       <section
         id="work"
         style={{
