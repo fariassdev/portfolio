@@ -19,6 +19,9 @@
     --color-accent: #c5ff4a;
     --color-text: #ffffff;
     --color-text-muted: #888888;
+    --color-border: #1a1a1a;
+    --color-border-muted: #222222;
+    --color-text-dim: #444444;
 
     --spaceOuter: 24px;
     --headerHeight: 64px;
