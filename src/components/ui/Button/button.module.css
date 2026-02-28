@@ -82,6 +82,24 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.link {
+  background: transparent;
+  color: var(--color-accent);
+  border: none;
+  padding: 0 !important;
+  border-radius: 0;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--color-accent);
+}
+
+.link:hover:not(:disabled):not([aria-disabled='true']) {
+  opacity: 0.8;
+}
+
 /* ==================
    Sizes
 ==================== */

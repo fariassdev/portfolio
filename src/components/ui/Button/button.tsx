@@ -1,6 +1,22 @@
 import React from 'react';
 import styles from './button.module.css';
-import type { ButtonProps } from './button.types';
+
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'link';
+
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  href?: string;
+  download?: boolean | string;
+  asChild?: boolean;
+}
 
 export const Button = React.forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
