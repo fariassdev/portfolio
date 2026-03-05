@@ -8,7 +8,7 @@ const TYPING_SPEED = 14;
 const DELETING_SPEED = 22;
 const PAUSE_AFTER_TYPING = 2200;
 const PAUSE_BEFORE_NEXT = 300;
-const INITIAL_DELAY = 800;
+const INITIAL_DELAY = 1000;
 
 interface UseTypewriterOptions {
   roles: string[];
