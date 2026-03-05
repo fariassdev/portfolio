@@ -1,6 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { DecryptText } from '@/components/ui/DecryptText';
+import { TextReveal } from '@/components/ui/TextReveal';
 import {
   HERO_NAME,
   HERO_TITLE,
@@ -16,14 +18,16 @@ export function Hero() {
   return (
     <section id="hero" className={styles.heroSection}>
       <div className={styles.heroContent}>
-        <p className={styles.heroName}>{HERO_NAME}</p>
+        <p className={styles.heroName}>
+          <DecryptText text={HERO_NAME} />
+        </p>
 
         <h1 className={styles.heroRole}>
           <span className="sr-only" aria-live="polite">
             {HERO_TITLE} &amp; {currentRole}
           </span>
           <span aria-hidden="true">
-            <span className={styles.staticRole}>{HERO_TITLE}</span>
+            <TextReveal className={styles.staticRole}>{HERO_TITLE}</TextReveal>
             <br />
             <span className={styles.staticRole}>{'& '}</span>
             <span className={styles.rotatingRole}>{text}</span>

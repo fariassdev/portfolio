@@ -8,6 +8,7 @@ vi.mock(import('framer-motion'), async (importOriginal) => {
   return {
     ...originalModule,
     useReducedMotion: vi.fn(() => true),
+    useInView: vi.fn(() => true),
   };
 });
 
@@ -22,7 +23,8 @@ describe('Hero Component', () => {
 
   it('renders the developer name', () => {
     render(<Hero />);
-    expect(screen.getByText(HERO_NAME)).toBeTruthy();
+    const matches = screen.getAllByText(HERO_NAME);
+    expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders the heading with static role title', () => {
