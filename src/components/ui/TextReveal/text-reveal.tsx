@@ -6,10 +6,10 @@ import styles from './text-reveal.module.css';
 
 interface TextRevealProps {
   readonly children: React.ReactNode;
-  readonly as?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'div';
-  readonly delay?: number;
-  readonly duration?: number;
-  readonly className?: string;
+  as?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'div';
+  delay?: number;
+  duration?: number;
+  className?: string;
 }
 
 const EASING = [0.25, 0.1, 0.25, 1] as const;
@@ -20,7 +20,7 @@ export function TextReveal({
   delay = 0,
   duration = 0.8,
   className = '',
-}: TextRevealProps) {
+}: Readonly<TextRevealProps>) {
   const { ref, isInView, shouldReduceMotion } = useScrollReveal();
 
   const textAnimate =

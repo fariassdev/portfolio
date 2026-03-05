@@ -1,15 +1,14 @@
 'use client';
 
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
-
 import { useDecryptText } from './use-decrypt-text';
 
 interface DecryptTextProps {
-  readonly text: string;
-  readonly as?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'h4';
-  readonly charset?: string;
-  readonly delay?: number;
-  readonly className?: string;
+  text: string;
+  as?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'h4';
+  charset?: string;
+  delay?: number;
+  className?: string;
 }
 
 export function DecryptText({
@@ -18,7 +17,7 @@ export function DecryptText({
   charset,
   delay = 0,
   className,
-}: DecryptTextProps) {
+}: Readonly<DecryptTextProps>) {
   const { ref, isInView } = useScrollReveal();
   const { containerRef } = useDecryptText({
     text,

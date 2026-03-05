@@ -1,13 +1,12 @@
 'use client';
 
 import { motion, type HTMLMotionProps } from 'framer-motion';
-
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
 
 interface ScrollRevealProps extends HTMLMotionProps<'div'> {
-  readonly delay?: number;
-  readonly duration?: number;
-  readonly offsetY?: number;
+  delay?: number;
+  duration?: number;
+  offsetY?: number;
 }
 
 export function ScrollReveal({
@@ -16,7 +15,7 @@ export function ScrollReveal({
   offsetY = 24,
   children,
   ...rest
-}: ScrollRevealProps) {
+}: Readonly<ScrollRevealProps>) {
   const { ref, isInView, shouldReduceMotion } = useScrollReveal();
 
   return (

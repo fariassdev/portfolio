@@ -2,17 +2,15 @@
 
 import { motion } from 'framer-motion';
 import Image, { type ImageProps } from 'next/image';
-
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
-
 import styles from './scroll-reveal-image.module.css';
 
 interface ScrollRevealImageProps extends Omit<ImageProps, 'onLoad'> {
-  readonly alt: string;
-  readonly delay?: number;
-  readonly duration?: number;
-  readonly blurAmount?: number;
-  readonly className?: string;
+  alt: string;
+  delay?: number;
+  duration?: number;
+  blurAmount?: number;
+  className?: string;
 }
 
 export function ScrollRevealImage({
@@ -22,7 +20,7 @@ export function ScrollRevealImage({
   className,
   alt,
   ...imageProps
-}: ScrollRevealImageProps) {
+}: Readonly<ScrollRevealImageProps>) {
   const { ref, isInView, shouldReduceMotion } = useScrollReveal();
 
   return (
