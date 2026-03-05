@@ -29,21 +29,17 @@ export function ScrollRevealImage({
     <motion.div
       ref={ref}
       className={`${styles.wrapper} ${className ?? ''}`}
-      initial={
-        shouldReduceMotion
-          ? false
-          : { opacity: 0, filter: `blur(${blurAmount}px)` }
-      }
+      initial={{ opacity: 0, filter: `blur(${blurAmount}px)` }}
       animate={
         isInView
           ? { opacity: 1, filter: 'blur(0px)' }
           : { opacity: 0, filter: `blur(${blurAmount}px)` }
       }
-      transition={
-        shouldReduceMotion
-          ? { duration: 0 }
-          : { duration, delay, ease: [0.25, 0.1, 0.25, 1] }
-      }
+      transition={{
+        duration: shouldReduceMotion ? 0 : duration,
+        delay: shouldReduceMotion ? 0 : delay,
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
     >
       <Image alt={alt} {...imageProps} />
     </motion.div>
