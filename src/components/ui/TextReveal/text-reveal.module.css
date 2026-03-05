@@ -1,0 +1,41 @@
+.revealWrapper {
+  position: relative;
+  display: inline-block;
+  padding: 2px 8px;
+  margin: -2px -8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.baseText {
+  color: inherit;
+  display: inline-block;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  pointer-events: none;
+  z-index: 2;
+  background: var(--color-accent);
+  box-shadow:
+    0 0 6px 1px var(--color-accent),
+    0 0 16px 4px color-mix(in srgb, var(--color-accent) 60%, transparent),
+    0 0 30px 8px color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in srgb, var(--color-accent) 15%, transparent) 40%,
+    color-mix(in srgb, var(--color-accent) 30%, transparent) 100%
+  );
+}
