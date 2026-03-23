@@ -1,0 +1,161 @@
+.section {
+  padding: 80px 40px;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.label {
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 40px;
+  letter-spacing: -0.02em;
+}
+
+/* ==================
+   Category Grid
+==================== */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+/* ==================
+   Category Card
+==================== */
+
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.categoryName {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+}
+
+.slashes {
+  color: var(--color-text-dim);
+}
+
+/* ==================
+   Tech Items
+==================== */
+
+.techList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.techItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.techIcon {
+  width: 20px;
+  font-size: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.techName {
+  font-size: 14px;
+  color: var(--color-text);
+  flex: 1;
+}
+
+/* ==================
+   Proficiency Badges
+==================== */
+
+.badge {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.badgePrimary {
+  color: var(--color-accent);
+  background: rgba(197, 255, 74, 0.1);
+  border: 1px solid rgba(197, 255, 74, 0.2);
+}
+
+.badgeSecondary {
+  color: #8be9fd;
+  background: rgba(139, 233, 253, 0.1);
+  border: 1px solid rgba(139, 233, 253, 0.2);
+}
+
+.badgeLearning {
+  color: #bd93f9;
+  background: rgba(189, 147, 249, 0.1);
+  border: 1px solid rgba(189, 147, 249, 0.2);
+}
+
+/* ==================
+   Responsive
+==================== */
+
+@media (--mediaTablet) {
+  .section {
+    padding: 60px 32px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (--mediaMobile) {
+  .section {
+    padding: 48px var(--spaceOuter);
+  }
+
+  .title {
+    font-size: 22px;
+    margin-bottom: 28px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

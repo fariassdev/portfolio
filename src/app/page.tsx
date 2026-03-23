@@ -1,4 +1,5 @@
 import { Hero } from '@/components/sections/Hero';
+import { Stack } from '@/components/sections/Stack';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -16,12 +17,7 @@ export default function Home() {
       >
         <h2>Work Section</h2>
       </section>
-      <section
-        id="stack"
-        style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-      >
-        <h2>Stack Section</h2>
-      </section>
+      <Stack />
       <section
         id="experience"
         style={{
