@@ -15,12 +15,10 @@ const cardVariants = {
   visible: { opacity: 1, y: 0 },
 } as const;
 
-function TechItem({ name, icon, proficiency }: Technology) {
+function TechItem({ name, iconClassName, proficiency }: Technology) {
   return (
     <li className={styles.techItem}>
-      <span className={styles.techIcon} aria-hidden="true">
-        {icon}
-      </span>
+      <i className={`${styles.techIcon} ${iconClassName}`} aria-hidden="true" />
       <span className={styles.techName}>{name}</span>
       <span className={`${styles.badge} ${styles[`badge${proficiency}`]}`}>
         {proficiency}

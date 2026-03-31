@@ -21,15 +21,31 @@ vi.mock('./stack.constants', () => ({
     {
       name: 'Backend',
       technologies: [
-        { name: 'TypeScript', icon: '🇹', proficiency: 'Primary' },
-        { name: 'Rust', icon: '⚙️', proficiency: 'Secondary' },
+        {
+          name: 'TypeScript',
+          iconClassName: 'devicon-typescript-plain',
+          proficiency: 'Primary',
+        },
+        {
+          name: 'Rust',
+          iconClassName: 'devicon-rust-original',
+          proficiency: 'Secondary',
+        },
       ],
     },
     {
       name: 'Data',
       technologies: [
-        { name: 'PostgreSQL', icon: '🐘', proficiency: 'Primary' },
-        { name: 'ClickHouse', icon: '🏠', proficiency: 'Learning' },
+        {
+          name: 'PostgreSQL',
+          iconClassName: 'devicon-postgresql-plain',
+          proficiency: 'Primary',
+        },
+        {
+          name: 'ClickHouse',
+          iconClassName: 'devicon-clickhouse-plain',
+          proficiency: 'Learning',
+        },
       ],
     },
   ],
@@ -78,5 +94,14 @@ describe('Stack Section', () => {
     render(<Stack />);
     const lists = screen.getAllByRole('list');
     expect(lists.length).toBe(2);
+  });
+
+  it('renders devicon classes for technologies', () => {
+    render(<Stack />);
+
+    expect(document.querySelector('.devicon-typescript-plain')).toBeTruthy();
+    expect(document.querySelector('.devicon-rust-original')).toBeTruthy();
+    expect(document.querySelector('.devicon-postgresql-plain')).toBeTruthy();
+    expect(document.querySelector('.devicon-clickhouse-plain')).toBeTruthy();
   });
 });
