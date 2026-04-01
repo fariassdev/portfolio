@@ -27,7 +27,7 @@ function TechItem({ name, iconClassName, proficiency }: Technology) {
   );
 }
 
-function CategoryCard({
+function CategoryRow({
   category,
   index,
   reduceMotion,
@@ -36,9 +36,11 @@ function CategoryCard({
   readonly index: number;
   readonly reduceMotion: boolean;
 }) {
+  const headingId = `stack-category-${category.name.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
-    <motion.div
-      className={styles.card}
+    <motion.article
+      className={styles.categoryRow}
       variants={cardVariants}
       transition={
         reduceMotion
@@ -46,18 +48,24 @@ function CategoryCard({
           : { duration: 0.5, delay: index * 0.1, ease: 'easeOut' }
       }
     >
-      <h3 className={styles.categoryName}>
-        <span className={styles.slashes} aria-hidden="true">
-          {'// '}
-        </span>
-        {category.name}
-      </h3>
-      <ul className={styles.techList} role="list">
+      <header className={styles.categoryHeader}>
+        <h3 id={headingId} className={styles.categoryName}>
+          <span className={styles.slashes} aria-hidden="true">
+            {'// '}
+          </span>
+          {category.name}
+        </h3>
+        <p className={styles.categoryCount}>
+          {category.technologies.length}{' '}
+          {category.technologies.length === 1 ? 'Technology' : 'Technologies'}
+        </p>
+      </header>
+      <ul className={styles.techList} role="list" aria-labelledby={headingId}>
         {category.technologies.map((tech) => (
           <TechItem key={tech.name} {...tech} />
         ))}
       </ul>
-    </motion.div>
+    </motion.article>
   );
 }
 
@@ -105,7 +113,7 @@ export function Stack() {
         viewport={{ once: true, amount: 0.15 }}
       >
         {categories.map((category, index) => (
-          <CategoryCard
+          <CategoryRow
             key={category.name}
             category={category}
             index={index}
