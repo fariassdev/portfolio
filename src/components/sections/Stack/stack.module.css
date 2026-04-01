@@ -105,6 +105,15 @@
     );
 }
 
+.constellationCanvas:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 82%, #f4ffd1 18%);
+  outline-offset: 4px;
+}
+
+.constellationCanvas[data-phase='game_active'] {
+  cursor: crosshair;
+}
+
 .constellationCanvas::before,
 .constellationCanvas::after {
   content: '';
@@ -160,6 +169,14 @@
   inset: 0;
   z-index: 3;
   pointer-events: none;
+  transition: opacity var(--durationM) ease;
+}
+
+.constellationCanvas[data-phase='transition_deploy'] .clusterLabelLayer,
+.constellationCanvas[data-phase='game_active'] .clusterLabelLayer,
+.constellationCanvas[data-phase='game_win'] .clusterLabelLayer,
+.constellationCanvas[data-phase='game_lose'] .clusterLabelLayer {
+  opacity: 0.22;
 }
 
 .clusterLabel {
@@ -219,6 +236,15 @@
 
 .connectionMuted {
   opacity: 0.16;
+}
+
+.connectionDisconnected {
+  opacity: 0;
+}
+
+.connectionReconnecting {
+  stroke: color-mix(in srgb, var(--color-accent) 68%, #8cd4ff 32%);
+  opacity: 0.82;
 }
 
 .nodeList {
@@ -297,6 +323,7 @@
     transform var(--durationM) ease,
     border-color var(--durationM) ease,
     background var(--durationM) ease,
+    color var(--durationM) ease,
     opacity var(--durationM) ease,
     box-shadow var(--durationM) ease;
 }
@@ -306,7 +333,7 @@
   outline-offset: 4px;
 }
 
-.motionEnabled .nodeCard {
+.constellationCanvas[data-phase='constellation'] .motionEnabled .nodeCard {
   cursor: pointer;
 }
 
@@ -406,6 +433,388 @@
   opacity: 0.28;
 }
 
+.nodeBreaking {
+  border-color: color-mix(in srgb, #ff9f87 62%, var(--color-border-muted) 38%);
+}
+
+.nodeBreakingActive {
+  animation: nodeBreakShake 0.12s linear 5;
+  border-color: color-mix(in srgb, #ff9f87 84%, #ffd8cf 16%);
+  box-shadow:
+    0 0 0 1px rgba(255, 120, 98, 0.46),
+    0 0 20px rgba(255, 117, 87, 0.34),
+    0 12px 28px rgba(0, 0, 0, 0.55);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.nodeAsBrick {
+  border-radius: 8px;
+  min-width: clamp(112px, 14vw, 210px);
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  letter-spacing: 0.04em;
+  padding: 10px 14px;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, #1a2027 86%, var(--cluster-color) 14%),
+    color-mix(in srgb, #0f1317 92%, #0a0d12 8%)
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--cluster-color) 24%, transparent 76%),
+    0 10px 24px rgba(0, 0, 0, 0.42);
+}
+
+.nodeAsBrick .nodeIconWrap {
+  display: none;
+}
+
+.nodeAsBrick .nodeName {
+  font-size: clamp(0.65rem, 0.7vw, 0.8rem);
+  font-weight: 700;
+}
+
+.nodeDestroyed {
+  opacity: 0.08;
+  transform: scale(0.88);
+  filter: saturate(0.4);
+}
+
+.brickHits {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: color-mix(in srgb, #f6fbff 82%, var(--cluster-color) 18%);
+  opacity: 0.78;
+}
+
+.brickCrack {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 168, 140, 0.3);
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      128deg,
+      transparent 36%,
+      rgba(255, 167, 128, 0.38) 50%,
+      transparent 62%
+    ),
+    linear-gradient(
+      48deg,
+      transparent 58%,
+      rgba(255, 204, 188, 0.28) 73%,
+      transparent 86%
+    );
+}
+
+.runTrigger {
+  position: absolute;
+  right: clamp(12px, 2.4vw, 18px);
+  bottom: clamp(12px, 2.4vw, 18px);
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 48%, #2b3f2f 52%);
+  background: color-mix(in srgb, #08140c 84%, rgba(0, 0, 0, 0.8) 16%);
+  color: color-mix(in srgb, var(--color-accent) 88%, #efffbb 12%);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  transition:
+    border-color var(--durationM) ease,
+    transform var(--durationM) ease,
+    box-shadow var(--durationM) ease,
+    opacity var(--durationM) ease;
+}
+
+.runTriggerGlyph {
+  font-size: 0.86rem;
+  line-height: 1;
+}
+
+.runTriggerCommand {
+  line-height: 1;
+}
+
+.runTriggerCursor {
+  width: 8px;
+  height: 14px;
+  background: currentcolor;
+  animation: terminalCursor 1s steps(2, jump-none) infinite;
+}
+
+.runTrigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.runTrigger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 76%, #f1ffbf 24%);
+  box-shadow:
+    0 0 0 1px rgba(197, 255, 74, 0.22),
+    0 0 26px rgba(181, 255, 112, 0.22);
+}
+
+.runTriggerDisabled {
+  opacity: 0.54;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.reducedMotionNotice {
+  position: absolute;
+  right: clamp(12px, 2.4vw, 18px);
+  bottom: clamp(52px, 5.5vw, 62px);
+  z-index: 8;
+  font-size: 0.68rem;
+  font-family: var(--font-mono), monospace;
+  color: color-mix(in srgb, var(--color-text-muted) 90%, #ccd8b9 10%);
+}
+
+.transitionOverlay {
+  position: absolute;
+  inset: auto auto 16px 16px;
+  z-index: 7;
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 11px;
+  border: 1px solid color-mix(in srgb, #7ca7d8 34%, transparent 66%);
+  background: color-mix(in srgb, #0c1117 92%, rgba(0, 0, 0, 0.82) 8%);
+  font-family: var(--font-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.transitionOverlay[data-phase='transition_breaking'] {
+  border-color: color-mix(in srgb, #ff9d87 42%, transparent 58%);
+}
+
+.transitionOverlay[data-phase='transition_deploy'] {
+  border-color: color-mix(in srgb, #8affd8 42%, transparent 58%);
+}
+
+.transitionTitle {
+  margin: 0;
+  font-size: 0.68rem;
+  color: color-mix(in srgb, #f6faff 82%, var(--color-text) 18%);
+}
+
+.transitionMeta {
+  margin: 0;
+  font-size: 0.62rem;
+  color: color-mix(in srgb, var(--color-text-muted) 88%, #d8e4ff 12%);
+}
+
+.gameLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  --entity-progress: 1;
+}
+
+.paddle,
+.ball,
+.ballTrail {
+  position: absolute;
+  left: var(--paddle-x, var(--ball-x, var(--trail-x)));
+  top: var(--paddle-y, var(--ball-y, var(--trail-y)));
+  transform: translate(-50%, -50%);
+}
+
+.paddle {
+  width: var(--paddle-width);
+  height: var(--paddle-height);
+  border-radius: 4px;
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--color-accent) 82%, #f1ffc5 18%),
+    color-mix(in srgb, var(--color-accent) 66%, #8cffd0 34%)
+  );
+  box-shadow:
+    0 0 0 1px rgba(197, 255, 74, 0.36),
+    0 0 18px rgba(169, 255, 117, 0.26);
+  opacity: var(--entity-progress);
+  transform: translate(-50%, calc(-50% + (1 - var(--entity-progress)) * 90%));
+}
+
+.ball {
+  width: var(--ball-size);
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: color-mix(in srgb, #f7fbff 82%, var(--color-accent) 18%);
+  box-shadow: 0 0 18px rgba(179, 244, 255, 0.34);
+  opacity: var(--entity-progress);
+  transform: translate(-50%, calc(-50% + (1 - var(--entity-progress)) * 130%));
+}
+
+.ballTrail {
+  width: var(--trail-size);
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: color-mix(in srgb, #e7f6ff 58%, #78dfff 42%);
+  opacity: var(--trail-opacity);
+}
+
+.hitFlash {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  min-width: min(92%, 520px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, #82e6ff 42%, transparent 58%);
+  background: color-mix(in srgb, #07141e 90%, rgba(2, 2, 2, 0.82) 10%);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  text-align: center;
+  color: color-mix(in srgb, #d4f5ff 82%, #f8fdff 18%);
+  letter-spacing: 0.03em;
+  animation: hitMessageIn 0.18s ease-out;
+}
+
+.winTerminal,
+.loseTerminal {
+  position: absolute;
+  inset: auto 16px 16px auto;
+  z-index: 9;
+  width: min(94%, 420px);
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, #89b7ef 44%, transparent 56%);
+  background: color-mix(in srgb, #090f15 92%, rgba(0, 0, 0, 0.88) 8%);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48);
+  padding: 12px 14px;
+  font-family: var(--font-mono), monospace;
+}
+
+.loseTerminal {
+  border-color: color-mix(in srgb, #ff967f 54%, transparent 46%);
+}
+
+.terminalHeader {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, #eaf3ff 78%, #f5ffbf 22%);
+}
+
+.terminalBody {
+  margin-top: 10px;
+  display: grid;
+  gap: 5px;
+}
+
+.terminalLine {
+  margin: 0;
+  font-size: 0.66rem;
+  color: color-mix(in srgb, #c5d8ef 82%, #f2f8ff 18%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.retryButton {
+  margin-top: 10px;
+  appearance: none;
+  border: 1px solid color-mix(in srgb, #ffb4a1 64%, transparent 36%);
+  background: color-mix(in srgb, #1d1411 88%, transparent 12%);
+  color: color-mix(in srgb, #ffe4de 86%, #fff7f4 14%);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  min-height: 34px;
+  min-width: 44px;
+  border-radius: 8px;
+  transition:
+    border-color var(--durationM) ease,
+    transform var(--durationM) ease;
+}
+
+.retryButton:focus-visible {
+  outline: 2px solid color-mix(in srgb, #ffb4a1 82%, #ffe9df 18%);
+  outline-offset: 2px;
+}
+
+.retryButton:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, #ffd2c7 84%, #ffb4a1 16%);
+}
+
+.winFlash {
+  animation: winPulse 0.42s ease-out;
+}
+
+@keyframes terminalCursor {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes nodeBreakShake {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  25% {
+    transform: translate3d(-1px, 1px, 0);
+  }
+
+  50% {
+    transform: translate3d(1px, -1px, 0);
+  }
+
+  75% {
+    transform: translate3d(-1px, -1px, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes hitMessageIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes winPulse {
+  0% {
+    box-shadow: inset 0 0 0 0 rgba(197, 255, 74, 0);
+  }
+
+  40% {
+    box-shadow: inset 0 0 0 6px rgba(197, 255, 74, 0.2);
+  }
+
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(197, 255, 74, 0);
+  }
+}
+
 @media (--mediaUseMotion) {
   .motionEnabled .nodeItem {
     animation: nodeFloat var(--float-duration) ease-in-out var(--float-delay)
@@ -419,6 +828,10 @@
       var(--cluster-color) 68%,
       var(--color-border-muted) 32%
     );
+  }
+
+  .nodeAsBrick {
+    animation: none;
   }
 }
 
@@ -455,6 +868,10 @@
     gap: 8px;
   }
 
+  .nodeAsBrick {
+    min-width: clamp(102px, 19vw, 150px);
+  }
+
   .nodeIconWrap {
     width: 22px;
     height: 22px;
@@ -463,6 +880,11 @@
   .clusterLabel {
     font-size: 10px;
     letter-spacing: 0.1em;
+  }
+
+  .transitionOverlay {
+    left: 12px;
+    bottom: 12px;
   }
 }
 
@@ -494,6 +916,12 @@
     padding: 7px 10px 7px 8px;
   }
 
+  .nodeAsBrick {
+    min-height: 34px;
+    min-width: clamp(88px, 26vw, 120px);
+    padding: 8px 7px;
+  }
+
   .nodeIconWrap {
     width: 20px;
     height: 20px;
@@ -505,5 +933,41 @@
 
   .clusterLabel {
     padding: 3px 8px;
+  }
+
+  .runTrigger {
+    right: 10px;
+    bottom: 10px;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+  }
+
+  .reducedMotionNotice {
+    right: 10px;
+    bottom: 44px;
+    max-width: 180px;
+    text-align: right;
+  }
+
+  .transitionOverlay {
+    left: 10px;
+    bottom: 10px;
+    padding: 10px;
+  }
+
+  .transitionTitle {
+    font-size: 0.62rem;
+  }
+
+  .transitionMeta,
+  .terminalLine {
+    font-size: 0.58rem;
+  }
+
+  .winTerminal,
+  .loseTerminal {
+    left: 10px;
+    right: 10px;
+    width: auto;
   }
 }

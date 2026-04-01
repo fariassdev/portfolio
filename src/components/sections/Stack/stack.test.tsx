@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Stack } from './stack';
 
-const { useReducedMotionMock } = vi.hoisted(() => ({
+const { nextGameStatusMock, useReducedMotionMock } = vi.hoisted(() => ({
+  nextGameStatusMock: vi.fn<() => 'active' | 'win' | 'lose'>(() => 'active'),
   useReducedMotionMock: vi.fn(() => true),
 }));
 
@@ -20,6 +21,148 @@ vi.mock(import('framer-motion'), async (importOriginal) => {
     useReducedMotion: useReducedMotionMock,
   };
 });
+
+vi.mock('./use-game-loop', async () => {
+  const { useEffect } = await import('react');
+
+  return {
+    useGameLoop: (
+      isActive: boolean,
+      onFrame: (deltaMs: number, nowMs: number) => void,
+    ) => {
+      useEffect(() => {
+        if (!isActive) {
+          return;
+        }
+
+        const intervalId = window.setInterval(() => {
+          onFrame(16, performance.now());
+        }, 16);
+
+        return () => {
+          window.clearInterval(intervalId);
+        };
+      }, [isActive, onFrame]);
+    },
+  };
+});
+
+vi.mock('./stack-game', () => ({
+  GAME_WIDTH: 900,
+  GAME_HEIGHT: 520,
+  createInitialArkanoidState: (
+    blueprints: readonly {
+      id: string;
+      name: string;
+      errorSignature: string;
+      hitMessage: string;
+      durability: number;
+      slot: number;
+    }[],
+  ) => ({
+    status: 'active',
+    elapsedMs: 0,
+    paddle: {
+      x: 450,
+      y: 472,
+      width: 80,
+      height: 14,
+    },
+    ball: {
+      x: 450,
+      y: 420,
+      vx: 140,
+      vy: -260,
+      size: 8,
+      trail: [],
+    },
+    bricks: blueprints.map((blueprint) => ({
+      ...blueprint,
+      x: 180 + blueprint.slot * 8,
+      y: 120,
+      width: 220,
+      height: 44,
+      hitsRemaining: blueprint.durability,
+      maxHits: blueprint.durability,
+      destroyed: false,
+      crackLevel: 0,
+    })),
+    flashMessage: null,
+    flashTimerMs: 0,
+  }),
+  restartArkanoidState: (
+    blueprints: readonly {
+      id: string;
+      name: string;
+      errorSignature: string;
+      hitMessage: string;
+      durability: number;
+      slot: number;
+    }[],
+  ) => ({
+    status: 'active',
+    elapsedMs: 0,
+    paddle: {
+      x: 450,
+      y: 472,
+      width: 80,
+      height: 14,
+    },
+    ball: {
+      x: 450,
+      y: 420,
+      vx: 140,
+      vy: -260,
+      size: 8,
+      trail: [],
+    },
+    bricks: blueprints.map((blueprint) => ({
+      ...blueprint,
+      x: 180 + blueprint.slot * 8,
+      y: 120,
+      width: 220,
+      height: 44,
+      hitsRemaining: blueprint.durability,
+      maxHits: blueprint.durability,
+      destroyed: false,
+      crackLevel: 0,
+    })),
+    flashMessage: null,
+    flashTimerMs: 0,
+  }),
+  stepArkanoidState: (state: {
+    elapsedMs: number;
+    status: 'active' | 'lose' | 'win';
+    bricks: readonly {
+      destroyed: boolean;
+    }[];
+  }) => {
+    const nextStatus = nextGameStatusMock();
+
+    if (nextStatus === 'win') {
+      return {
+        ...state,
+        elapsedMs: state.elapsedMs + 64,
+        status: 'win',
+        bricks: state.bricks.map((brick) => ({ ...brick, destroyed: true })),
+      };
+    }
+
+    if (nextStatus === 'lose') {
+      return {
+        ...state,
+        elapsedMs: state.elapsedMs + 64,
+        status: 'lose',
+      };
+    }
+
+    return {
+      ...state,
+      elapsedMs: state.elapsedMs + 16,
+      status: 'active',
+    };
+  },
+}));
 
 vi.mock('./stack.constants', () => ({
   clusterLabels: [
@@ -45,6 +188,10 @@ vi.mock('./stack.constants', () => ({
       floatRangeY: 1,
       floatSpeed: 1,
       floatPhase: 0.2,
+      errorSignature: 'TS2304',
+      hitMessage: 'Cannot find name "DeployConfig".',
+      brickDurability: 2,
+      brickSlot: 0,
     },
     {
       id: 'nodejs',
@@ -58,6 +205,11 @@ vi.mock('./stack.constants', () => ({
       floatRangeY: 1,
       floatSpeed: 1,
       floatPhase: 0.5,
+      errorSignature: 'ERR_MODULE_NOT_FOUND',
+      hitMessage:
+        'Cannot find package "queue-core" imported from /app/index.mjs.',
+      brickDurability: 2,
+      brickSlot: 1,
     },
     {
       id: 'postgresql',
@@ -71,6 +223,10 @@ vi.mock('./stack.constants', () => ({
       floatRangeY: 1,
       floatSpeed: 1,
       floatPhase: 0.8,
+      errorSignature: 'SQLSTATE[42P01]',
+      hitMessage: 'relation "deploy_jobs" does not exist.',
+      brickDurability: 2,
+      brickSlot: 2,
     },
     {
       id: 'docker',
@@ -84,6 +240,11 @@ vi.mock('./stack.constants', () => ({
       floatRangeY: 1,
       floatSpeed: 1,
       floatPhase: 1.2,
+      errorSignature: 'failed to solve',
+      hitMessage:
+        'process "/bin/sh -c npm ci" did not complete successfully: exit code: 1.',
+      brickDurability: 1,
+      brickSlot: 3,
     },
   ],
   techEdges: [
@@ -95,6 +256,9 @@ vi.mock('./stack.constants', () => ({
 
 describe('Stack Section', () => {
   beforeEach(() => {
+    vi.useRealTimers();
+    nextGameStatusMock.mockReset();
+    nextGameStatusMock.mockReturnValue('active');
     useReducedMotionMock.mockReset();
     useReducedMotionMock.mockReturnValue(true);
   });
@@ -126,6 +290,9 @@ describe('Stack Section', () => {
     render(<Stack />);
 
     expect(screen.queryByRole('button', { name: /TypeScript/i })).toBeNull();
+    expect(
+      screen.getByTestId('stack-run-trigger').hasAttribute('disabled'),
+    ).toBe(true);
 
     const nodes = screen.getAllByTestId(/stack-node-/);
     const edges = screen.getAllByTestId(/stack-edge-/);
@@ -136,6 +303,17 @@ describe('Stack Section', () => {
     expect(
       edges.every((edge) => edge.getAttribute('data-state') === 'static'),
     ).toBe(true);
+  });
+
+  it('does not start gameplay while reduced motion is enabled', () => {
+    render(<Stack />);
+
+    fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+    expect(screen.queryByTestId('stack-transition-compiling')).toBeNull();
+    expect(screen.getByTestId('stack-canvas').getAttribute('data-phase')).toBe(
+      'constellation',
+    );
   });
 
   it('highlights connected nodes and edges when motion is enabled', () => {
@@ -178,6 +356,94 @@ describe('Stack Section', () => {
         .getByTestId('stack-edge-nodejs-postgresql')
         .getAttribute('data-state'),
     ).toBe('idle');
+  });
+
+  it('runs compiling, breaking and deploy transitions after trigger', () => {
+    vi.useFakeTimers();
+    useReducedMotionMock.mockReturnValue(false);
+
+    render(<Stack />);
+
+    fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+    expect(screen.getByTestId('stack-transition-compiling')).toBeTruthy();
+
+    act(() => {
+      vi.advanceTimersByTime(1700);
+    });
+
+    expect(screen.getByTestId('stack-transition-breaking')).toBeTruthy();
+
+    act(() => {
+      vi.advanceTimersByTime(1600);
+    });
+
+    expect(screen.getByTestId('stack-transition-deploy')).toBeTruthy();
+  });
+
+  it('renders win terminal overlay when game reports win', () => {
+    vi.useFakeTimers();
+    useReducedMotionMock.mockReturnValue(false);
+    nextGameStatusMock.mockReturnValue('win');
+
+    render(<Stack />);
+
+    fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+    act(() => {
+      vi.advanceTimersByTime(1700);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1600);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByTestId('stack-win-terminal')).toBeTruthy();
+  });
+
+  it('renders lose overlay and supports Enter quick restart', () => {
+    vi.useFakeTimers();
+    useReducedMotionMock.mockReturnValue(false);
+    nextGameStatusMock.mockReturnValue('lose');
+
+    render(<Stack />);
+
+    fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+    act(() => {
+      vi.advanceTimersByTime(1700);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1600);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByTestId('stack-lose-terminal')).toBeTruthy();
+
+    nextGameStatusMock.mockReturnValue('active');
+    fireEvent.keyDown(window, { key: 'Enter' });
+
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+
+    expect(screen.queryByTestId('stack-lose-terminal')).toBeNull();
   });
 
   it('renders devicon classes for technologies', () => {

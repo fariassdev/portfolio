@@ -2,6 +2,8 @@ export type Proficiency = 'Primary' | 'Secondary' | 'Learning';
 
 export type TechCluster = 'backend' | 'data' | 'infrastructure';
 
+export type BrickDurability = 1 | 2;
+
 export interface ConstellationNode {
   readonly id: string;
   readonly name: string;
@@ -14,6 +16,10 @@ export interface ConstellationNode {
   readonly floatRangeY: number;
   readonly floatSpeed: number;
   readonly floatPhase: number;
+  readonly errorSignature: string;
+  readonly hitMessage: string;
+  readonly brickDurability: BrickDurability;
+  readonly brickSlot: number;
 }
 
 export interface ClusterLabel {
@@ -47,6 +53,10 @@ export const techNodes = [
     floatRangeY: 1.2,
     floatSpeed: 0.9,
     floatPhase: 0.2,
+    errorSignature: 'TS2304',
+    hitMessage: 'Cannot find name "DeployConfig".',
+    brickDurability: 2,
+    brickSlot: 0,
   },
   {
     id: 'nodejs',
@@ -60,6 +70,11 @@ export const techNodes = [
     floatRangeY: 0.9,
     floatSpeed: 1.15,
     floatPhase: 1.4,
+    errorSignature: 'ERR_MODULE_NOT_FOUND',
+    hitMessage:
+      'Cannot find package "queue-core" imported from /app/index.mjs.',
+    brickDurability: 2,
+    brickSlot: 1,
   },
   {
     id: 'python',
@@ -73,6 +88,10 @@ export const techNodes = [
     floatRangeY: 1.1,
     floatSpeed: 0.95,
     floatPhase: 2.8,
+    errorSignature: 'ModuleNotFoundError',
+    hitMessage: "No module named 'pipeline'.",
+    brickDurability: 1,
+    brickSlot: 2,
   },
   {
     id: 'postgresql',
@@ -86,6 +105,10 @@ export const techNodes = [
     floatRangeY: 1,
     floatSpeed: 1.05,
     floatPhase: 0.9,
+    errorSignature: 'SQLSTATE[42P01]',
+    hitMessage: 'relation "deploy_jobs" does not exist.',
+    brickDurability: 2,
+    brickSlot: 3,
   },
   {
     id: 'redis',
@@ -99,6 +122,11 @@ export const techNodes = [
     floatRangeY: 0.8,
     floatSpeed: 1.25,
     floatPhase: 1.8,
+    errorSignature: 'MISCONF',
+    hitMessage:
+      'Redis is configured to save RDB snapshots, but is currently unable to persist on disk.',
+    brickDurability: 2,
+    brickSlot: 4,
   },
   {
     id: 'docker',
@@ -112,6 +140,11 @@ export const techNodes = [
     floatRangeY: 0.9,
     floatSpeed: 1,
     floatPhase: 0.4,
+    errorSignature: 'failed to solve',
+    hitMessage:
+      'process "/bin/sh -c npm ci" did not complete successfully: exit code: 1.',
+    brickDurability: 2,
+    brickSlot: 5,
   },
   {
     id: 'kubernetes',
@@ -125,6 +158,10 @@ export const techNodes = [
     floatRangeY: 1.1,
     floatSpeed: 1.3,
     floatPhase: 2.2,
+    errorSignature: 'CrashLoopBackOff',
+    hitMessage: 'Back-off restarting failed container api.',
+    brickDurability: 2,
+    brickSlot: 6,
   },
   {
     id: 'terraform',
@@ -138,6 +175,10 @@ export const techNodes = [
     floatRangeY: 0.9,
     floatSpeed: 0.85,
     floatPhase: 3.1,
+    errorSignature: 'ReferenceError',
+    hitMessage: 'Reference to undeclared resource "aws_lb.gateway".',
+    brickDurability: 1,
+    brickSlot: 7,
   },
   {
     id: 'aws',
@@ -151,6 +192,10 @@ export const techNodes = [
     floatRangeY: 1,
     floatSpeed: 1.1,
     floatPhase: 2.6,
+    errorSignature: 'InvalidClientTokenId',
+    hitMessage: 'The security token included in the request is invalid.',
+    brickDurability: 1,
+    brickSlot: 8,
   },
 ] as const satisfies readonly ConstellationNode[];
 
