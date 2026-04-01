@@ -1,13 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from 'react';
+import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 
 import type { Proficiency, TechCluster, TechNodeId } from './stack.constants';
 import {
@@ -32,13 +26,8 @@ type TechNode = (typeof techNodes)[number];
 type NodeState = 'static' | 'idle' | 'active' | 'connected' | 'muted';
 type EdgeState = 'static' | 'idle' | 'active' | 'muted';
 
-type PositionedNode = TechNode & {
-  readonly renderX: number;
-  readonly renderY: number;
-};
-
 interface TechNodeCardProps {
-  readonly node: PositionedNode;
+  readonly node: TechNode;
   readonly reduceMotion: boolean;
   readonly className: string;
   readonly state: NodeState;
@@ -63,10 +52,6 @@ function cx(
   ...classNames: readonly (false | null | string | undefined)[]
 ): string {
   return classNames.filter(Boolean).join(' ');
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
 }
 
 function getProficiencyClassName(proficiency: Proficiency): string | undefined {
@@ -139,65 +124,14 @@ function TechNodeCard({
 export function Stack() {
   const reduceMotion = useReducedMotion() ?? false;
   const [activeNodeId, setActiveNodeId] = useState<TechNodeId | null>(null);
-  const [timeInSeconds, setTimeInSeconds] = useState(0);
 
   const adjacencyMap = useMemo(() => createAdjacencyMap(), []);
 
-  useEffect(() => {
-    if (reduceMotion) {
-      return;
-    }
-
-    let frameId = 0;
-    let lastFrame = 0;
-
-    const update = (now: number) => {
-      if (now - lastFrame >= 48) {
-        setTimeInSeconds(now / 1000);
-        lastFrame = now;
-      }
-
-      frameId = window.requestAnimationFrame(update);
-    };
-
-    frameId = window.requestAnimationFrame(update);
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
-  }, [reduceMotion]);
-
   const activeNode = reduceMotion ? null : activeNodeId;
-  const animationTime = reduceMotion ? 0 : timeInSeconds;
-
-  const positionedNodes = useMemo<readonly PositionedNode[]>(() => {
-    return techNodes.map((node) => {
-      if (animationTime === 0) {
-        return {
-          ...node,
-          renderX: node.x,
-          renderY: node.y,
-        };
-      }
-
-      const driftX =
-        Math.sin(animationTime * node.floatSpeed + node.floatPhase) *
-        node.floatRangeX;
-      const driftY =
-        Math.cos(animationTime * (node.floatSpeed + 0.12) + node.floatPhase) *
-        node.floatRangeY;
-
-      return {
-        ...node,
-        renderX: clamp(node.x + driftX, 6, 94),
-        renderY: clamp(node.y + driftY, 8, 92),
-      };
-    });
-  }, [animationTime]);
 
   const nodeMap = useMemo(() => {
-    return new Map(positionedNodes.map((node) => [node.id, node]));
-  }, [positionedNodes]);
+    return new Map(techNodes.map((node) => [node.id, node]));
+  }, []);
 
   const hasActiveNode = activeNode !== null;
   const activeConnections =
@@ -314,10 +248,10 @@ export function Stack() {
               return (
                 <line
                   key={`${from}-${to}`}
-                  x1={source.renderX}
-                  y1={source.renderY}
-                  x2={target.renderX}
-                  y2={target.renderY}
+                  x1={source.x}
+                  y1={source.y}
+                  x2={target.x}
+                  y2={target.y}
                   className={cx(
                     styles.connection,
                     edgeState === 'active' && styles.connectionActive,
@@ -335,10 +269,18 @@ export function Stack() {
             role="list"
             aria-describedby="stack-constellation-description"
           >
-            {positionedNodes.map((node) => {
+            {techNodes.map((node) => {
+              const floatX = Math.max(2.5, node.floatRangeX * 5);
+              const floatY = Math.max(2.5, node.floatRangeY * 5);
+              const floatDuration = 14 / node.floatSpeed;
+
               const nodeStyle = {
-                '--node-x': `${node.renderX}%`,
-                '--node-y': `${node.renderY}%`,
+                '--node-x': `${node.x}%`,
+                '--node-y': `${node.y}%`,
+                '--float-x': `${floatX.toFixed(2)}px`,
+                '--float-y': `${floatY.toFixed(2)}px`,
+                '--float-duration': `${floatDuration.toFixed(2)}s`,
+                '--float-delay': `${(-node.floatPhase).toFixed(2)}s`,
               } as CSSProperties;
 
               let nodeState: NodeState = 'idle';

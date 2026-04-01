@@ -159,7 +159,6 @@ export type TechNodeId = (typeof techNodes)[number]['id'];
 export const techEdges: readonly (readonly [TechNodeId, TechNodeId])[] = [
   ['typescript', 'nodejs'],
   ['nodejs', 'postgresql'],
-  ['postgresql', 'redis'],
   ['nodejs', 'redis'],
   ['docker', 'kubernetes'],
   ['docker', 'terraform'],
@@ -167,6 +166,6 @@ export const techEdges: readonly (readonly [TechNodeId, TechNodeId])[] = [
   ['python', 'postgresql'],
   ['python', 'redis'],
   ['terraform', 'aws'],
-  ['postgresql', 'docker'],
+  ['terraform', 'kubernetes'],
   ['aws', 'kubernetes'],
 ];

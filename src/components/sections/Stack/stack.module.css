@@ -79,6 +79,7 @@
   border-radius: 28px;
   overflow: hidden;
   isolation: isolate;
+  contain: layout paint;
   border: 1px solid
     color-mix(in srgb, var(--color-border-muted) 74%, transparent 26%);
   background:
@@ -207,13 +208,13 @@
   transition:
     opacity var(--durationM) ease,
     stroke var(--durationM) ease,
-    filter var(--durationM) ease;
+    stroke-width var(--durationM) ease;
 }
 
 .connectionActive {
   stroke: color-mix(in srgb, var(--color-accent) 86%, #f4ffd1 14%);
+  stroke-width: 0.22;
   opacity: 0.98;
-  filter: drop-shadow(0 0 10px rgba(197, 255, 74, 0.35));
 }
 
 .connectionMuted {
@@ -228,10 +229,48 @@
 }
 
 .nodeItem {
+  --float-x: 4px;
+  --float-y: 4px;
+  --float-duration: 12s;
+  --float-delay: 0s;
   position: absolute;
   left: var(--node-x);
   top: var(--node-y);
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.motionEnabled .nodeItem {
+  will-change: transform;
+}
+
+.reducedMotion .nodeItem {
+  animation: none;
+}
+
+@keyframes nodeFloat {
+  0% {
+    transform: translate3d(
+      calc(-50% - var(--float-x)),
+      calc(-50% - var(--float-y)),
+      0
+    );
+  }
+
+  50% {
+    transform: translate3d(
+      calc(-50% + var(--float-x)),
+      calc(-50% + var(--float-y)),
+      0
+    );
+  }
+
+  100% {
+    transform: translate3d(
+      calc(-50% - var(--float-x)),
+      calc(-50% - var(--float-y)),
+      0
+    );
+  }
 }
 
 .nodeCard {
@@ -260,7 +299,6 @@
     background var(--durationM) ease,
     opacity var(--durationM) ease,
     box-shadow var(--durationM) ease;
-  backdrop-filter: blur(6px);
 }
 
 .nodeCard:focus-visible {
@@ -369,6 +407,11 @@
 }
 
 @media (--mediaUseMotion) {
+  .motionEnabled .nodeItem {
+    animation: nodeFloat var(--float-duration) ease-in-out var(--float-delay)
+      infinite;
+  }
+
   .motionEnabled .nodeCard:hover {
     transform: translateY(-2px);
     border-color: color-mix(
