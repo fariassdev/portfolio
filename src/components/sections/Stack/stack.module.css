@@ -1127,8 +1127,34 @@
 
   .nodeAsBrick {
     min-height: 34px;
-    min-width: clamp(88px, 26vw, 120px);
-    padding: 8px 7px;
+    width: clamp(64px, 19.5vw, 112px);
+    min-width: 0;
+    max-width: 112px;
+    padding: 6px;
+    align-items: stretch;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .nodeStepLine {
+    align-items: start;
+    gap: 4px;
+  }
+
+  .nodeStepLabel {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+    font-size: 0.56rem;
+  }
+
+  .nodeStepStatus {
+    min-width: auto;
+    font-size: 0.62rem;
+    line-height: 1.1;
+    padding-top: 1px;
   }
 
   .nodeIconWrap {
