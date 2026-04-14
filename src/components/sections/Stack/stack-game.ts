@@ -11,12 +11,16 @@ const KEYBOARD_PADDLE_SPEED = 560;
 const BALL_SPEED_BOOST_FACTOR = 1.07;
 const MAX_BALL_SPEED = 680;
 const FLASH_DURATION_MS = 980;
-const BRICK_COLUMNS = 3;
-const BRICK_WIDTH = 220;
+const BRICK_ROW_LAYOUT = [3, 4, 3] as const;
+const BRICK_WIDTH = 176;
 const BRICK_HEIGHT = 44;
-const BRICK_GAP_X = 22;
+const BRICK_GAP_X = 18;
 const BRICK_GAP_Y = 20;
 const BRICK_START_Y = 88;
+const BRICK_SLOT_COUNT = BRICK_ROW_LAYOUT.reduce(
+  (sum, columns) => sum + columns,
+  0,
+);
 
 type MoveDirection = -1 | 0 | 1;
 
@@ -88,11 +92,25 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function getBrickPosition(slot: number): { x: number; y: number } {
-  const safeSlot = clamp(slot, 0, 8);
-  const row = Math.floor(safeSlot / BRICK_COLUMNS);
-  const column = safeSlot % BRICK_COLUMNS;
-  const totalWidth =
-    BRICK_COLUMNS * BRICK_WIDTH + (BRICK_COLUMNS - 1) * BRICK_GAP_X;
+  const safeSlot = clamp(slot, 0, BRICK_SLOT_COUNT - 1);
+
+  let row = 0;
+  let slotStart = 0;
+
+  for (const [index, rowColumns] of BRICK_ROW_LAYOUT.entries()) {
+    const slotEnd = slotStart + rowColumns - 1;
+
+    if (safeSlot >= slotStart && safeSlot <= slotEnd) {
+      row = index;
+      break;
+    }
+
+    slotStart = slotEnd + 1;
+  }
+
+  const columns = BRICK_ROW_LAYOUT[row] ?? BRICK_ROW_LAYOUT[0];
+  const column = safeSlot - slotStart;
+  const totalWidth = columns * BRICK_WIDTH + (columns - 1) * BRICK_GAP_X;
   const startX = (GAME_WIDTH - totalWidth) / 2;
 
   return {

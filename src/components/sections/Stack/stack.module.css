@@ -209,6 +209,29 @@
   color: color-mix(in srgb, var(--color-accent) 74%, var(--color-text) 26%);
 }
 
+.rowLabelLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.rowLabel {
+  position: absolute;
+  left: clamp(14px, 2vw, 26px);
+  top: var(--row-y);
+  transform: translateY(-50%);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--color-accent) 70%, #efffbb 30%);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 32%, transparent 68%);
+  background: color-mix(in srgb, #0a1012 88%, rgba(0, 0, 0, 0.72) 12%);
+}
+
 .connectionLayer {
   position: absolute;
   inset: 0;
@@ -544,9 +567,10 @@
 }
 
 .runTriggerCursor {
-  width: 8px;
-  height: 14px;
-  background: currentcolor;
+  display: inline-block;
+  font-size: 0.86rem;
+  line-height: 1;
+  font-weight: 700;
   animation: terminalCursor 1s steps(2, jump-none) infinite;
 }
 
@@ -665,25 +689,7 @@
   opacity: var(--trail-opacity);
 }
 
-.hitFlash {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 8;
-  min-width: min(92%, 520px);
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, #82e6ff 42%, transparent 58%);
-  background: color-mix(in srgb, #07141e 90%, rgba(2, 2, 2, 0.82) 10%);
-  font-family: var(--font-mono), monospace;
-  font-size: 0.68rem;
-  text-align: center;
-  color: color-mix(in srgb, #d4f5ff 82%, #f8fdff 18%);
-  letter-spacing: 0.03em;
-  animation: hitMessageIn 0.18s ease-out;
-}
-
+.deployTerminal,
 .winTerminal,
 .loseTerminal {
   position: absolute;
@@ -698,35 +704,155 @@
   font-family: var(--font-mono), monospace;
 }
 
+.deployTerminal {
+  inset: 18% 16px auto auto;
+  width: min(96%, 520px);
+}
+
+.winTerminal {
+  border-color: color-mix(in srgb, var(--color-accent) 42%, transparent 58%);
+}
+
+.winTerminalExpanded {
+  inset: 10px;
+  width: auto;
+  max-height: calc(100% - 20px);
+  overflow: auto;
+  background:
+    linear-gradient(180deg, rgba(6, 8, 9, 0.96), rgba(6, 8, 9, 0.92)),
+    radial-gradient(
+      circle at 12% 8%,
+      color-mix(in srgb, var(--color-accent) 9%, transparent 91%),
+      transparent 40%
+    );
+}
+
 .loseTerminal {
   border-color: color-mix(in srgb, #ff967f 54%, transparent 46%);
 }
 
 .terminalHeader {
   margin: 0;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
   color: color-mix(in srgb, #eaf3ff 78%, #f5ffbf 22%);
 }
 
 .terminalBody {
   margin-top: 10px;
   display: grid;
-  gap: 5px;
+  gap: 6px;
 }
 
 .terminalLine {
   margin: 0;
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   color: color-mix(in srgb, #c5d8ef 82%, #f2f8ff 18%);
   display: flex;
   align-items: center;
+  gap: 6px;
+  min-height: 20px;
+}
+
+.terminalLineCompleted {
+  color: color-mix(in srgb, #d8fbc4 70%, #effff3 30%);
+}
+
+.terminalLineHighlight {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent 88%);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(197, 255, 74, 0.26);
+  padding-inline: 4px;
+}
+
+.terminalLineMuted {
+  margin: 0;
+  font-size: 0.64rem;
+  color: color-mix(in srgb, var(--color-text-muted) 82%, #dce7f2 18%);
+}
+
+.terminalStepPrefix {
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.terminalStepLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.terminalStepStatus {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: color-mix(in srgb, #e9ffd2 80%, #f9fffb 20%);
+}
+
+.terminalSummary {
+  margin-top: 12px;
+  display: grid;
+  gap: 5px;
+}
+
+.terminalDivider {
+  margin: 0;
+  font-size: 0.62rem;
+  color: color-mix(in srgb, #abc9a2 60%, #dee9da 40%);
+  letter-spacing: 0.01em;
+}
+
+.terminalSummaryLine {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.7rem;
+  color: color-mix(in srgb, #e5ffd0 84%, #f7fff2 16%);
+}
+
+.terminalWhoami {
+  margin-top: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.terminalIdentity {
+  margin: 0;
+  font-size: 0.76rem;
+  color: color-mix(in srgb, #e9f6ff 78%, #ffffff 22%);
+}
+
+.terminalQuote {
+  margin: 0;
+  font-size: 0.68rem;
+  color: color-mix(in srgb, #cdd8df 84%, #f4fbff 16%);
+}
+
+.terminalCtas {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.terminalCtaPrimary,
+.terminalCtaSecondary {
+  min-height: 38px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.loseActions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .retryButton {
-  margin-top: 10px;
+  margin-top: 0;
   appearance: none;
   border: 1px solid color-mix(in srgb, #ffb4a1 64%, transparent 36%);
   background: color-mix(in srgb, #1d1411 88%, transparent 12%);
@@ -741,6 +867,21 @@
     transform var(--durationM) ease;
 }
 
+.skipButton {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 56%, transparent 44%);
+  background: color-mix(in srgb, #11180f 88%, transparent 12%);
+  color: color-mix(in srgb, #edffd7 84%, #f9fff5 16%);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 0 12px;
+  transition:
+    border-color var(--durationM) ease,
+    transform var(--durationM) ease;
+}
+
 .retryButton:focus-visible {
   outline: 2px solid color-mix(in srgb, #ffb4a1 82%, #ffe9df 18%);
   outline-offset: 2px;
@@ -749,6 +890,16 @@
 .retryButton:hover {
   transform: translateY(-1px);
   border-color: color-mix(in srgb, #ffd2c7 84%, #ffb4a1 16%);
+}
+
+.skipButton:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 82%, #f6ffd0 18%);
+  outline-offset: 2px;
+}
+
+.skipButton:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-accent) 78%, #f4ffcb 22%);
 }
 
 .winFlash {
@@ -882,6 +1033,11 @@
     letter-spacing: 0.1em;
   }
 
+  .rowLabel {
+    left: 12px;
+    font-size: 0.54rem;
+  }
+
   .transitionOverlay {
     left: 12px;
     bottom: 12px;
@@ -964,10 +1120,22 @@
     font-size: 0.58rem;
   }
 
+  .deployTerminal,
   .winTerminal,
   .loseTerminal {
     left: 10px;
     right: 10px;
     width: auto;
+  }
+
+  .deployTerminal {
+    top: 42%;
+    inset-inline: 10px;
+  }
+
+  .rowLabel {
+    left: 10px;
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
   }
 }

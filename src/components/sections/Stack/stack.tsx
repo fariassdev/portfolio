@@ -14,6 +14,7 @@ import {
   type RefObject,
 } from 'react';
 
+import { Button } from '@/components/ui/Button';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 import type { ArkanoidState, BrickBlueprint } from './stack-game';
@@ -24,10 +25,17 @@ import {
   restartArkanoidState,
   stepArkanoidState,
 } from './stack-game';
-import type { Proficiency, TechCluster, TechNodeId } from './stack.constants';
+import type {
+  Proficiency,
+  StackNarrativeRow,
+  TechCluster,
+  TechNodeId,
+} from './stack.constants';
 import {
   clusterLabels,
   clusterNames,
+  deploySteps,
+  narrativeRows,
   techEdges,
   techNodes,
 } from './stack.constants';
@@ -49,9 +57,9 @@ const TRANSITION_BREAKING_MS = 1520;
 const TRANSITION_DEPLOY_MS = 1080;
 const REASSEMBLE_MS = 1460;
 const WIN_FLASH_MS = 420;
-const WIN_LOG_LINE_MS = 280;
 
 const SPINNER_FRAMES = ['|', '/', '-', '\\'] as const;
+const DEPLOY_SPINNER_FRAMES = ['⠋', '⠙', '⠸', '⠴', '⠦', '⠇'] as const;
 
 type TechNode = (typeof techNodes)[number];
 type StackPhase =
@@ -101,6 +109,14 @@ interface NodePosition {
 interface MutableArkanoidInput {
   moveDirection: -1 | 0 | 1;
   pointerX: number | null;
+}
+
+type DeployProgressMap = Record<TechNodeId, number | null>;
+
+interface NarrativeRowPosition {
+  readonly id: StackNarrativeRow;
+  readonly label: string;
+  readonly yPercent: number;
 }
 
 const arkanoidBlueprints: readonly BrickBlueprint[] = techNodes.map((node) => ({
@@ -219,11 +235,11 @@ function getPhaseAnnouncement(
     case 'transition_deploy':
       return 'Deploying Arkanoid runtime.';
     case 'game_active':
-      return 'Arkanoid game active. Use mouse, touch drag, or arrow keys to move the paddle.';
+      return 'Deploy simulation active. Use mouse, touch drag, or arrow keys to move the paddle.';
     case 'game_win':
-      return `Build successful in ${(buildDurationMs / 1000).toFixed(2)} seconds.`;
+      return `Stack deployed in ${(buildDurationMs / 1000).toFixed(2)} seconds.`;
     case 'game_lose':
-      return 'Build failed. Retry prompt available with Enter or Y.';
+      return 'Deploy failed. Retry or skip to deployed.';
     case 'reassemble':
       return 'Reassembling the constellation graph.';
     case 'constellation':
@@ -232,14 +248,15 @@ function getPhaseAnnouncement(
   }
 }
 
-function createWinLogs(buildDurationMs: number): readonly string[] {
-  return [
-    '> npm run build',
-    '> collecting traces...',
-    `> build finished in ${(buildDurationMs / 1000).toFixed(2)}s`,
-    '> deploying artifacts to constellation.prod',
-    '> status: SUCCESS',
-  ];
+function createDeployProgressMap(): DeployProgressMap {
+  return techNodes.reduce((accumulator, node) => {
+    accumulator[node.id] = null;
+    return accumulator;
+  }, {} as DeployProgressMap);
+}
+
+function formatElapsedSeconds(elapsedMs: number): string {
+  return `${(elapsedMs / 1000).toFixed(1)}s`;
 }
 
 export function Stack() {
@@ -254,8 +271,13 @@ export function Stack() {
   const [statusAnnouncement, setStatusAnnouncement] = useState(
     getPhaseAnnouncement('constellation', 0),
   );
-  const [winLogLines, setWinLogLines] = useState<readonly string[]>([]);
   const [buildDurationMs, setBuildDurationMs] = useState(0);
+  const [deployProgressMap, setDeployProgressMap] = useState<DeployProgressMap>(
+    createDeployProgressMap,
+  );
+  const [highlightedDeployStepId, setHighlightedDeployStepId] =
+    useState<TechNodeId | null>(null);
+  const [wasSkippedToDeployed, setWasSkippedToDeployed] = useState(false);
   const [isWinFlashVisible, setIsWinFlashVisible] = useState(false);
   const [gameState, setGameState] = useState<ArkanoidState>(() =>
     createInitialArkanoidState(arkanoidBlueprints),
@@ -271,6 +293,7 @@ export function Stack() {
     pointerX: null,
   });
   const isDraggingRef = useRef(false);
+  const previousDestroyedBricksRef = useRef<Set<TechNodeId>>(new Set());
 
   const adjacencyMap = useMemo(() => createAdjacencyMap(), []);
   const staticBrickPositions = useMemo(() => {
@@ -291,6 +314,23 @@ export function Stack() {
   const brickMap = useMemo(() => {
     return new Map(gameState.bricks.map((brick) => [brick.id, brick]));
   }, [gameState.bricks]);
+  const narrativeRowPositions = useMemo<readonly NarrativeRowPosition[]>(() => {
+    const initialState = createInitialArkanoidState(arkanoidBlueprints);
+
+    return narrativeRows.map((row) => {
+      const rowBricks = initialState.bricks.filter((brick) => {
+        return brick.slot >= row.slotStart && brick.slot <= row.slotEnd;
+      });
+
+      const topMostY = Math.min(...rowBricks.map((brick) => brick.y));
+
+      return {
+        id: row.id,
+        label: row.label,
+        yPercent: (topMostY / GAME_HEIGHT) * 100 - 6,
+      };
+    });
+  }, []);
 
   const clearScheduledTimers = useCallback(() => {
     for (const timeoutId of timeoutIdsRef.current) {
@@ -328,21 +368,11 @@ export function Stack() {
   }, [buildDurationMs, phase]);
 
   useEffect(() => {
-    if (!reduceMotion) {
-      return;
+    if (reduceMotion) {
+      setCompilingSpinnerIndex(0);
+      setHighlightedDeployStepId(null);
     }
-
-    clearScheduledTimers();
-    setPhase('constellation');
-    setGameState(restartArkanoidState(arkanoidBlueprints));
-    setWinLogLines([]);
-    setIsWinFlashVisible(false);
-    setCompilingDisconnectCount(0);
-    setCompilingSpinnerIndex(0);
-    setBreakingNodeIndex(0);
-    setDeployProgress(0);
-    setReassembleProgress(0);
-  }, [clearScheduledTimers, reduceMotion]);
+  }, [reduceMotion]);
 
   useEffect(() => {
     if (phase === 'game_active') {
@@ -358,9 +388,29 @@ export function Stack() {
 
   const restartFromLose = useCallback(() => {
     setGameState(restartArkanoidState(arkanoidBlueprints));
-    setWinLogLines([]);
+    setDeployProgressMap(createDeployProgressMap());
+    setHighlightedDeployStepId(null);
+    setWasSkippedToDeployed(false);
     setIsWinFlashVisible(false);
+    previousDestroyedBricksRef.current = new Set();
     setPhase('game_active');
+  }, []);
+
+  const skipToDeployed = useCallback(() => {
+    setWasSkippedToDeployed(true);
+    setBuildDurationMs(0);
+    setDeployProgressMap(() => {
+      const completed = createDeployProgressMap();
+
+      for (const step of deploySteps) {
+        completed[step.nodeId] = null;
+      }
+
+      return completed;
+    });
+    setHighlightedDeployStepId(null);
+    setIsWinFlashVisible(false);
+    setPhase('game_win');
   }, []);
 
   useEffect(() => {
@@ -374,6 +424,12 @@ export function Stack() {
       if (event.key === 'Enter' || normalizedKey === 'y') {
         event.preventDefault();
         restartFromLose();
+        return;
+      }
+
+      if (event.key === 'Escape' || normalizedKey === 's') {
+        event.preventDefault();
+        skipToDeployed();
       }
     };
 
@@ -382,12 +438,19 @@ export function Stack() {
     return () => {
       window.removeEventListener('keydown', onWindowKeyDown);
     };
-  }, [phase, restartFromLose]);
+  }, [phase, restartFromLose, skipToDeployed]);
 
   useEffect(() => {
     clearScheduledTimers();
 
     if (phase === 'transition_compiling') {
+      if (reduceMotion) {
+        setCompilingSpinnerIndex(0);
+        setCompilingDisconnectCount(techEdges.length);
+        setPhase('transition_breaking');
+        return;
+      }
+
       const startedAt = performance.now();
 
       setCompilingSpinnerIndex(0);
@@ -410,6 +473,12 @@ export function Stack() {
     }
 
     if (phase === 'transition_breaking') {
+      if (reduceMotion) {
+        setBreakingNodeIndex(techNodes.length - 1);
+        setPhase('transition_deploy');
+        return;
+      }
+
       const startedAt = performance.now();
 
       setBreakingNodeIndex(0);
@@ -428,6 +497,12 @@ export function Stack() {
     }
 
     if (phase === 'transition_deploy') {
+      if (reduceMotion) {
+        setDeployProgress(1);
+        setPhase('game_active');
+        return;
+      }
+
       const startedAt = performance.now();
 
       setDeployProgress(0);
@@ -444,34 +519,24 @@ export function Stack() {
     }
 
     if (phase === 'game_win') {
-      const winLogs = createWinLogs(buildDurationMs);
+      setIsWinFlashVisible(!reduceMotion);
 
-      setWinLogLines([]);
-      setIsWinFlashVisible(true);
-
-      queueTimeout(() => {
-        setIsWinFlashVisible(false);
-      }, WIN_FLASH_MS);
-
-      for (const [index, line] of winLogs.entries()) {
-        queueTimeout(
-          () => {
-            setWinLogLines((previousLines) => [...previousLines, line]);
-          },
-          WIN_FLASH_MS + index * WIN_LOG_LINE_MS,
-        );
+      if (!reduceMotion) {
+        queueTimeout(() => {
+          setIsWinFlashVisible(false);
+        }, WIN_FLASH_MS);
       }
-
-      queueTimeout(
-        () => {
-          setReassembleProgress(0);
-          setPhase('reassemble');
-        },
-        WIN_FLASH_MS + winLogs.length * WIN_LOG_LINE_MS + 360,
-      );
     }
 
     if (phase === 'reassemble') {
+      if (reduceMotion) {
+        setReassembleProgress(1);
+        setCompilingDisconnectCount(0);
+        setActiveNodeId(null);
+        setPhase('constellation');
+        return;
+      }
+
       const startedAt = performance.now();
 
       setReassembleProgress(0);
@@ -493,13 +558,7 @@ export function Stack() {
     return () => {
       clearScheduledTimers();
     };
-  }, [
-    buildDurationMs,
-    clearScheduledTimers,
-    phase,
-    queueInterval,
-    queueTimeout,
-  ]);
+  }, [clearScheduledTimers, phase, queueInterval, queueTimeout, reduceMotion]);
 
   const onGameFrame = useCallback((deltaMs: number) => {
     setGameState((currentState) => {
@@ -511,28 +570,101 @@ export function Stack() {
 
   useEffect(() => {
     if (phase !== 'game_active') {
+      previousDestroyedBricksRef.current = new Set();
+      return;
+    }
+
+    const destroyedNow = new Set<TechNodeId>();
+
+    for (const brick of gameState.bricks) {
+      if (brick.destroyed) {
+        destroyedNow.add(brick.id);
+      }
+    }
+
+    const newlyDestroyed = Array.from(destroyedNow).filter((brickId) => {
+      return !previousDestroyedBricksRef.current.has(brickId);
+    });
+
+    if (newlyDestroyed.length > 0) {
+      setDeployProgressMap((current) => {
+        const next = { ...current };
+
+        for (const brickId of newlyDestroyed) {
+          if (next[brickId] === null) {
+            next[brickId] = gameState.elapsedMs;
+          }
+        }
+
+        return next;
+      });
+
+      const lastDestroyed = newlyDestroyed[newlyDestroyed.length - 1] ?? null;
+
+      if (lastDestroyed) {
+        setHighlightedDeployStepId(lastDestroyed);
+
+        if (reduceMotion) {
+          setHighlightedDeployStepId(null);
+        } else {
+          queueTimeout(() => {
+            setHighlightedDeployStepId((current) => {
+              return current === lastDestroyed ? null : current;
+            });
+          }, 220);
+        }
+      }
+    }
+
+    previousDestroyedBricksRef.current = destroyedNow;
+  }, [
+    gameState.bricks,
+    gameState.elapsedMs,
+    phase,
+    queueTimeout,
+    reduceMotion,
+  ]);
+
+  useEffect(() => {
+    if (phase !== 'game_active') {
       return;
     }
 
     if (gameState.status === 'win') {
       setBuildDurationMs(gameState.elapsedMs);
+      setWasSkippedToDeployed(false);
+      setHighlightedDeployStepId(null);
+      setDeployProgressMap((current) => {
+        const next = { ...current };
+
+        for (const step of deploySteps) {
+          if (next[step.nodeId] === null) {
+            next[step.nodeId] = gameState.elapsedMs;
+          }
+        }
+
+        return next;
+      });
       setPhase('game_win');
       return;
     }
 
     if (gameState.status === 'lose') {
+      setHighlightedDeployStepId(null);
       setPhase('game_lose');
     }
   }, [gameState.elapsedMs, gameState.status, phase]);
 
   const startNarrativeGame = useCallback(() => {
-    if (reduceMotion || phase !== 'constellation') {
+    if (phase !== 'constellation') {
       return;
     }
 
     setActiveNodeId(null);
     setGameState(restartArkanoidState(arkanoidBlueprints));
-    setWinLogLines([]);
+    setDeployProgressMap(createDeployProgressMap());
+    setHighlightedDeployStepId(null);
+    setWasSkippedToDeployed(false);
     setBuildDurationMs(0);
     setIsWinFlashVisible(false);
     setCompilingSpinnerIndex(0);
@@ -540,10 +672,11 @@ export function Stack() {
     setBreakingNodeIndex(0);
     setDeployProgress(0);
     setReassembleProgress(0);
+    previousDestroyedBricksRef.current = new Set();
     setPhase('transition_compiling');
-  }, [phase, reduceMotion]);
+  }, [phase]);
 
-  const isConstellationInteractive = !reduceMotion && phase === 'constellation';
+  const isConstellationInteractive = phase === 'constellation';
   const activeNode = isConstellationInteractive ? activeNodeId : null;
 
   const hasActiveNode = activeNode !== null;
@@ -714,7 +847,12 @@ export function Stack() {
       ? 'stack-constellation-description stack-game-controls'
       : 'stack-constellation-description';
 
-  const triggerDisabled = reduceMotion || phase !== 'constellation';
+  const triggerDisabled = phase !== 'constellation';
+  const gameplaySpinnerFrame = reduceMotion
+    ? DEPLOY_SPINNER_FRAMES[0]
+    : DEPLOY_SPINNER_FRAMES[
+        Math.floor(gameState.elapsedMs / 120) % DEPLOY_SPINNER_FRAMES.length
+      ];
 
   const clusterLabelElements = useMemo(() => {
     return clusterLabels.map((clusterLabel) => {
@@ -738,6 +876,20 @@ export function Stack() {
     });
   }, []);
 
+  const rowLabelElements = useMemo(() => {
+    return narrativeRowPositions.map((row): ReactNode => {
+      const rowStyle = {
+        '--row-y': `${row.yPercent}%`,
+      } as CSSProperties;
+
+      return (
+        <span key={row.id} className={styles.rowLabel} style={rowStyle}>
+          {row.label}
+        </span>
+      );
+    });
+  }, [narrativeRowPositions]);
+
   const edgeElements = useMemo(() => {
     return techEdges.map(([from, to], edgeIndex) => {
       const source = positionedNodeMap.get(from);
@@ -749,9 +901,7 @@ export function Stack() {
 
       let edgeState: EdgeState = 'idle';
 
-      if (reduceMotion) {
-        edgeState = 'static';
-      } else if (phase === 'transition_compiling') {
+      if (phase === 'transition_compiling') {
         edgeState =
           edgeIndex < compilingDisconnectCount ? 'disconnected' : 'idle';
       } else if (
@@ -795,7 +945,6 @@ export function Stack() {
     phase,
     positionedNodeMap,
     reconnectCount,
-    reduceMotion,
   ]);
 
   const nodeElements = useMemo(() => {
@@ -834,9 +983,7 @@ export function Stack() {
 
       let nodeState: NodeState = 'idle';
 
-      if (reduceMotion) {
-        nodeState = 'static';
-      } else if (phase === 'transition_breaking') {
+      if (phase === 'transition_breaking') {
         nodeState = 'breaking';
       } else if (renderAsBricks) {
         nodeState = isDestroyed ? 'destroyed' : 'brick';
@@ -910,7 +1057,6 @@ export function Stack() {
     onDeactivateNode,
     phase,
     positionedNodeMap,
-    reduceMotion,
     renderAsBricks,
     showErrorSignatures,
   ]);
@@ -996,6 +1142,12 @@ export function Stack() {
             {clusterLabelElements}
           </div>
 
+          {renderAsBricks ? (
+            <div className={styles.rowLabelLayer} aria-hidden="true">
+              {rowLabelElements}
+            </div>
+          ) : null}
+
           <svg
             className={styles.connectionLayer}
             viewBox="0 0 100 100"
@@ -1028,11 +1180,10 @@ export function Stack() {
               reduceMotion ? 'stack-reduced-motion-note' : undefined
             }
           >
-            <span className={styles.runTriggerGlyph} aria-hidden="true">
-              {'>'}
+            <span className={styles.runTriggerCommand}>$ ./deploy.sh</span>
+            <span className={styles.runTriggerCursor} aria-hidden="true">
+              █
             </span>
-            <span className={styles.runTriggerCommand}>run game.ts</span>
-            <span className={styles.runTriggerCursor} aria-hidden="true" />
           </button>
 
           {reduceMotion ? (
@@ -1040,7 +1191,7 @@ export function Stack() {
               id="stack-reduced-motion-note"
               className={styles.reducedMotionNotice}
             >
-              Gameplay disabled because reduced motion is enabled.
+              Reduced motion enabled: transitions are instant.
             </p>
           ) : null}
 
@@ -1147,26 +1298,131 @@ export function Stack() {
             </div>
           ) : null}
 
-          {phase === 'game_active' && gameState.flashMessage ? (
-            <div className={styles.hitFlash} role="status" aria-live="polite">
-              {gameState.flashMessage}
+          {phase === 'game_active' ? (
+            <div
+              className={styles.deployTerminal}
+              data-testid="stack-deploy-terminal"
+              role="status"
+              aria-live="polite"
+            >
+              <p className={styles.terminalHeader}>$ ./deploy.sh</p>
+              <div className={styles.terminalBody}>
+                {deploySteps.map((step) => {
+                  const completedAtMs = deployProgressMap[step.nodeId];
+                  const isCompleted = completedAtMs !== null;
+
+                  return (
+                    <p
+                      key={step.nodeId}
+                      className={cx(
+                        styles.terminalLine,
+                        isCompleted && styles.terminalLineCompleted,
+                        highlightedDeployStepId === step.nodeId &&
+                          styles.terminalLineHighlight,
+                      )}
+                    >
+                      <span className={styles.terminalStepPrefix}>→</span>
+                      <span className={styles.terminalStepLabel}>
+                        {step.label}
+                      </span>
+                      <span className={styles.terminalStepStatus}>
+                        {isCompleted
+                          ? `✓ ${formatElapsedSeconds(completedAtMs)}`
+                          : gameplaySpinnerFrame}
+                      </span>
+                    </p>
+                  );
+                })}
+              </div>
             </div>
           ) : null}
 
           {phase === 'game_win' ? (
             <div
-              className={styles.winTerminal}
+              className={cx(styles.winTerminal, styles.winTerminalExpanded)}
               data-testid="stack-win-terminal"
               role="status"
               aria-live="polite"
             >
-              <p className={styles.terminalHeader}>build complete</p>
+              <p className={styles.terminalHeader}>$ ./deploy.sh</p>
               <div className={styles.terminalBody}>
-                {winLogLines.map((line, index) => (
-                  <p key={`${line}-${index}`} className={styles.terminalLine}>
-                    {line}
-                  </p>
-                ))}
+                {deploySteps.map((step) => {
+                  const completedAtMs = deployProgressMap[step.nodeId];
+                  const timing =
+                    wasSkippedToDeployed || completedAtMs === null
+                      ? '--'
+                      : formatElapsedSeconds(completedAtMs);
+
+                  return (
+                    <p
+                      key={step.nodeId}
+                      className={cx(
+                        styles.terminalLine,
+                        styles.terminalLineCompleted,
+                      )}
+                    >
+                      <span className={styles.terminalStepPrefix}>→</span>
+                      <span className={styles.terminalStepLabel}>
+                        {step.label}
+                      </span>
+                      <span className={styles.terminalStepStatus}>
+                        ✓ {timing}
+                      </span>
+                    </p>
+                  );
+                })}
+              </div>
+
+              <div className={styles.terminalSummary}>
+                <p className={styles.terminalDivider}>
+                  ─────────────────────────────────────────────────
+                </p>
+                <p className={styles.terminalSummaryLine}>
+                  <span>STACK DEPLOYED</span>
+                  <span>✓</span>
+                </p>
+                <p className={styles.terminalSummaryLine}>
+                  <span>build time: </span>
+                  <span>
+                    {wasSkippedToDeployed
+                      ? '--'
+                      : formatElapsedSeconds(buildDurationMs)}
+                  </span>
+                </p>
+                <p className={styles.terminalDivider}>
+                  ─────────────────────────────────────────────────
+                </p>
+              </div>
+
+              <div className={styles.terminalWhoami}>
+                <p className={styles.terminalHeader}>$ whoami</p>
+                <p className={styles.terminalIdentity}>farias/farias</p>
+                <p className={styles.terminalQuote}>
+                  {'>'} Backend is where I live.
+                </p>
+                <p className={styles.terminalQuote}>
+                  {'>'} Everything else is where I help.
+                </p>
+                <p className={styles.terminalQuote}>
+                  {'>'} Ownership makes the difference.
+                </p>
+              </div>
+
+              <div className={styles.terminalCtas}>
+                <Button
+                  variant="primary"
+                  href="#projects"
+                  className={styles.terminalCtaPrimary}
+                >
+                  See what I&apos;ve built →
+                </Button>
+                <Button
+                  variant="ghost"
+                  href="#contact"
+                  className={styles.terminalCtaSecondary}
+                >
+                  Let&apos;s talk →
+                </Button>
               </div>
             </div>
           ) : null}
@@ -1177,23 +1433,32 @@ export function Stack() {
               data-testid="stack-lose-terminal"
               ref={loseOverlayRef}
               role="dialog"
-              aria-label="Build failed terminal prompt"
+              aria-label="Deploy failed terminal prompt"
             >
-              <p className={styles.terminalHeader}>
-                process exited with code 1
+              <p className={styles.terminalHeader}>$ ./deploy.sh</p>
+              <p className={styles.terminalLine}>✗ deployment failed</p>
+              <p className={styles.terminalLineMuted}>exit code: 1</p>
+              <p className={styles.terminalQuote}>
+                {'>'} Rollbacks are features too.
               </p>
-              <p className={styles.terminalLine}>
-                Retry deploy? [Y/n]
-                <span className={styles.runTriggerCursor} aria-hidden="true" />
-              </p>
-              <button
-                type="button"
-                className={styles.retryButton}
-                onClick={restartFromLose}
-                data-testid="stack-retry-button"
-              >
-                Y
-              </button>
+              <div className={styles.loseActions}>
+                <button
+                  type="button"
+                  className={styles.retryButton}
+                  onClick={restartFromLose}
+                  data-testid="stack-retry-button"
+                >
+                  retry
+                </button>
+                <button
+                  type="button"
+                  className={styles.skipButton}
+                  onClick={skipToDeployed}
+                  data-testid="stack-skip-button"
+                >
+                  skip to deployed →
+                </button>
+              </div>
             </div>
           ) : null}
         </motion.div>

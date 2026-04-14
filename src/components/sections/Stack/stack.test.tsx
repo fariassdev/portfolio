@@ -175,6 +175,15 @@ vi.mock('./stack.constants', () => ({
     data: 'Data',
     infrastructure: 'Infrastructure',
   },
+  narrativeRows: [
+    { id: 'own', label: 'What I own', slotStart: 0, slotEnd: 1 },
+    {
+      id: 'useful',
+      label: 'What makes it useful',
+      slotStart: 2,
+      slotEnd: 3,
+    },
+  ],
   techNodes: [
     {
       id: 'typescript',
@@ -190,6 +199,8 @@ vi.mock('./stack.constants', () => ({
       floatPhase: 0.2,
       errorSignature: 'TS2304',
       hitMessage: 'Cannot find name "DeployConfig".',
+      deployStep: 'Compiling TypeScript...',
+      narrativeRow: 'own',
       brickDurability: 2,
       brickSlot: 0,
     },
@@ -208,6 +219,8 @@ vi.mock('./stack.constants', () => ({
       errorSignature: 'ERR_MODULE_NOT_FOUND',
       hitMessage:
         'Cannot find package "queue-core" imported from /app/index.mjs.',
+      deployStep: 'Starting Node.js server...',
+      narrativeRow: 'own',
       brickDurability: 2,
       brickSlot: 1,
     },
@@ -225,6 +238,8 @@ vi.mock('./stack.constants', () => ({
       floatPhase: 0.8,
       errorSignature: 'SQLSTATE[42P01]',
       hitMessage: 'relation "deploy_jobs" does not exist.',
+      deployStep: 'Running PostgreSQL migrations...',
+      narrativeRow: 'useful',
       brickDurability: 2,
       brickSlot: 2,
     },
@@ -243,9 +258,21 @@ vi.mock('./stack.constants', () => ({
       errorSignature: 'failed to solve',
       hitMessage:
         'process "/bin/sh -c npm ci" did not complete successfully: exit code: 1.',
+      deployStep: 'Building Docker image...',
+      narrativeRow: 'useful',
       brickDurability: 1,
       brickSlot: 3,
     },
+  ],
+  deploySteps: [
+    { nodeId: 'typescript', label: 'Compiling TypeScript...', row: 'own' },
+    { nodeId: 'nodejs', label: 'Starting Node.js server...', row: 'own' },
+    {
+      nodeId: 'postgresql',
+      label: 'Running PostgreSQL migrations...',
+      row: 'useful',
+    },
+    { nodeId: 'docker', label: 'Building Docker image...', row: 'useful' },
   ],
   techEdges: [
     ['typescript', 'nodejs'],
@@ -286,34 +313,28 @@ describe('Stack Section', () => {
     expect(screen.getAllByTestId(/stack-edge-/).length).toBe(3);
   });
 
-  it('renders static constellation states when reduced motion is enabled', () => {
+  it('keeps deploy trigger available when reduced motion is enabled', () => {
     render(<Stack />);
 
-    expect(screen.queryByRole('button', { name: /TypeScript/i })).toBeNull();
-    expect(
-      screen.getByTestId('stack-run-trigger').hasAttribute('disabled'),
-    ).toBe(true);
-
-    const nodes = screen.getAllByTestId(/stack-node-/);
-    const edges = screen.getAllByTestId(/stack-edge-/);
-
-    expect(
-      nodes.every((node) => node.getAttribute('data-state') === 'static'),
-    ).toBe(true);
-    expect(
-      edges.every((edge) => edge.getAttribute('data-state') === 'static'),
-    ).toBe(true);
+    const trigger = screen.getByTestId('stack-run-trigger');
+    expect(trigger.hasAttribute('disabled')).toBe(false);
+    expect(screen.getByText('$ ./deploy.sh')).toBeTruthy();
   });
 
-  it('does not start gameplay while reduced motion is enabled', () => {
+  it('starts gameplay instantly while reduced motion is enabled', () => {
+    vi.useFakeTimers();
     render(<Stack />);
 
     fireEvent.click(screen.getByTestId('stack-run-trigger'));
 
-    expect(screen.queryByTestId('stack-transition-compiling')).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(64);
+    });
+
     expect(screen.getByTestId('stack-canvas').getAttribute('data-phase')).toBe(
-      'constellation',
+      'game_active',
     );
+    expect(screen.getByTestId('stack-deploy-terminal')).toBeTruthy();
   });
 
   it('highlights connected nodes and edges when motion is enabled', () => {
@@ -407,6 +428,13 @@ describe('Stack Section', () => {
     });
 
     expect(screen.getByTestId('stack-win-terminal')).toBeTruthy();
+    expect(screen.getByText('$ whoami')).toBeTruthy();
+    expect(screen.getByText('farias/farias')).toBeTruthy();
+
+    const projectsCta = screen.getByRole('link', {
+      name: /See what I've built/i,
+    });
+    expect(projectsCta.getAttribute('href')).toBe('#projects');
   });
 
   it('renders lose overlay and supports Enter quick restart', () => {
@@ -444,6 +472,38 @@ describe('Stack Section', () => {
     });
 
     expect(screen.queryByTestId('stack-lose-terminal')).toBeNull();
+  });
+
+  it('supports skip to deployed from lose overlay', () => {
+    vi.useFakeTimers();
+    useReducedMotionMock.mockReturnValue(false);
+    nextGameStatusMock.mockReturnValue('lose');
+
+    render(<Stack />);
+
+    fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+    act(() => {
+      vi.advanceTimersByTime(1700);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1600);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+
+    fireEvent.click(screen.getByTestId('stack-skip-button'));
+
+    expect(screen.getByTestId('stack-win-terminal')).toBeTruthy();
+    expect(screen.getByText('build time:')).toBeTruthy();
+    expect(screen.getByText('--')).toBeTruthy();
   });
 
   it('renders devicon classes for technologies', () => {

@@ -7,7 +7,7 @@ export default function Home() {
     <div className={styles.page}>
       <Hero />
       <section
-        id="work"
+        id="projects"
         style={{
           minHeight: '100vh',
           width: '100%',
@@ -15,7 +15,7 @@ export default function Home() {
           background: 'rgba(255,255,255,0.05)',
         }}
       >
-        <h2>Work Section</h2>
+        <h2>Projects Section</h2>
       </section>
       <Stack />
       <section

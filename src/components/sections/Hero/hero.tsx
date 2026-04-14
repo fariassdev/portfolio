@@ -38,8 +38,12 @@ export function Hero() {
         <p className={styles.heroDescription}>{HERO_DESCRIPTION}</p>
 
         <div className={styles.buttonsContainer}>
-          <Button variant="primary" href="#work" aria-label="Explore Work">
-            → Explore Work
+          <Button
+            variant="primary"
+            href="#projects"
+            aria-label="Explore Projects"
+          >
+            → Explore Projects
           </Button>
           <Button
             variant="secondary"

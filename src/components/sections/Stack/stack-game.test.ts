@@ -20,10 +20,10 @@ const testBlueprints: readonly BrickBlueprint[] = [
     slot: 0,
   },
   {
-    id: 'python',
-    name: 'Python',
-    errorSignature: 'ModuleNotFoundError',
-    hitMessage: "No module named 'pipeline'.",
+    id: 'graphql',
+    name: 'GraphQL',
+    errorSignature: 'GRAPHQL_VALIDATION_FAILED',
+    hitMessage: 'Unknown type "DeployStatus" in schema.graphql.',
     durability: 1,
     slot: 1,
   },
@@ -65,7 +65,7 @@ describe('stack-game', () => {
 
   it('applies durability correctly for secondary bricks in one hit', () => {
     const state = createInitialArkanoidState(testBlueprints);
-    const positioned = placeBallForTopHit(state, 'python');
+    const positioned = placeBallForTopHit(state, 'graphql');
 
     const stepped = stepArkanoidState(
       positioned,
@@ -73,10 +73,12 @@ describe('stack-game', () => {
       16,
     );
 
-    const pythonBrick = stepped.bricks.find((brick) => brick.id === 'python');
-    expect(pythonBrick?.destroyed).toBe(true);
-    expect(pythonBrick?.hitsRemaining).toBe(0);
-    expect(stepped.flashMessage).toBe("No module named 'pipeline'.");
+    const graphqlBrick = stepped.bricks.find((brick) => brick.id === 'graphql');
+    expect(graphqlBrick?.destroyed).toBe(true);
+    expect(graphqlBrick?.hitsRemaining).toBe(0);
+    expect(stepped.flashMessage).toBe(
+      'Unknown type "DeployStatus" in schema.graphql.',
+    );
   });
 
   it('requires two hits for primary bricks and boosts speed on destruction', () => {

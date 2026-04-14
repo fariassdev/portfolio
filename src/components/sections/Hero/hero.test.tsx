@@ -45,12 +45,14 @@ describe('Hero Component', () => {
     expect(roleLive).toBeTruthy();
   });
 
-  it('renders "Explore Work" link with correct href', () => {
+  it('renders "Explore Projects" link with correct href', () => {
     render(<Hero />);
 
-    const exploreLink = screen.getByRole('link', { name: /Explore Work/i });
+    const exploreLink = screen.getByRole('link', {
+      name: /Explore Projects/i,
+    });
     expect(exploreLink).toBeTruthy();
-    expect(exploreLink.getAttribute('href')).toBe('#work');
+    expect(exploreLink.getAttribute('href')).toBe('#projects');
   });
 
   it('renders "Resume" download link', () => {
