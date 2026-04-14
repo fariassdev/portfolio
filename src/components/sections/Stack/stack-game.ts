@@ -110,12 +110,16 @@ function getBrickPosition(slot: number): { x: number; y: number } {
 
   const columns = BRICK_ROW_LAYOUT[row] ?? BRICK_ROW_LAYOUT[0];
   const column = safeSlot - slotStart;
+  const visualRow = BRICK_ROW_LAYOUT.length - 1 - row;
   const totalWidth = columns * BRICK_WIDTH + (columns - 1) * BRICK_GAP_X;
   const startX = (GAME_WIDTH - totalWidth) / 2;
 
   return {
     x: startX + column * (BRICK_WIDTH + BRICK_GAP_X) + BRICK_WIDTH / 2,
-    y: BRICK_START_Y + row * (BRICK_HEIGHT + BRICK_GAP_Y) + BRICK_HEIGHT / 2,
+    y:
+      BRICK_START_Y +
+      visualRow * (BRICK_HEIGHT + BRICK_GAP_Y) +
+      BRICK_HEIGHT / 2,
   };
 }
 

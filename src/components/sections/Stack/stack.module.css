@@ -174,6 +174,7 @@
 
 .constellationCanvas[data-phase='transition_deploy'] .clusterLabelLayer,
 .constellationCanvas[data-phase='game_active'] .clusterLabelLayer,
+.constellationCanvas[data-phase='game_win_composing'] .clusterLabelLayer,
 .constellationCanvas[data-phase='game_win'] .clusterLabelLayer,
 .constellationCanvas[data-phase='game_lose'] .clusterLabelLayer {
   opacity: 0.22;
@@ -207,29 +208,6 @@
 
 .clusterLabelInfrastructure {
   color: color-mix(in srgb, var(--color-accent) 74%, var(--color-text) 26%);
-}
-
-.rowLabelLayer {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  pointer-events: none;
-}
-
-.rowLabel {
-  position: absolute;
-  left: clamp(14px, 2vw, 26px);
-  top: var(--row-y);
-  transform: translateY(-50%);
-  font-family: var(--font-mono), monospace;
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: color-mix(in srgb, var(--color-accent) 70%, #efffbb 30%);
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-accent) 32%, transparent 68%);
-  background: color-mix(in srgb, #0a1012 88%, rgba(0, 0, 0, 0.72) 12%);
 }
 
 .connectionLayer {
@@ -497,20 +475,47 @@
   font-weight: 700;
 }
 
-.nodeDestroyed {
-  opacity: 0.08;
-  transform: scale(0.88);
-  filter: saturate(0.4);
+.nodeStepLine {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
 }
 
-.brickHits {
-  position: absolute;
-  top: 6px;
-  right: 6px;
+.nodeStepLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(0.65rem, 0.7vw, 0.8rem);
+  font-weight: 700;
+  text-align: left;
+}
+
+.nodeStepStatus {
+  min-width: 1.1rem;
+  text-align: right;
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  color: color-mix(in srgb, #f6fbff 82%, var(--cluster-color) 18%);
-  opacity: 0.78;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.nodeStepStatusLoading {
+  color: color-mix(in srgb, #eaf7ff 78%, var(--cluster-color) 22%);
+}
+
+.nodeStepStatusCompleted {
+  color: color-mix(in srgb, #bbf5d4 88%, #f5fff9 12%);
+}
+
+.nodeStepStatusHighlight {
+  color: color-mix(in srgb, #d9ffe9 84%, #ffffff 16%);
+}
+
+.nodeDestroyed {
+  opacity: 0.34;
+  transform: scale(0.96);
+  filter: saturate(0.46);
 }
 
 .brickCrack {
@@ -603,6 +608,37 @@
   color: color-mix(in srgb, var(--color-text-muted) 90%, #ccd8b9 10%);
 }
 
+.runTimer {
+  position: absolute;
+  top: clamp(12px, 2.2vw, 18px);
+  right: clamp(12px, 2.2vw, 18px);
+  z-index: 8;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, #95b4d7 36%, transparent 64%);
+  background: color-mix(in srgb, #0a1219 84%, rgba(0, 0, 0, 0.7) 16%);
+  backdrop-filter: blur(3px);
+}
+
+.runTimerLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #a9bad0 78%, #dce8f7 22%);
+}
+
+.runTimerValue {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.86rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, #e7f3ff 88%, #ffffff 12%);
+}
+
 .transitionOverlay {
   position: absolute;
   inset: auto auto 16px 16px;
@@ -624,6 +660,11 @@
 
 .transitionOverlay[data-phase='transition_deploy'] {
   border-color: color-mix(in srgb, #8affd8 42%, transparent 58%);
+}
+
+.transitionOverlay[data-phase='game_win_composing'] {
+  border-color: color-mix(in srgb, #9df6cb 44%, transparent 56%);
+  background: color-mix(in srgb, #0a1511 90%, rgba(0, 0, 0, 0.8) 10%);
 }
 
 .transitionTitle {
@@ -689,7 +730,6 @@
   opacity: var(--trail-opacity);
 }
 
-.deployTerminal,
 .winTerminal,
 .loseTerminal {
   position: absolute;
@@ -705,8 +745,21 @@
 }
 
 .deployTerminal {
-  inset: 18% 16px auto auto;
-  width: min(96%, 520px);
+  width: min(100%, 560px);
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, #89b7ef 44%, transparent 56%);
+  background: color-mix(in srgb, #090f15 92%, rgba(0, 0, 0, 0.88) 8%);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48);
+  padding: 12px 14px;
+  font-family: var(--font-mono), monospace;
+  max-height: clamp(180px, 28vh, 260px);
+  overflow: auto;
+}
+
+.deployTerminalDock {
+  margin-top: clamp(14px, 2vw, 22px);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .winTerminal {
@@ -1033,14 +1086,14 @@
     letter-spacing: 0.1em;
   }
 
-  .rowLabel {
-    left: 12px;
-    font-size: 0.54rem;
-  }
-
   .transitionOverlay {
     left: 12px;
     bottom: 12px;
+  }
+
+  .runTimer {
+    top: 12px;
+    right: 12px;
   }
 }
 
@@ -1111,6 +1164,20 @@
     padding: 10px;
   }
 
+  .runTimer {
+    top: 10px;
+    right: 10px;
+    padding: 7px 9px;
+  }
+
+  .runTimerLabel {
+    font-size: 0.52rem;
+  }
+
+  .runTimerValue {
+    font-size: 0.76rem;
+  }
+
   .transitionTitle {
     font-size: 0.62rem;
   }
@@ -1120,7 +1187,6 @@
     font-size: 0.58rem;
   }
 
-  .deployTerminal,
   .winTerminal,
   .loseTerminal {
     left: 10px;
@@ -1129,13 +1195,10 @@
   }
 
   .deployTerminal {
-    top: 42%;
-    inset-inline: 10px;
+    max-height: clamp(170px, 36vh, 240px);
   }
 
-  .rowLabel {
-    left: 10px;
-    font-size: 0.5rem;
-    letter-spacing: 0.1em;
+  .deployTerminalDock {
+    margin-top: 12px;
   }
 }

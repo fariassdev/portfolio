@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Stack } from './stack';
@@ -334,7 +334,11 @@ describe('Stack Section', () => {
     expect(screen.getByTestId('stack-canvas').getAttribute('data-phase')).toBe(
       'game_active',
     );
-    expect(screen.getByTestId('stack-deploy-terminal')).toBeTruthy();
+    expect(screen.queryByTestId('stack-deploy-terminal')).toBeNull();
+    expect(screen.getByTestId('stack-run-timer')).toBeTruthy();
+    expect(screen.getByText('Compiling TypeScript')).toBeTruthy();
+    expect(screen.getByTestId('stack-brick-status-typescript')).toBeTruthy();
+    expect(screen.queryByText('TS2304')).toBeNull();
   });
 
   it('highlights connected nodes and edges when motion is enabled', () => {
@@ -427,6 +431,12 @@ describe('Stack Section', () => {
       vi.advanceTimersByTime(100);
     });
 
+    expect(screen.getByTestId('stack-transition-compose')).toBeTruthy();
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+
     expect(screen.getByTestId('stack-win-terminal')).toBeTruthy();
     expect(screen.getByText('$ whoami')).toBeTruthy();
     expect(screen.getByText('farias/farias')).toBeTruthy();
@@ -501,9 +511,10 @@ describe('Stack Section', () => {
 
     fireEvent.click(screen.getByTestId('stack-skip-button'));
 
-    expect(screen.getByTestId('stack-win-terminal')).toBeTruthy();
-    expect(screen.getByText('build time:')).toBeTruthy();
-    expect(screen.getByText('--')).toBeTruthy();
+    const winTerminal = screen.getByTestId('stack-win-terminal');
+    expect(winTerminal).toBeTruthy();
+    expect(within(winTerminal).getByText('build time:')).toBeTruthy();
+    expect(within(winTerminal).getByText('--')).toBeTruthy();
   });
 
   it('renders devicon classes for technologies', () => {
