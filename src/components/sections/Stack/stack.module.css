@@ -475,6 +475,66 @@
   font-weight: 700;
 }
 
+.nodeAsBrickCompact {
+  min-width: 0;
+  width: clamp(72px, 20vw, 128px);
+  min-height: 54px;
+  padding: 6px 7px;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.nodeAsBrickCompact .nodeIconWrap {
+  display: grid;
+  width: 18px;
+  height: 18px;
+}
+
+.nodeAsBrickCompact .nodeIcon {
+  font-size: 0.88rem;
+}
+
+.nodeAsBrickCompact .nodeStepLine {
+  gap: 4px;
+}
+
+.nodeAsBrickCompact .nodeStepLabel {
+  text-align: center;
+  font-size: 0.56rem;
+}
+
+.nodeAsBrickCompact .nodeStepStatus {
+  min-width: 0.8rem;
+  font-size: 0.58rem;
+}
+
+.nodeAsBrickDense {
+  width: clamp(64px, 27vw, 96px);
+  min-height: 50px;
+  padding: 5px 6px;
+}
+
+.nodeAsBrickDense .nodeIconWrap {
+  width: 16px;
+  height: 16px;
+}
+
+.nodeAsBrickDense .nodeIcon {
+  font-size: 0.78rem;
+}
+
+.nodeAsBrickDense .nodeStepLabel {
+  font-size: 0.5rem;
+}
+
+.nodeAsBrickDense .nodeStepStatus {
+  min-width: 0.7rem;
+  font-size: 0.53rem;
+}
+
 .nodeStepLine {
   width: 100%;
   display: grid;
@@ -637,6 +697,62 @@
   line-height: 1;
   letter-spacing: 0.04em;
   color: color-mix(in srgb, #e7f3ff 88%, #ffffff 12%);
+}
+
+.activeDeployStep {
+  position: absolute;
+  top: clamp(12px, 2.2vw, 18px);
+  left: clamp(12px, 2.2vw, 18px);
+  z-index: 8;
+  max-width: min(65%, 460px);
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, #95b4d7 36%, transparent 64%);
+  background: color-mix(in srgb, #0a1219 84%, rgba(0, 0, 0, 0.7) 16%);
+  backdrop-filter: blur(3px);
+}
+
+.activeDeployStepLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #a9bad0 78%, #dce8f7 22%);
+}
+
+.activeDeployStepLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.activeDeployStepText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, #e7f3ff 88%, #ffffff 12%);
+}
+
+.activeDeployStepStatus {
+  min-width: 1rem;
+  text-align: right;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.activeDeployStepStatusLoading {
+  color: color-mix(in srgb, #eaf7ff 78%, #7ca7d8 22%);
+}
+
+.activeDeployStepStatusCompleted {
+  color: color-mix(in srgb, #bbf5d4 88%, #f5fff9 12%);
 }
 
 .transitionOverlay {
@@ -1112,7 +1228,7 @@
   }
 
   .constellationCanvas {
-    min-height: 560px;
+    min-height: clamp(620px, 168vw, 760px);
     border-radius: 22px;
   }
 
@@ -1126,35 +1242,35 @@
   }
 
   .nodeAsBrick {
-    min-height: 34px;
-    width: clamp(64px, 19.5vw, 112px);
+    min-height: 40px;
+    width: clamp(72px, 22vw, 120px);
     min-width: 0;
-    max-width: 112px;
+    max-width: 120px;
     padding: 6px;
-    align-items: stretch;
+    align-items: center;
     justify-content: flex-start;
-    text-align: left;
+    text-align: center;
   }
 
   .nodeStepLine {
-    align-items: start;
+    align-items: center;
     gap: 4px;
   }
 
   .nodeStepLabel {
-    overflow: visible;
-    text-overflow: clip;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    line-height: 1.2;
-    font-size: 0.56rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.15;
+    font-size: 0.58rem;
+    text-align: center;
   }
 
   .nodeStepStatus {
-    min-width: auto;
-    font-size: 0.62rem;
-    line-height: 1.1;
-    padding-top: 1px;
+    min-width: 0.75rem;
+    font-size: 0.56rem;
+    line-height: 1;
+    padding-top: 0;
   }
 
   .nodeIconWrap {
@@ -1175,6 +1291,29 @@
     bottom: 10px;
     padding: 8px 10px;
     font-size: 0.7rem;
+  }
+
+  .activeDeployStep {
+    top: 10px;
+    left: 10px;
+    max-width: min(66%, 300px);
+    padding: 7px 9px;
+  }
+
+  .activeDeployStepLabel {
+    font-size: 0.5rem;
+  }
+
+  .activeDeployStepLine {
+    gap: 6px;
+  }
+
+  .activeDeployStepText {
+    font-size: 0.62rem;
+  }
+
+  .activeDeployStepStatus {
+    font-size: 0.56rem;
   }
 
   .reducedMotionNotice {
@@ -1226,5 +1365,29 @@
 
   .deployTerminalDock {
     margin-top: 12px;
+  }
+}
+
+@media (--mediaMobileS) {
+  .constellationCanvas[data-brick-layout='mobile_small'] {
+    min-height: 680px;
+  }
+
+  .activeDeployStep {
+    max-width: min(68%, 240px);
+    padding: 6px 7px;
+  }
+
+  .activeDeployStepText {
+    font-size: 0.58rem;
+  }
+
+  .runTrigger {
+    font-size: 0.64rem;
+    padding: 7px 9px;
+  }
+
+  .runTimer {
+    padding: 6px 7px;
   }
 }

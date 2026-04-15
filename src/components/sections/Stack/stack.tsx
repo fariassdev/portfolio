@@ -56,7 +56,11 @@ const WIN_FLASH_MS = 420;
 const SPINNER_FRAMES = ['|', '/', '-', '\\'] as const;
 const DEPLOY_SPINNER_FRAMES = ['⠋', '⠙', '⠸', '⠴', '⠦', '⠇'] as const;
 
+const MOBILE_BRICK_ROW_LAYOUT = [3, 2, 2, 3] as const;
+const MOBILE_SMALL_BRICK_ROW_LAYOUT = [2, 2, 2, 2, 2] as const;
+
 type TechNode = (typeof techNodes)[number];
+type BrickLayoutMode = 'desktop' | 'mobile' | 'mobile_small';
 type StackPhase =
   | 'constellation'
   | 'transition_compiling'
@@ -108,6 +112,44 @@ interface MutableArkanoidInput {
 }
 
 type DeployProgressMap = Record<TechNodeId, boolean>;
+
+const COMPACT_DEPLOY_LABELS: Readonly<Record<TechNodeId, string>> = {
+  typescript: 'Compile',
+  nodejs: 'Boot',
+  graphql: 'Schema',
+  postgresql: 'Migrate',
+  redis: 'Prime',
+  react: 'Bundle',
+  nextjs: 'Prerender',
+  docker: 'Image',
+  kubernetes: 'Rollout',
+  terraform: 'Apply',
+};
+
+const MICRO_DEPLOY_LABELS: Readonly<Record<TechNodeId, string>> = {
+  typescript: 'TS',
+  nodejs: 'Node',
+  graphql: 'GQL',
+  postgresql: 'SQL',
+  redis: 'Redis',
+  react: 'React',
+  nextjs: 'Next',
+  docker: 'Docker',
+  kubernetes: 'K8s',
+  terraform: 'TF',
+};
+
+function getBrickLayoutMode(viewportWidth: number): BrickLayoutMode {
+  if (viewportWidth <= 400) {
+    return 'mobile_small';
+  }
+
+  if (viewportWidth <= 696) {
+    return 'mobile';
+  }
+
+  return 'desktop';
+}
 
 const arkanoidBlueprints: readonly BrickBlueprint[] = techNodes.map((node) => ({
   id: node.id,
@@ -257,6 +299,64 @@ function stripTrailingEllipsis(value: string): string {
   return value.replace(/\.\.\.$/, '').trimEnd();
 }
 
+function createBrickPositionMapFromRows(
+  rowLayout: readonly number[],
+  options: {
+    readonly topY: number;
+    readonly rowGap: number;
+    readonly leftX: number;
+    readonly rightX: number;
+  },
+): Map<TechNodeId, NodePosition> {
+  const sortedNodes = techNodes
+    .slice()
+    .sort((left, right) => left.brickSlot - right.brickSlot);
+  const positions = new Map<TechNodeId, NodePosition>();
+  let nodeIndex = 0;
+
+  rowLayout.forEach((columns, rowIndex) => {
+    if (columns <= 0) {
+      return;
+    }
+
+    const y = options.topY + rowIndex * options.rowGap;
+    const stepX =
+      columns > 1 ? (options.rightX - options.leftX) / (columns - 1) : 0;
+
+    for (let column = 0; column < columns; column += 1) {
+      const node = sortedNodes[nodeIndex];
+
+      if (!node) {
+        return;
+      }
+
+      const x = columns === 1 ? 50 : options.leftX + column * stepX;
+
+      positions.set(node.id, { x, y });
+      nodeIndex += 1;
+    }
+  });
+
+  return positions;
+}
+
+function getDeployStepLabelForLayout(
+  node: TechNode,
+  layoutMode: BrickLayoutMode,
+): string {
+  const fullLabel = stripTrailingEllipsis(node.deployStep);
+
+  if (layoutMode === 'mobile_small') {
+    return MICRO_DEPLOY_LABELS[node.id] ?? fullLabel;
+  }
+
+  if (layoutMode === 'mobile') {
+    return COMPACT_DEPLOY_LABELS[node.id] ?? fullLabel;
+  }
+
+  return fullLabel;
+}
+
 function areBrickHitboxesEqual(
   left: readonly BrickHitbox[],
   right: readonly BrickHitbox[],
@@ -283,6 +383,8 @@ function areBrickHitboxesEqual(
 
 export function Stack() {
   const reduceMotion = useReducedMotion() ?? false;
+  const [brickLayoutMode, setBrickLayoutMode] =
+    useState<BrickLayoutMode>('desktop');
   const [phase, setPhase] = useState<StackPhase>('constellation');
   const [activeNodeId, setActiveNodeId] = useState<TechNodeId | null>(null);
   const [compilingSpinnerIndex, setCompilingSpinnerIndex] = useState(0);
@@ -338,6 +440,34 @@ export function Stack() {
       }),
     );
   }, []);
+  const responsiveBrickPositions = useMemo(() => {
+    if (brickLayoutMode === 'desktop') {
+      return new Map<TechNodeId, NodePosition>();
+    }
+
+    if (brickLayoutMode === 'mobile_small') {
+      return createBrickPositionMapFromRows(MOBILE_SMALL_BRICK_ROW_LAYOUT, {
+        topY: 17,
+        rowGap: 10.5,
+        leftX: 18,
+        rightX: 82,
+      });
+    }
+
+    return createBrickPositionMapFromRows(MOBILE_BRICK_ROW_LAYOUT, {
+      topY: 18,
+      rowGap: 12.5,
+      leftX: 12,
+      rightX: 88,
+    });
+  }, [brickLayoutMode]);
+  const targetBrickPositions = useMemo(() => {
+    if (brickLayoutMode === 'desktop') {
+      return staticBrickPositions;
+    }
+
+    return responsiveBrickPositions;
+  }, [brickLayoutMode, responsiveBrickPositions, staticBrickPositions]);
   const winComposeTargetPositions = useMemo(() => {
     const startY = 22;
     const rowGap = 4.6;
@@ -381,6 +511,19 @@ export function Stack() {
     const intervalId = window.setInterval(callback, delayMs);
     intervalIdsRef.current.push(intervalId);
     return intervalId;
+  }, []);
+
+  useEffect(() => {
+    const updateLayoutMode = () => {
+      setBrickLayoutMode(getBrickLayoutMode(window.innerWidth));
+    };
+
+    updateLayoutMode();
+    window.addEventListener('resize', updateLayoutMode);
+
+    return () => {
+      window.removeEventListener('resize', updateLayoutMode);
+    };
   }, []);
 
   useEffect(() => {
@@ -890,13 +1033,28 @@ export function Stack() {
     phase === 'game_win_composing' ||
     phase === 'game_win' ||
     phase === 'game_lose';
+  const useCompactBrickLayout = renderAsBricks && brickLayoutMode !== 'desktop';
+  const useDenseBrickLayout =
+    renderAsBricks && brickLayoutMode === 'mobile_small';
+  const showActiveDeployStep =
+    phase === 'game_active' ||
+    phase === 'game_lose' ||
+    phase === 'game_win_composing';
   const reconnectCount = Math.floor(reassembleProgress * techEdges.length);
+
+  const activeDeployStep = useMemo(() => {
+    const nextPending = deploySteps.find((step) => {
+      return !deployProgressMap[step.nodeId];
+    });
+
+    return nextPending ?? deploySteps[deploySteps.length - 1] ?? null;
+  }, [deployProgressMap]);
 
   const positionedNodeMap = useMemo(() => {
     const positions = new Map<TechNodeId, NodePosition>();
 
     for (const node of techNodes) {
-      const targetBrickPosition = staticBrickPositions.get(node.id) ?? {
+      const targetBrickPosition = targetBrickPositions.get(node.id) ?? {
         x: node.x,
         y: node.y,
       };
@@ -956,7 +1114,7 @@ export function Stack() {
     deployProgress,
     phase,
     reassembleProgress,
-    staticBrickPositions,
+    targetBrickPositions,
     wasSkippedToDeployed,
     winComposeProgress,
     winComposeTargetPositions,
@@ -1179,7 +1337,7 @@ export function Stack() {
       const baseLabel = `${node.name} (${clusterNames[node.cluster]})`;
       const ariaLabel = baseLabel;
       const visibleLabel = renderAsBricks
-        ? stripTrailingEllipsis(node.deployStep)
+        ? getDeployStepLabelForLayout(node, brickLayoutMode)
         : node.name;
 
       const nodeStyle = {
@@ -1216,6 +1374,8 @@ export function Stack() {
             className={cx(
               styles.nodeCard,
               renderAsBricks && styles.nodeAsBrick,
+              useCompactBrickLayout && styles.nodeAsBrickCompact,
+              useDenseBrickLayout && styles.nodeAsBrickDense,
               clusterClassNames[node.cluster],
               getProficiencyClassName(node.proficiency),
               nodeState === 'active' && styles.nodeActive,
@@ -1275,6 +1435,7 @@ export function Stack() {
     activeNode,
     breakingNodeIndex,
     brickMap,
+    brickLayoutMode,
     deployProgressMap,
     gameplaySpinnerFrame,
     hasActiveNode,
@@ -1285,6 +1446,8 @@ export function Stack() {
     phase,
     positionedNodeMap,
     renderAsBricks,
+    useCompactBrickLayout,
+    useDenseBrickLayout,
   ]);
 
   return (
@@ -1344,6 +1507,7 @@ export function Stack() {
             phase === 'game_win' && isWinFlashVisible && styles.winFlash,
           )}
           data-phase={phase}
+          data-brick-layout={brickLayoutMode}
           data-testid="stack-canvas"
           variants={graphVariants}
           transition={
@@ -1365,6 +1529,33 @@ export function Stack() {
           onPointerCancel={onCanvasPointerEnd}
           aria-describedby={gameHintDescriptionId}
         >
+          {showActiveDeployStep && activeDeployStep ? (
+            <div
+              className={styles.activeDeployStep}
+              data-testid="stack-active-step"
+              aria-hidden="true"
+            >
+              <span className={styles.activeDeployStepLabel}>current step</span>
+              <span className={styles.activeDeployStepLine}>
+                <span className={styles.activeDeployStepText}>
+                  {activeDeployStep.label}
+                </span>
+                <span
+                  className={cx(
+                    styles.activeDeployStepStatus,
+                    deployProgressMap[activeDeployStep.nodeId]
+                      ? styles.activeDeployStepStatusCompleted
+                      : styles.activeDeployStepStatusLoading,
+                  )}
+                >
+                  {deployProgressMap[activeDeployStep.nodeId]
+                    ? '✓'
+                    : gameplaySpinnerFrame}
+                </span>
+              </span>
+            </div>
+          ) : null}
+
           {shouldShowRunTimer ? (
             <div className={styles.runTimer} data-testid="stack-run-timer">
               <span className={styles.runTimerLabel}>build time</span>
