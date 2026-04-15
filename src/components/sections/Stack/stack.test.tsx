@@ -200,6 +200,7 @@ vi.mock('./stack.constants', () => ({
       errorSignature: 'TS2304',
       hitMessage: 'Cannot find name "DeployConfig".',
       deployStep: 'Compiling TypeScript...',
+      deployStepCompact: 'Compile',
       narrativeRow: 'own',
       brickDurability: 2,
       brickSlot: 0,
@@ -220,6 +221,7 @@ vi.mock('./stack.constants', () => ({
       hitMessage:
         'Cannot find package "queue-core" imported from /app/index.mjs.',
       deployStep: 'Starting Node.js server...',
+      deployStepCompact: 'Boot',
       narrativeRow: 'own',
       brickDurability: 2,
       brickSlot: 1,
@@ -239,6 +241,7 @@ vi.mock('./stack.constants', () => ({
       errorSignature: 'SQLSTATE[42P01]',
       hitMessage: 'relation "deploy_jobs" does not exist.',
       deployStep: 'Running PostgreSQL migrations...',
+      deployStepCompact: 'Migrate',
       narrativeRow: 'useful',
       brickDurability: 2,
       brickSlot: 2,
@@ -259,6 +262,7 @@ vi.mock('./stack.constants', () => ({
       hitMessage:
         'process "/bin/sh -c npm ci" did not complete successfully: exit code: 1.',
       deployStep: 'Building Docker image...',
+      deployStepCompact: 'Image',
       narrativeRow: 'useful',
       brickDurability: 1,
       brickSlot: 3,
@@ -339,6 +343,56 @@ describe('Stack Section', () => {
     expect(screen.getByText('Compiling TypeScript')).toBeTruthy();
     expect(screen.getByTestId('stack-brick-status-typescript')).toBeTruthy();
     expect(screen.queryByText('TS2304')).toBeNull();
+  });
+
+  it('shows full deployStep on mobile and compact deployStep on mobile_small', () => {
+    vi.useFakeTimers();
+    const originalInnerWidth = window.innerWidth;
+    const setViewport = (width: number) => {
+      window.innerWidth = width;
+      window.dispatchEvent(new Event('resize'));
+    };
+
+    try {
+      setViewport(680);
+      const mobileRender = render(<Stack />);
+
+      fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+      act(() => {
+        vi.advanceTimersByTime(64);
+      });
+
+      expect(
+        within(screen.getByTestId('stack-node-typescript')).getByText(
+          'Compiling TypeScript',
+        ),
+      ).toBeTruthy();
+      expect(
+        within(screen.getByTestId('stack-node-typescript')).queryByText(
+          'Compile',
+        ),
+      ).toBeNull();
+
+      mobileRender.unmount();
+
+      setViewport(390);
+      render(<Stack />);
+
+      fireEvent.click(screen.getByTestId('stack-run-trigger'));
+
+      act(() => {
+        vi.advanceTimersByTime(64);
+      });
+
+      expect(
+        within(screen.getByTestId('stack-node-typescript')).getByText(
+          'Compile',
+        ),
+      ).toBeTruthy();
+    } finally {
+      setViewport(originalInnerWidth);
+    }
   });
 
   it('highlights connected nodes and edges when motion is enabled', () => {

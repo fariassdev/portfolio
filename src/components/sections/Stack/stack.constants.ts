@@ -21,6 +21,7 @@ export interface ConstellationNode {
   readonly errorSignature: string;
   readonly hitMessage: string;
   readonly deployStep: string;
+  readonly deployStepCompact: string;
   readonly narrativeRow: StackNarrativeRow;
   readonly brickDurability: BrickDurability;
   readonly brickSlot: number;
@@ -83,6 +84,7 @@ export const techNodes = [
     errorSignature: 'TS2304',
     hitMessage: 'Cannot find name "DeployConfig".',
     deployStep: 'Compiling TypeScript...',
+    deployStepCompact: 'Compile',
     narrativeRow: 'own',
     brickDurability: 2,
     brickSlot: 0,
@@ -103,6 +105,7 @@ export const techNodes = [
     hitMessage:
       'Cannot find package "queue-core" imported from /app/index.mjs.',
     deployStep: 'Starting Node.js server...',
+    deployStepCompact: 'Boot',
     narrativeRow: 'own',
     brickDurability: 2,
     brickSlot: 1,
@@ -122,6 +125,7 @@ export const techNodes = [
     errorSignature: 'GRAPHQL_VALIDATION_FAILED',
     hitMessage: 'Unknown type "DeployStatus" in schema.graphql.',
     deployStep: 'Loading GraphQL schema...',
+    deployStepCompact: 'Schema',
     narrativeRow: 'own',
     brickDurability: 2,
     brickSlot: 2,
@@ -141,6 +145,7 @@ export const techNodes = [
     errorSignature: 'SQLSTATE[42P01]',
     hitMessage: 'relation "deploy_jobs" does not exist.',
     deployStep: 'Running PostgreSQL migrations...',
+    deployStepCompact: 'Migrate',
     narrativeRow: 'useful',
     brickDurability: 2,
     brickSlot: 3,
@@ -161,6 +166,7 @@ export const techNodes = [
     hitMessage:
       'Redis is configured to save RDB snapshots, but is currently unable to persist on disk.',
     deployStep: 'Warming Redis cache...',
+    deployStepCompact: 'Prime',
     narrativeRow: 'useful',
     brickDurability: 2,
     brickSlot: 4,
@@ -180,6 +186,7 @@ export const techNodes = [
     errorSignature: 'ERR_CHUNK_LOAD',
     hitMessage: 'Chunk "app-shell" failed to load after deploy swap.',
     deployStep: 'Building React bundle...',
+    deployStepCompact: 'Bundle',
     narrativeRow: 'useful',
     brickDurability: 2,
     brickSlot: 5,
@@ -199,6 +206,7 @@ export const techNodes = [
     errorSignature: 'NEXT_BUILD_ERROR',
     hitMessage: 'Route "/stack" failed prerendering in production mode.',
     deployStep: 'Generating Next.js pages...',
+    deployStepCompact: 'Prerender',
     narrativeRow: 'useful',
     brickDurability: 2,
     brickSlot: 6,
@@ -219,6 +227,7 @@ export const techNodes = [
     hitMessage:
       'process "/bin/sh -c npm ci" did not complete successfully: exit code: 1.',
     deployStep: 'Building Docker image...',
+    deployStepCompact: 'Image',
     narrativeRow: 'running',
     brickDurability: 1,
     brickSlot: 7,
@@ -238,6 +247,7 @@ export const techNodes = [
     errorSignature: 'CrashLoopBackOff',
     hitMessage: 'Back-off restarting failed container api.',
     deployStep: 'Rolling update to Kubernetes...',
+    deployStepCompact: 'Rollout',
     narrativeRow: 'running',
     brickDurability: 1,
     brickSlot: 8,
@@ -257,6 +267,7 @@ export const techNodes = [
     errorSignature: 'ReferenceError',
     hitMessage: 'Reference to undeclared resource "aws_lb.gateway".',
     deployStep: 'Applying Terraform plan...',
+    deployStepCompact: 'Apply',
     narrativeRow: 'running',
     brickDurability: 1,
     brickSlot: 9,

@@ -449,6 +449,8 @@
 }
 
 .nodeAsBrick {
+  position: relative;
+  overflow: hidden;
   border-radius: 8px;
   min-width: clamp(112px, 14vw, 210px);
   justify-content: center;
@@ -477,49 +479,51 @@
 
 .nodeAsBrickCompact {
   min-width: 0;
-  width: clamp(72px, 20vw, 128px);
-  min-height: 54px;
-  padding: 6px 7px;
+  width: clamp(84px, 22vw, 132px);
+  min-height: 58px;
+  padding: 7px 10px;
   flex-direction: column;
   gap: 4px;
-  align-items: center;
-  justify-content: flex-start;
-  text-align: center;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
 }
 
 .nodeAsBrickCompact .nodeIconWrap {
-  display: grid;
-  width: 18px;
-  height: 18px;
+  display: none;
 }
 
 .nodeAsBrickCompact .nodeIcon {
   font-size: 0.88rem;
 }
 
-.nodeAsBrickCompact .nodeStepLine {
-  gap: 4px;
-}
-
 .nodeAsBrickCompact .nodeStepLabel {
-  text-align: center;
+  text-align: left;
   font-size: 0.56rem;
+  white-space: normal;
+  text-overflow: clip;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
 }
 
 .nodeAsBrickCompact .nodeStepStatus {
   min-width: 0.8rem;
   font-size: 0.58rem;
+  align-self: start;
+  padding-top: 1px;
 }
 
 .nodeAsBrickDense {
-  width: clamp(64px, 27vw, 96px);
-  min-height: 50px;
-  padding: 5px 6px;
+  width: clamp(72px, 27vw, 106px);
+  min-height: 54px;
+  padding: 6px 8px;
 }
 
 .nodeAsBrickDense .nodeIconWrap {
-  width: 16px;
-  height: 16px;
+  display: none;
 }
 
 .nodeAsBrickDense .nodeIcon {
@@ -528,11 +532,58 @@
 
 .nodeAsBrickDense .nodeStepLabel {
   font-size: 0.5rem;
+  text-align: left;
+  white-space: normal;
+  text-overflow: clip;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
 }
 
 .nodeAsBrickDense .nodeStepStatus {
   min-width: 0.7rem;
   font-size: 0.53rem;
+  align-self: start;
+  padding-top: 1px;
+}
+
+.nodeBrickWatermark {
+  display: none;
+  pointer-events: none;
+}
+
+.nodeAsBrickCompact .nodeBrickWatermark,
+.nodeAsBrickDense .nodeBrickWatermark {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 46px;
+  height: 46px;
+  transform: translateY(-50%);
+  opacity: 0.14;
+}
+
+.nodeAsBrickDense .nodeBrickWatermark {
+  right: 7px;
+  width: 40px;
+  height: 40px;
+  opacity: 0.12;
+}
+
+.nodeBrickWatermarkIcon {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--cluster-color) 82%, #dce8ff 18%);
+  text-shadow: 0 0 9px
+    color-mix(in srgb, var(--cluster-color) 26%, transparent 74%);
+}
+
+.nodeAsBrickDense .nodeBrickWatermarkIcon {
+  font-size: 2.15rem;
 }
 
 .nodeStepLine {
@@ -1228,7 +1279,7 @@
   }
 
   .constellationCanvas {
-    min-height: clamp(620px, 168vw, 760px);
+    min-height: clamp(640px, 174vw, 780px);
     border-radius: 22px;
   }
 
@@ -1242,14 +1293,43 @@
   }
 
   .nodeAsBrick {
-    min-height: 40px;
-    width: clamp(72px, 22vw, 120px);
+    min-height: 42px;
+    width: clamp(80px, 23vw, 124px);
     min-width: 0;
-    max-width: 120px;
+    max-width: 124px;
     padding: 6px;
-    align-items: center;
-    justify-content: flex-start;
-    text-align: center;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+  }
+
+  .nodeAsBrickCompact {
+    width: clamp(88px, 24vw, 132px);
+    min-height: 58px;
+    padding: 6px 10px;
+  }
+
+  .nodeAsBrickCompact .nodeStepLabel,
+  .nodeAsBrickDense .nodeStepLabel {
+    text-align: left;
+  }
+
+  .nodeAsBrickDense {
+    width: clamp(76px, 28vw, 108px);
+    min-height: 54px;
+    padding: 6px 8px;
+  }
+
+  .nodeAsBrickCompact .nodeBrickWatermark {
+    width: 48px;
+    height: 48px;
+    right: 8px;
+  }
+
+  .nodeAsBrickDense .nodeBrickWatermark {
+    width: 42px;
+    height: 42px;
+    right: 7px;
   }
 
   .nodeStepLine {
@@ -1263,7 +1343,7 @@
     white-space: nowrap;
     line-height: 1.15;
     font-size: 0.58rem;
-    text-align: center;
+    text-align: left;
   }
 
   .nodeStepStatus {
@@ -1370,7 +1450,7 @@
 
 @media (--mediaMobileS) {
   .constellationCanvas[data-brick-layout='mobile_small'] {
-    min-height: 680px;
+    min-height: 710px;
   }
 
   .activeDeployStep {

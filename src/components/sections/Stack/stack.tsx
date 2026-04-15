@@ -113,32 +113,6 @@ interface MutableArkanoidInput {
 
 type DeployProgressMap = Record<TechNodeId, boolean>;
 
-const COMPACT_DEPLOY_LABELS: Readonly<Record<TechNodeId, string>> = {
-  typescript: 'Compile',
-  nodejs: 'Boot',
-  graphql: 'Schema',
-  postgresql: 'Migrate',
-  redis: 'Prime',
-  react: 'Bundle',
-  nextjs: 'Prerender',
-  docker: 'Image',
-  kubernetes: 'Rollout',
-  terraform: 'Apply',
-};
-
-const MICRO_DEPLOY_LABELS: Readonly<Record<TechNodeId, string>> = {
-  typescript: 'TS',
-  nodejs: 'Node',
-  graphql: 'GQL',
-  postgresql: 'SQL',
-  redis: 'Redis',
-  react: 'React',
-  nextjs: 'Next',
-  docker: 'Docker',
-  kubernetes: 'K8s',
-  terraform: 'TF',
-};
-
 function getBrickLayoutMode(viewportWidth: number): BrickLayoutMode {
   if (viewportWidth <= 400) {
     return 'mobile_small';
@@ -306,6 +280,10 @@ function createBrickPositionMapFromRows(
     readonly rowGap: number;
     readonly leftX: number;
     readonly rightX: number;
+    readonly rowHorizontalRanges?: readonly {
+      readonly leftX: number;
+      readonly rightX: number;
+    }[];
   },
 ): Map<TechNodeId, NodePosition> {
   const sortedNodes = techNodes
@@ -319,9 +297,11 @@ function createBrickPositionMapFromRows(
       return;
     }
 
+    const rowRange = options.rowHorizontalRanges?.[rowIndex];
+    const rowLeftX = rowRange?.leftX ?? options.leftX;
+    const rowRightX = rowRange?.rightX ?? options.rightX;
     const y = options.topY + rowIndex * options.rowGap;
-    const stepX =
-      columns > 1 ? (options.rightX - options.leftX) / (columns - 1) : 0;
+    const stepX = columns > 1 ? (rowRightX - rowLeftX) / (columns - 1) : 0;
 
     for (let column = 0; column < columns; column += 1) {
       const node = sortedNodes[nodeIndex];
@@ -330,7 +310,7 @@ function createBrickPositionMapFromRows(
         return;
       }
 
-      const x = columns === 1 ? 50 : options.leftX + column * stepX;
+      const x = columns === 1 ? 50 : rowLeftX + column * stepX;
 
       positions.set(node.id, { x, y });
       nodeIndex += 1;
@@ -345,13 +325,12 @@ function getDeployStepLabelForLayout(
   layoutMode: BrickLayoutMode,
 ): string {
   const fullLabel = stripTrailingEllipsis(node.deployStep);
+  const compactLabel = node.deployStepCompact
+    ? stripTrailingEllipsis(node.deployStepCompact)
+    : fullLabel;
 
   if (layoutMode === 'mobile_small') {
-    return MICRO_DEPLOY_LABELS[node.id] ?? fullLabel;
-  }
-
-  if (layoutMode === 'mobile') {
-    return COMPACT_DEPLOY_LABELS[node.id] ?? fullLabel;
+    return compactLabel;
   }
 
   return fullLabel;
@@ -447,18 +426,31 @@ export function Stack() {
 
     if (brickLayoutMode === 'mobile_small') {
       return createBrickPositionMapFromRows(MOBILE_SMALL_BRICK_ROW_LAYOUT, {
-        topY: 17,
-        rowGap: 10.5,
+        topY: 16.5,
+        rowGap: 10.3,
         leftX: 18,
         rightX: 82,
+        rowHorizontalRanges: [
+          { leftX: 18, rightX: 82 },
+          { leftX: 24, rightX: 76 },
+          { leftX: 18, rightX: 82 },
+          { leftX: 24, rightX: 76 },
+          { leftX: 18, rightX: 82 },
+        ],
       });
     }
 
     return createBrickPositionMapFromRows(MOBILE_BRICK_ROW_LAYOUT, {
       topY: 18,
-      rowGap: 12.5,
-      leftX: 12,
-      rightX: 88,
+      rowGap: 12.1,
+      leftX: 14,
+      rightX: 86,
+      rowHorizontalRanges: [
+        { leftX: 14, rightX: 86 },
+        { leftX: 24, rightX: 76 },
+        { leftX: 24, rightX: 76 },
+        { leftX: 14, rightX: 86 },
+      ],
     });
   }, [brickLayoutMode]);
   const targetBrickPositions = useMemo(() => {
@@ -1394,23 +1386,36 @@ export function Stack() {
             </span>
 
             {renderAsBricks ? (
-              <span className={styles.nodeStepLine}>
-                <span className={styles.nodeStepLabel}>{visibleLabel}</span>
-                <span
-                  className={cx(
-                    styles.nodeStepStatus,
-                    isCompleted
-                      ? styles.nodeStepStatusCompleted
-                      : styles.nodeStepStatusLoading,
-                    isCompleted &&
-                      highlightedDeployStepId === node.id &&
-                      styles.nodeStepStatusHighlight,
-                  )}
-                  data-testid={`stack-brick-status-${node.id}`}
-                >
-                  {isCompleted ? '✓' : gameplaySpinnerFrame}
+              <>
+                <span className={styles.nodeStepLine}>
+                  <span className={styles.nodeStepLabel}>{visibleLabel}</span>
+                  <span
+                    className={cx(
+                      styles.nodeStepStatus,
+                      isCompleted
+                        ? styles.nodeStepStatusCompleted
+                        : styles.nodeStepStatusLoading,
+                      isCompleted &&
+                        highlightedDeployStepId === node.id &&
+                        styles.nodeStepStatusHighlight,
+                    )}
+                    data-testid={`stack-brick-status-${node.id}`}
+                  >
+                    {isCompleted ? '✓' : gameplaySpinnerFrame}
+                  </span>
                 </span>
-              </span>
+
+                {useCompactBrickLayout ? (
+                  <span
+                    className={styles.nodeBrickWatermark}
+                    aria-hidden="true"
+                  >
+                    <i
+                      className={`${styles.nodeBrickWatermarkIcon} ${node.iconClassName}`}
+                    />
+                  </span>
+                ) : null}
+              </>
             ) : (
               <span className={styles.nodeName}>{visibleLabel}</span>
             )}
