@@ -364,6 +364,20 @@ export function Stack() {
   const reduceMotion = useReducedMotion() ?? false;
   const [brickLayoutMode, setBrickLayoutMode] =
     useState<BrickLayoutMode>('desktop');
+  const gameScaleOptions = useMemo(() => {
+    if (brickLayoutMode === 'mobile' || brickLayoutMode === 'mobile_small') {
+      return {
+        paddleWidthScale: 2,
+        ballSizeScale: 2,
+        ballSpeedScale: 0.9,
+      };
+    }
+    return {
+      paddleWidthScale: 1,
+      ballSizeScale: 1,
+      ballSpeedScale: 1,
+    };
+  }, [brickLayoutMode]);
   const [phase, setPhase] = useState<StackPhase>('constellation');
   const [activeNodeId, setActiveNodeId] = useState<TechNodeId | null>(null);
   const [compilingSpinnerIndex, setCompilingSpinnerIndex] = useState(0);
@@ -383,9 +397,22 @@ export function Stack() {
   const [wasSkippedToDeployed, setWasSkippedToDeployed] = useState(false);
   const [isWinFlashVisible, setIsWinFlashVisible] = useState(false);
   const [winComposeProgress, setWinComposeProgress] = useState(0);
-  const [gameState, setGameState] = useState<ArkanoidState>(() =>
-    createInitialArkanoidState(arkanoidBlueprints),
-  );
+  const [gameState, setGameState] = useState<ArkanoidState>(() => {
+    const initialLayout =
+      typeof window === 'undefined'
+        ? 'desktop'
+        : getBrickLayoutMode(window.innerWidth);
+    const options =
+      initialLayout === 'mobile' || initialLayout === 'mobile_small'
+        ? {
+            paddleWidthScale: 2,
+            ballSizeScale: 2,
+            ballSpeedScale: 0.9,
+          }
+        : {};
+
+    return createInitialArkanoidState(arkanoidBlueprints, options);
+  });
   const [dynamicBrickHitboxes, setDynamicBrickHitboxes] = useState<
     readonly BrickHitbox[]
   >([]);
@@ -519,6 +546,12 @@ export function Stack() {
   }, []);
 
   useEffect(() => {
+    if (phase === 'game_active' || phase === 'game_lose') {
+      setGameState(restartArkanoidState(arkanoidBlueprints, gameScaleOptions));
+    }
+  }, [brickLayoutMode, phase, gameScaleOptions]);
+
+  useEffect(() => {
     return () => {
       clearScheduledTimers();
     };
@@ -548,7 +581,7 @@ export function Stack() {
   }, [phase]);
 
   const restartFromLose = useCallback(() => {
-    setGameState(restartArkanoidState(arkanoidBlueprints));
+    setGameState(restartArkanoidState(arkanoidBlueprints, gameScaleOptions));
     setDeployProgressMap(createDeployProgressMap());
     setHighlightedDeployStepId(null);
     setWasSkippedToDeployed(false);
@@ -556,7 +589,7 @@ export function Stack() {
     setWinComposeProgress(0);
     previousDestroyedBricksRef.current = new Set();
     setPhase('game_active');
-  }, []);
+  }, [gameScaleOptions]);
 
   const skipToDeployed = useCallback(() => {
     setWasSkippedToDeployed(true);
@@ -981,7 +1014,7 @@ export function Stack() {
     }
 
     setActiveNodeId(null);
-    setGameState(restartArkanoidState(arkanoidBlueprints));
+    setGameState(restartArkanoidState(arkanoidBlueprints, gameScaleOptions));
     setDeployProgressMap(createDeployProgressMap());
     setHighlightedDeployStepId(null);
     setWasSkippedToDeployed(false);
@@ -995,7 +1028,7 @@ export function Stack() {
     setReassembleProgress(0);
     previousDestroyedBricksRef.current = new Set();
     setPhase('transition_compiling');
-  }, [phase]);
+  }, [phase, gameScaleOptions]);
 
   const isConstellationInteractive = phase === 'constellation';
   const activeNode = isConstellationInteractive ? activeNodeId : null;

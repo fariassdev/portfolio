@@ -158,26 +158,6 @@ function createBrick(blueprint: BrickBlueprint): BrickState {
   };
 }
 
-function createBall(): BallState {
-  return {
-    x: GAME_WIDTH / 2,
-    y: GAME_HEIGHT - 92,
-    vx: BASE_BALL_SPEED * 0.42,
-    vy: -BASE_BALL_SPEED,
-    size: BALL_SIZE,
-    trail: [],
-  };
-}
-
-function createPaddle(): PaddleState {
-  return {
-    x: GAME_WIDTH / 2,
-    y: GAME_HEIGHT - 46,
-    width: PADDLE_WIDTH,
-    height: PADDLE_HEIGHT,
-  };
-}
-
 function toBallRect(ball: BallState): Rect {
   const half = ball.size / 2;
 
@@ -258,12 +238,33 @@ function normalizeSpeed(
 
 export function createInitialArkanoidState(
   blueprints: readonly BrickBlueprint[],
+  options?: {
+    paddleWidthScale?: number;
+    ballSizeScale?: number;
+    ballSpeedScale?: number;
+  },
 ): ArkanoidState {
+  const paddleWidthScale = options?.paddleWidthScale ?? 1;
+  const ballSizeScale = options?.ballSizeScale ?? 1;
+  const ballSpeedScale = options?.ballSpeedScale ?? 1;
+
   return {
     status: 'active',
     elapsedMs: 0,
-    paddle: createPaddle(),
-    ball: createBall(),
+    paddle: {
+      x: GAME_WIDTH / 2,
+      y: GAME_HEIGHT - 46,
+      width: PADDLE_WIDTH * paddleWidthScale,
+      height: PADDLE_HEIGHT,
+    },
+    ball: {
+      x: GAME_WIDTH / 2,
+      y: GAME_HEIGHT - 92,
+      vx: BASE_BALL_SPEED * 0.42 * ballSpeedScale,
+      vy: -BASE_BALL_SPEED * ballSpeedScale,
+      size: BALL_SIZE * ballSizeScale,
+      trail: [],
+    },
     bricks: blueprints
       .slice()
       .sort((left, right) => left.slot - right.slot)
@@ -275,8 +276,13 @@ export function createInitialArkanoidState(
 
 export function restartArkanoidState(
   blueprints: readonly BrickBlueprint[],
+  options?: {
+    paddleWidthScale?: number;
+    ballSizeScale?: number;
+    ballSpeedScale?: number;
+  },
 ): ArkanoidState {
-  return createInitialArkanoidState(blueprints);
+  return createInitialArkanoidState(blueprints, options);
 }
 
 function resolveWallCollisions(ball: BallState): BallState {

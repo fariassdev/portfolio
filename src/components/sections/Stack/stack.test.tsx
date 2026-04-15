@@ -350,7 +350,9 @@ describe('Stack Section', () => {
     const originalInnerWidth = window.innerWidth;
     const setViewport = (width: number) => {
       window.innerWidth = width;
-      window.dispatchEvent(new Event('resize'));
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
     };
 
     try {
