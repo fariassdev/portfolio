@@ -44,6 +44,14 @@ export interface BrickState extends BrickBlueprint {
   readonly crackLevel: number;
 }
 
+export interface BrickHitbox {
+  readonly id: TechNodeId;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 export interface PaddleState {
   readonly x: number;
   readonly y: number;
@@ -80,11 +88,22 @@ export interface ArkanoidInput {
   readonly pointerX: number | null;
 }
 
+export interface StepArkanoidOptions {
+  readonly brickHitboxes?: readonly BrickHitbox[];
+}
+
 interface Rect {
   readonly left: number;
   readonly right: number;
   readonly top: number;
   readonly bottom: number;
+}
+
+interface Box {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -179,12 +198,12 @@ function toPaddleRect(paddle: PaddleState): Rect {
   };
 }
 
-function toBrickRect(brick: BrickState): Rect {
+function toBoxRect(box: Box): Rect {
   return {
-    left: brick.x - brick.width / 2,
-    right: brick.x + brick.width / 2,
-    top: brick.y - brick.height / 2,
-    bottom: brick.y + brick.height / 2,
+    left: box.x - box.width / 2,
+    right: box.x + box.width / 2,
+    top: box.y - box.height / 2,
+    bottom: box.y + box.height / 2,
   };
 }
 
@@ -298,9 +317,20 @@ interface BrickCollisionResult {
   readonly speedBoost: boolean;
 }
 
+function createBrickHitboxMap(
+  hitboxes: readonly BrickHitbox[] | undefined,
+): ReadonlyMap<TechNodeId, BrickHitbox> {
+  if (!hitboxes || hitboxes.length === 0) {
+    return new Map();
+  }
+
+  return new Map(hitboxes.map((hitbox) => [hitbox.id, hitbox]));
+}
+
 function resolveBrickCollision(
   ball: BallState,
   bricks: readonly BrickState[],
+  brickHitboxMap: ReadonlyMap<TechNodeId, BrickHitbox>,
 ): BrickCollisionResult {
   const ballRect = toBallRect(ball);
 
@@ -309,7 +339,8 @@ function resolveBrickCollision(
       continue;
     }
 
-    const brickRect = toBrickRect(brick);
+    const collisionBox = brickHitboxMap.get(brick.id) ?? brick;
+    const brickRect = toBoxRect(collisionBox);
 
     if (!intersects(ballRect, brickRect)) {
       continue;
@@ -398,6 +429,7 @@ export function stepArkanoidState(
   state: ArkanoidState,
   input: ArkanoidInput,
   deltaMs: number,
+  options?: StepArkanoidOptions,
 ): ArkanoidState {
   if (state.status !== 'active') {
     return state;
@@ -417,9 +449,14 @@ export function stepArkanoidState(
     ),
   };
 
+  const brickHitboxMap = createBrickHitboxMap(options?.brickHitboxes);
   const afterWalls = resolveWallCollisions(movedBall);
   const afterPaddle = resolvePaddleCollision(afterWalls, nextPaddle);
-  const brickResolution = resolveBrickCollision(afterPaddle, state.bricks);
+  const brickResolution = resolveBrickCollision(
+    afterPaddle,
+    state.bricks,
+    brickHitboxMap,
+  );
 
   let resolvedBall = brickResolution.ball;
 

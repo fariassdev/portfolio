@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 
-import type { ArkanoidState, BrickBlueprint } from './stack-game';
+import type { ArkanoidState, BrickBlueprint, BrickHitbox } from './stack-game';
 import {
   createInitialArkanoidState,
   GAME_HEIGHT,
@@ -188,6 +188,7 @@ function TechNodeCard({
       <div
         className={className}
         data-testid={`stack-node-${node.id}`}
+        data-tech-node-id={node.id}
         data-state={state}
         aria-label={label}
       >
@@ -201,6 +202,7 @@ function TechNodeCard({
       type="button"
       className={className}
       data-testid={`stack-node-${node.id}`}
+      data-tech-node-id={node.id}
       data-state={state}
       aria-label={label}
       onMouseEnter={() => onActivate?.(node.id)}
@@ -255,6 +257,30 @@ function stripTrailingEllipsis(value: string): string {
   return value.replace(/\.\.\.$/, '').trimEnd();
 }
 
+function areBrickHitboxesEqual(
+  left: readonly BrickHitbox[],
+  right: readonly BrickHitbox[],
+): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((leftHitbox, index) => {
+    const rightHitbox = right[index];
+
+    if (!rightHitbox || leftHitbox.id !== rightHitbox.id) {
+      return false;
+    }
+
+    return (
+      Math.abs(leftHitbox.x - rightHitbox.x) < 0.1 &&
+      Math.abs(leftHitbox.y - rightHitbox.y) < 0.1 &&
+      Math.abs(leftHitbox.width - rightHitbox.width) < 0.1 &&
+      Math.abs(leftHitbox.height - rightHitbox.height) < 0.1
+    );
+  });
+}
+
 export function Stack() {
   const reduceMotion = useReducedMotion() ?? false;
   const [phase, setPhase] = useState<StackPhase>('constellation');
@@ -279,12 +305,16 @@ export function Stack() {
   const [gameState, setGameState] = useState<ArkanoidState>(() =>
     createInitialArkanoidState(arkanoidBlueprints),
   );
+  const [dynamicBrickHitboxes, setDynamicBrickHitboxes] = useState<
+    readonly BrickHitbox[]
+  >([]);
 
   const loseOverlayRef = useFocusTrap(
     phase === 'game_lose',
   ) as RefObject<HTMLDivElement>;
   const timeoutIdsRef = useRef<number[]>([]);
   const intervalIdsRef = useRef<number[]>([]);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<MutableArkanoidInput>({
     moveDirection: 0,
     pointerX: null,
@@ -582,11 +612,136 @@ export function Stack() {
     };
   }, [clearScheduledTimers, phase, queueInterval, queueTimeout, reduceMotion]);
 
-  const onGameFrame = useCallback((deltaMs: number) => {
-    setGameState((currentState) => {
-      return stepArkanoidState(currentState, inputRef.current, deltaMs);
-    });
-  }, []);
+  useEffect(() => {
+    if (phase !== 'game_active') {
+      setDynamicBrickHitboxes([]);
+      return;
+    }
+
+    const canvasElement = canvasRef.current;
+
+    if (!canvasElement) {
+      return;
+    }
+
+    let frameId: number | null = null;
+
+    const measureHitboxes = () => {
+      const canvasRect = canvasElement.getBoundingClientRect();
+
+      if (canvasRect.width <= 0 || canvasRect.height <= 0) {
+        return;
+      }
+
+      const nextHitboxes: BrickHitbox[] = [];
+
+      for (const node of techNodes) {
+        const nodeElement = canvasElement.querySelector<HTMLElement>(
+          `[data-tech-node-id="${node.id}"]`,
+        );
+
+        if (!nodeElement) {
+          continue;
+        }
+
+        const nodeRect = nodeElement.getBoundingClientRect();
+        const centerX = (nodeRect.left + nodeRect.right) / 2;
+        const centerY = (nodeRect.top + nodeRect.bottom) / 2;
+
+        nextHitboxes.push({
+          id: node.id,
+          x: clamp(
+            ((centerX - canvasRect.left) / canvasRect.width) * GAME_WIDTH,
+            0,
+            GAME_WIDTH,
+          ),
+          y: clamp(
+            ((centerY - canvasRect.top) / canvasRect.height) * GAME_HEIGHT,
+            0,
+            GAME_HEIGHT,
+          ),
+          width: Math.max(1, (nodeRect.width / canvasRect.width) * GAME_WIDTH),
+          height: Math.max(
+            1,
+            (nodeRect.height / canvasRect.height) * GAME_HEIGHT,
+          ),
+        });
+      }
+
+      setDynamicBrickHitboxes((currentHitboxes) => {
+        return areBrickHitboxesEqual(currentHitboxes, nextHitboxes)
+          ? currentHitboxes
+          : nextHitboxes;
+      });
+    };
+
+    const queueMeasure = () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+
+      frameId = requestAnimationFrame(() => {
+        frameId = null;
+        measureHitboxes();
+      });
+    };
+
+    queueMeasure();
+
+    const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
+
+    if (fonts) {
+      void fonts.ready.then(() => {
+        queueMeasure();
+      });
+    }
+
+    const onWindowResize = () => {
+      queueMeasure();
+    };
+
+    window.addEventListener('resize', onWindowResize);
+
+    let resizeObserver: ResizeObserver | null = null;
+
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        queueMeasure();
+      });
+
+      resizeObserver.observe(canvasElement);
+
+      for (const node of techNodes) {
+        const nodeElement = canvasElement.querySelector<HTMLElement>(
+          `[data-tech-node-id="${node.id}"]`,
+        );
+
+        if (nodeElement) {
+          resizeObserver.observe(nodeElement);
+        }
+      }
+    }
+
+    return () => {
+      window.removeEventListener('resize', onWindowResize);
+      resizeObserver?.disconnect();
+
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, [phase]);
+
+  const onGameFrame = useCallback(
+    (deltaMs: number) => {
+      setGameState((currentState) => {
+        return stepArkanoidState(currentState, inputRef.current, deltaMs, {
+          brickHitboxes: dynamicBrickHitboxes,
+        });
+      });
+    },
+    [dynamicBrickHitboxes],
+  );
 
   useGameLoop(phase === 'game_active', onGameFrame);
 
@@ -1182,6 +1337,7 @@ export function Stack() {
         </p>
 
         <motion.div
+          ref={canvasRef}
           className={cx(
             styles.constellationCanvas,
             reduceMotion ? styles.reducedMotion : styles.motionEnabled,

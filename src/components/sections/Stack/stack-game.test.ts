@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { BrickBlueprint } from './stack-game';
+import type { BrickBlueprint, BrickHitbox } from './stack-game';
 import {
   createInitialArkanoidState,
   GAME_HEIGHT,
@@ -153,6 +153,54 @@ describe('stack-game', () => {
     );
 
     expect(lost.status).toBe('lose');
+  });
+
+  it('uses dynamic brick hitboxes when provided', () => {
+    const state = createInitialArkanoidState(testBlueprints);
+    const graphqlBrick = state.bricks.find((brick) => brick.id === 'graphql');
+
+    if (!graphqlBrick) {
+      throw new Error('Missing brick graphql');
+    }
+
+    const shiftedHitbox: BrickHitbox = {
+      id: 'graphql',
+      x: graphqlBrick.x + 140,
+      y: graphqlBrick.y + 28,
+      width: graphqlBrick.width,
+      height: graphqlBrick.height,
+    };
+
+    const movedBallState = {
+      ...state,
+      ball: {
+        ...state.ball,
+        x: shiftedHitbox.x,
+        y:
+          shiftedHitbox.y -
+          shiftedHitbox.height / 2 -
+          state.ball.size / 2 -
+          0.5,
+        vx: 0,
+        vy: 220,
+        trail: [],
+      },
+    };
+
+    const stepped = stepArkanoidState(
+      movedBallState,
+      { moveDirection: 0, pointerX: null },
+      16,
+      { brickHitboxes: [shiftedHitbox] },
+    );
+
+    const hitGraphqlBrick = stepped.bricks.find(
+      (brick) => brick.id === 'graphql',
+    );
+    expect(hitGraphqlBrick?.destroyed).toBe(true);
+    expect(stepped.flashMessage).toBe(
+      'Unknown type "DeployStatus" in schema.graphql.',
+    );
   });
 
   it('restarts the game with full durability and active status', () => {
