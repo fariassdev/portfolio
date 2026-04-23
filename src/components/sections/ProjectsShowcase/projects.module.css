@@ -1,0 +1,155 @@
+/* ============================================================
+   ProjectsShowcase — Styles
+   Design system: dark-first, neon-accent, strong typography
+   ============================================================ */
+
+/* ---- Section & Scroll Spacer ---- */
+
+.section {
+  position: relative;
+  width: 100%;
+}
+
+.scrollSpacer {
+  /* 5 viewport heights of scroll room (set via inline style) */
+  position: relative;
+}
+
+.stickyViewport {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* ---- 3D Canvas Layer ---- */
+
+.canvasWrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ---- Slides Overlay ---- */
+
+.slidesContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* ---- Individual Slide ---- */
+
+.slide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 clamp(24px, 4vw, 64px);
+  contain: layout paint;
+  will-change: opacity, transform;
+}
+
+.slideRight {
+  right: 0;
+}
+
+.slideLeft {
+  left: 0;
+}
+
+/* ---- Slide Typography ---- */
+
+.slideLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slideLabel::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.slideTitle {
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.slideDescription {
+  font-family: var(--font-sans), sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-text-muted);
+  max-width: 440px;
+  margin: 0;
+}
+
+/* ---- Reduced Motion ---- */
+
+@media (--mediaReduceMotion) {
+  .slide {
+    clip-path: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ---- Responsive ---- */
+
+@media (--mediaTablet) {
+  .slide {
+    width: 50%;
+  }
+
+  .slideTitle {
+    font-size: clamp(28px, 4vw, 48px);
+  }
+}
+
+@media (--mediaMobile) {
+  .slide {
+    width: 100%;
+    top: 50%;
+    bottom: 0;
+    padding: 0 var(--spaceOuter);
+  }
+
+  .slideRight,
+  .slideLeft {
+    left: 0;
+    right: 0;
+  }
+
+  .slideTitle {
+    font-size: clamp(24px, 7vw, 36px);
+  }
+
+  .slideDescription {
+    font-size: 14px;
+  }
+}

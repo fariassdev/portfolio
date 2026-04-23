@@ -1,21 +1,12 @@
 import { Hero } from '@/components/sections/Hero';
+import { ProjectsShowcase } from '@/components/sections/ProjectsShowcase';
 import styles from './page.module.css';
 
 export default function Home() {
   return (
     <div className={styles.page}>
       <Hero />
-      <section
-        id="work"
-        style={{
-          minHeight: '100vh',
-          width: '100%',
-          padding: '100px 20px',
-          background: 'rgba(255,255,255,0.05)',
-        }}
-      >
-        <h2>Work Section</h2>
-      </section>
+      <ProjectsShowcase />
       <section
         id="stack"
         style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
