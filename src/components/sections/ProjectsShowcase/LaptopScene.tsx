@@ -328,6 +328,9 @@ export function LaptopScene({
   return (
     <Canvas
       camera={{ position: [0, 0, CAMERA_Z], fov: 70, near: 1, far: 5000 }}
+      onCreated={({ gl }) => {
+        gl.setClearColor(0x000000, 0);
+      }}
       style={{
         position: 'absolute',
         inset: 0,

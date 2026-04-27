@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  type MotionValue,
-  motion,
-  useMotionTemplate,
-  useTransform,
-} from 'framer-motion';
+import { type MotionValue, motion, useTransform } from 'framer-motion';
 import { memo } from 'react';
 import { getProjectSlideState, type Project } from './projects.constants';
 import styles from './projects.module.css';
@@ -28,17 +23,6 @@ export const ProjectSlide = memo(function ProjectSlide({
   );
   const revealProgress = useTransform(slideState, (state) => state.reveal);
 
-  /* Clip-path reveal from the edge where the laptop isn't.
-     If text is on the right, reveal from right→left (inset-left shrinks).
-     If text is on the left, reveal from left→right (inset-right shrinks). */
-  const hiddenFractionPercent = useTransform(
-    revealProgress,
-    (value) => (1 - value) * 100,
-  );
-  const clipPath = isRight
-    ? useMotionTemplate`inset(0 0 0 ${hiddenFractionPercent}%)`
-    : useMotionTemplate`inset(0 ${hiddenFractionPercent}% 0 0)`;
-
   /* Opacity: combine reveal with blur-fade */
   const slideOpacity = useTransform(slideState, (state) => {
     if (!state.active) {
@@ -58,7 +42,6 @@ export const ProjectSlide = memo(function ProjectSlide({
     <motion.div
       className={`${styles.slide} ${isRight ? styles.slideRight : styles.slideLeft}`}
       style={{
-        clipPath,
         opacity: slideOpacity,
         y: translateY,
         visibility,
