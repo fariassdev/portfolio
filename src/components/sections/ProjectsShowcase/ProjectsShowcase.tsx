@@ -5,8 +5,9 @@ import dynamic from 'next/dynamic';
 import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { LaptopSceneProps } from './LaptopScene';
 import { ProjectSlide } from './ProjectSlide';
-import { PROJECTS, SCROLL_PAGES } from './projects.constants';
-import styles from './projects.module.css';
+import { SCROLL_PAGES } from './ProjectsShowcase.constants';
+import { PROJECTS } from './ProjectsShowcase.data';
+import styles from './ProjectsShowcase.module.css';
 
 const LaptopScene = dynamic<LaptopSceneProps>(
   () => import('./LaptopScene').then((m) => ({ default: m.LaptopScene })),
@@ -15,8 +16,6 @@ const LaptopScene = dynamic<LaptopSceneProps>(
 
 export function ProjectsShowcase() {
   const spacerRef = useRef<HTMLDivElement>(null);
-  const mouseFrameRef = useRef<number | null>(null);
-  const pendingMouseRef = useRef<{ x: number; y: number } | null>(null);
   const prefersReducedMotion = useReducedMotion();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -26,34 +25,12 @@ export function ProjectsShowcase() {
     offset: ['start start', 'end end'],
   });
 
-  const flushMouseToMotionValues = useCallback(() => {
-    const nextMouse = pendingMouseRef.current;
-    mouseFrameRef.current = null;
-    if (!nextMouse) {
-      return;
-    }
-
-    mouseX.set(nextMouse.x);
-    mouseY.set(nextMouse.y);
-    pendingMouseRef.current = null;
-  }, [mouseX, mouseY]);
-
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      pendingMouseRef.current = {
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: (e.clientY / window.innerHeight) * 2 - 1,
-      };
-
-      if (mouseFrameRef.current !== null) {
-        return;
-      }
-
-      mouseFrameRef.current = window.requestAnimationFrame(
-        flushMouseToMotionValues,
-      );
+      mouseX.set((e.clientX / window.innerWidth) * 2 - 1);
+      mouseY.set((e.clientY / window.innerHeight) * 2 - 1);
     },
-    [flushMouseToMotionValues],
+    [mouseX, mouseY],
   );
 
   useEffect(() => {
@@ -65,9 +42,6 @@ export function ProjectsShowcase() {
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      if (mouseFrameRef.current !== null) {
-        window.cancelAnimationFrame(mouseFrameRef.current);
-      }
     };
   }, [handleMouseMove, prefersReducedMotion]);
 

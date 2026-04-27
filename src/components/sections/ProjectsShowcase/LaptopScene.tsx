@@ -4,43 +4,43 @@ import { useGLTF } from '@react-three/drei';
 import { Canvas, type ObjectMap, useFrame, useThree } from '@react-three/fiber';
 import type { MotionValue } from 'framer-motion';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
-import * as THREE from 'three';
+import type { Mesh, MeshStandardMaterial } from 'three';
 import type { GLTF } from 'three-stdlib';
+import {
+  BASE_LAPTOP_ROTATION_X,
+  CAMERA_Z,
+  DESKTOP_SLIDE_FACTOR,
+  LAPTOP_SCALE,
+  LID_CLOSED,
+  MOBILE_BREAKPOINT,
+  PARALLAX_X_FACTOR,
+  PARALLAX_Y_FACTOR,
+} from './ProjectsShowcase.constants';
+import {
+  getLidRotation,
+  getLaptopTransform,
+  getScreenTransition,
+} from './ProjectsShowcase.helpers';
 import { useScreenMediaTextures } from './use-screen-media-textures';
-
-const LID_CLOSED = Math.PI / 2;
-const LID_OPEN = 0;
-const LAPTOP_SCALE = 50;
-const CAMERA_Z = 750;
-
-function clamp(v: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, v));
-}
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t;
-}
-function easeInOut(t: number) {
-  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-}
 
 type GLTFResult = GLTF &
   ObjectMap & {
     nodes: {
-      Cube008: THREE.Mesh;
-      Cube008_1: THREE.Mesh;
-      Cube008_2: THREE.Mesh;
-      keyboard: THREE.Mesh;
-      Cube002: THREE.Mesh;
-      Cube002_1: THREE.Mesh;
-      touchbar: THREE.Mesh;
+      Cube008: Mesh;
+      Cube008_1: Mesh;
+      Cube008_2: Mesh;
+      keyboard: Mesh;
+      Cube002: Mesh;
+      Cube002_1: Mesh;
+      touchbar: Mesh;
     };
     materials: {
-      aluminium: THREE.MeshStandardMaterial;
-      'matte.001': THREE.MeshStandardMaterial;
-      'screen.001': THREE.MeshStandardMaterial;
-      keys: THREE.MeshStandardMaterial;
-      trackpad: THREE.MeshStandardMaterial;
-      touchbar: THREE.MeshStandardMaterial;
+      aluminium: MeshStandardMaterial;
+      'matte.001': MeshStandardMaterial;
+      'screen.001': MeshStandardMaterial;
+      keys: MeshStandardMaterial;
+      trackpad: MeshStandardMaterial;
+      touchbar: MeshStandardMaterial;
     };
   };
 
@@ -61,18 +61,19 @@ function LaptopModel({
 }: LaptopModelProps) {
   const { nodes, materials } = useGLTF('/models/laptop.glb') as GLTFResult;
   const { viewport, size } = useThree();
-  const isMobile = size.width < 696;
+  const isMobile = size.width < MOBILE_BREAKPOINT;
 
   const fallbackMedia = '/images/senda/course-details.png';
   const mediaPaths = useMemo<readonly string[]>(
     () => (previewSources.length > 0 ? previewSources : [fallbackMedia]),
     [previewSources, fallbackMedia],
   );
+  const projectCount = mediaPaths.length;
   const screenTextures = useScreenMediaTextures(mediaPaths);
 
   const groupRef = useRef<THREE.Group>(null);
   const lidRef = useRef<THREE.Group>(null);
-  const screenMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const screenMaterialRef = useRef<MeshBasicMaterial>(null);
 
   useEffect(() => {
     if (lidRef.current) {
@@ -86,60 +87,14 @@ function LaptopModel({
     const group = groupRef.current;
     if (!group) return;
 
-    const numProjects = previewSources.length;
-    const totalPhases = numProjects > 0 ? numProjects * 2 + 1 : 1;
-    const phaseLength = 1 / totalPhases;
-
-    const lidT = easeInOut(clamp(progress / phaseLength, 0, 1));
-    if (lid) lid.rotation.x = lerp(LID_CLOSED, LID_OPEN, lidT);
-
-    const maxSlide = isMobile ? 0 : viewport.width * 0.25;
-    let xOffset = 0;
-    let yRot = 0;
-
-    if (!isMobile && numProjects > 0 && progress >= phaseLength) {
-      let activeIndex = Math.floor(
-        (progress - phaseLength) / (phaseLength * 2),
-      );
-      activeIndex = clamp(activeIndex, 0, numProjects - 1);
-
-      const isEven = activeIndex % 2 === 0;
-      const targetX = isEven ? -maxSlide : maxSlide;
-      const targetRot = isEven ? Math.PI / 12 : -Math.PI / 12;
-      const oppositeX = isEven ? maxSlide : -maxSlide;
-      const oppositeRot = isEven ? -Math.PI / 12 : Math.PI / 12;
-
-      const projectStartPhase = phaseLength + activeIndex * phaseLength * 2;
-      const tSlideIn = clamp(
-        (progress - projectStartPhase) / phaseLength,
-        0,
-        1,
-      );
-
-      if (activeIndex === 0 && tSlideIn < 1) {
-        xOffset = lerp(0, targetX, easeInOut(tSlideIn));
-        yRot = lerp(0, targetRot, easeInOut(tSlideIn));
-      } else if (
-        activeIndex === numProjects - 1 &&
-        progress >= projectStartPhase + phaseLength
-      ) {
-        const tSlideOut = clamp(
-          (progress - (projectStartPhase + phaseLength)) / phaseLength,
-          0,
-          1,
-        );
-        xOffset = lerp(targetX, 0, easeInOut(tSlideOut));
-        yRot = lerp(targetRot, 0, easeInOut(tSlideOut));
-      } else {
-        if (tSlideIn < 1) {
-          xOffset = lerp(oppositeX, targetX, easeInOut(tSlideIn));
-          yRot = lerp(oppositeRot, targetRot, easeInOut(tSlideIn));
-        } else {
-          xOffset = targetX;
-          yRot = targetRot;
-        }
-      }
+    if (lid) {
+      lid.rotation.x = getLidRotation(progress, projectCount);
     }
+
+    const maxSlide = isMobile ? 0 : viewport.width * DESKTOP_SLIDE_FACTOR;
+    const laptopTransform = isMobile
+      ? { xOffset: 0, yRotation: 0 }
+      : getLaptopTransform(progress, projectCount, maxSlide);
 
     const mouse = reducedMotion
       ? { x: 0, y: 0 }
@@ -147,40 +102,20 @@ function LaptopModel({
           x: mouseX.get(),
           y: mouseY.get(),
         };
-    group.position.x = xOffset;
-    group.rotation.x = Math.PI / 20 + mouse.y * 0.025;
-    group.rotation.y = yRot + mouse.x * 0.05;
+    group.position.x = laptopTransform.xOffset;
+    group.rotation.x = BASE_LAPTOP_ROTATION_X + mouse.y * PARALLAX_Y_FACTOR;
+    group.rotation.y = laptopTransform.yRotation + mouse.x * PARALLAX_X_FACTOR;
 
     const screenMaterial = screenMaterialRef.current;
     if (screenMaterial && screenTextures.length > 0) {
-      let nextTexture = screenTextures[0];
-      let nextOpacity = 0;
+      const transition = getScreenTransition(
+        progress,
+        projectCount,
+        screenTextures.length,
+      );
 
-      if (numProjects === 0 || progress < phaseLength * 2) {
-        nextTexture = screenTextures[0];
-        nextOpacity = lidT;
-      } else {
-        let activeIndex = Math.floor(
-          (progress - phaseLength * 2) / (phaseLength * 2),
-        );
-        activeIndex = clamp(activeIndex, 0, numProjects - 2);
-
-        const transitionStart = phaseLength * 2 + activeIndex * phaseLength * 2;
-        const t = clamp((progress - transitionStart) / phaseLength, 0, 1);
-
-        const primaryTexture = screenTextures[activeIndex];
-        const secondaryTexture = screenTextures[activeIndex + 1];
-
-        if (!primaryTexture || !secondaryTexture) return;
-
-        if (t < 0.5) {
-          nextTexture = primaryTexture;
-          nextOpacity = 1 - t * 2;
-        } else {
-          nextTexture = secondaryTexture;
-          nextOpacity = (t - 0.5) * 2;
-        }
-      }
+      const nextTexture = screenTextures[transition.textureIndex] ?? null;
+      const nextOpacity = transition.opacity;
 
       if (nextTexture && screenMaterial.map !== nextTexture) {
         screenMaterial.map = nextTexture;
@@ -197,7 +132,7 @@ function LaptopModel({
         ref={groupRef}
         scale={isMobile ? LAPTOP_SCALE * 0.9 : LAPTOP_SCALE}
         position={[0, isMobile ? viewport.height * 0.06 : -100, 0]}
-        rotation={[Math.PI / 20, 0, 0]}
+        rotation={[BASE_LAPTOP_ROTATION_X, 0, 0]}
       >
         <group dispose={null}>
           <group
