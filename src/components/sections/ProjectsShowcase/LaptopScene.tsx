@@ -4,7 +4,13 @@ import { useGLTF } from '@react-three/drei';
 import { Canvas, type ObjectMap, useFrame, useThree } from '@react-three/fiber';
 import type { MotionValue } from 'framer-motion';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
-import type { Mesh, MeshStandardMaterial } from 'three';
+import {
+  DoubleSide,
+  type Group,
+  type Mesh,
+  type MeshBasicMaterial,
+  type MeshStandardMaterial,
+} from 'three';
 import type { GLTF } from 'three-stdlib';
 import {
   BASE_LAPTOP_ROTATION_X,
@@ -71,8 +77,8 @@ function LaptopModel({
   const projectCount = mediaPaths.length;
   const screenTextures = useScreenMediaTextures(mediaPaths);
 
-  const groupRef = useRef<THREE.Group>(null);
-  const lidRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<Group>(null);
+  const lidRef = useRef<Group>(null);
   const screenMaterialRef = useRef<MeshBasicMaterial>(null);
 
   useEffect(() => {
@@ -156,7 +162,7 @@ function LaptopModel({
                   transparent
                   opacity={0}
                   toneMapped={false}
-                  side={THREE.DoubleSide}
+                  side={DoubleSide}
                 />
               </mesh>
             </group>
