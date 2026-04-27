@@ -58,11 +58,31 @@ export const ProjectSlide = memo(function ProjectSlide({
     state.active ? 'visible' : 'hidden',
   );
 
+  const textOpacity = useTransform(slideState, (state) => {
+    if (reduceMotion) {
+      return 1;
+    }
+
+    if (index === 0) {
+      const revealPhase = Math.min(1, state.reveal);
+      return revealPhase * revealPhase;
+    }
+
+    if (index === PROJECT_COUNT - 1) {
+      const fadeOutProgress = Math.min(1, Math.max(0, state.blur));
+      const eased = 1 - fadeOutProgress;
+      return eased * eased;
+    }
+
+    return 1;
+  });
+
   return (
     <motion.div
       className={`${styles.slide} ${isRight ? styles.slideRight : styles.slideLeft}`}
       style={{
         clipPath: reduceMotion ? 'none' : clipPath,
+        opacity: textOpacity,
         visibility,
       }}
     >
