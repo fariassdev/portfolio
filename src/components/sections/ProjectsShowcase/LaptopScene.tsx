@@ -91,10 +91,9 @@ async function loadScreenMediaResource(source: string) {
 }
 
 function useScreenMediaTextures(sources: readonly [string, string]) {
-  const [textures, setTextures] = useState<[
-    THREE.Texture | null,
-    THREE.Texture | null,
-  ]>([null, null]);
+  const [textures, setTextures] = useState<
+    [THREE.Texture | null, THREE.Texture | null]
+  >([null, null]);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,18 +182,18 @@ function LaptopModel({
   images,
   reducedMotion,
 }: LaptopModelProps) {
-  const { nodes, materials } = useGLTF('/models/laptop.glb') as unknown as GLTFResult;
+  const { nodes, materials } = useGLTF(
+    '/models/laptop.glb',
+  ) as unknown as GLTFResult;
   const { viewport } = useThree();
 
   const fallbackImage = '/images/senda/course-details.png';
   const textureSources = useMemo<readonly [string, string]>(
-    () => [
-      images[0] ?? fallbackImage,
-      images[1] ?? images[0] ?? fallbackImage,
-    ],
+    () => [images[0] ?? fallbackImage, images[1] ?? images[0] ?? fallbackImage],
     [images],
   );
-  const [screenTexture1, screenTexture2] = useScreenMediaTextures(textureSources);
+  const [screenTexture1, screenTexture2] =
+    useScreenMediaTextures(textureSources);
 
   // Refs for animated sub-objects
   const groupRef = useRef<THREE.Group>(null);
@@ -298,10 +297,20 @@ function LaptopModel({
         rotation={[Math.PI / 20, 0, 0]}
       >
         <group dispose={null}>
-          <group ref={lidRef} position={[0.002, -0.038, 0.414]} rotation={[0.014, 0, 0]}>
+          <group
+            ref={lidRef}
+            position={[0.002, -0.038, 0.414]}
+            rotation={[0.014, 0, 0]}
+          >
             <group position={[0, 2.965, -0.13]} rotation={[Math.PI / 2, 0, 0]}>
-              <mesh geometry={nodes.Cube008.geometry} material={materials.aluminium} />
-              <mesh geometry={nodes.Cube008_1.geometry} material={materials['matte.001']} />
+              <mesh
+                geometry={nodes.Cube008.geometry}
+                material={materials.aluminium}
+              />
+              <mesh
+                geometry={nodes.Cube008_1.geometry}
+                material={materials['matte.001']}
+              />
               <mesh geometry={nodes.Cube008_2.geometry}>
                 <meshBasicMaterial
                   ref={screenMaterialRef}
@@ -315,16 +324,30 @@ function LaptopModel({
             </group>
           </group>
           <mesh geometry={nodes.keyboard.geometry} position={[1.793, 0, 3.451]}>
-             <meshPhongMaterial color={0x1a1a1a} emissive={0x000000} specular={0x111111} shininess={100} />
+            <meshPhongMaterial
+              color={0x1a1a1a}
+              emissive={0x000000}
+              specular={0x111111}
+              shininess={100}
+            />
           </mesh>
           <group position={[0, -0.1, 3.394]}>
-            <mesh geometry={nodes.Cube002.geometry} material={materials.aluminium} />
-            <mesh geometry={nodes.Cube002_1.geometry} material={materials.trackpad} />
+            <mesh
+              geometry={nodes.Cube002.geometry}
+              material={materials.aluminium}
+            />
+            <mesh
+              geometry={nodes.Cube002_1.geometry}
+              material={materials.trackpad}
+            />
           </group>
-          <mesh geometry={nodes.touchbar.geometry} material={materials.touchbar} position={[0, -0.027, 1.201]} />
+          <mesh
+            geometry={nodes.touchbar.geometry}
+            material={materials.touchbar}
+            position={[0, -0.027, 1.201]}
+          />
         </group>
       </group>
-
     </>
   );
 }
@@ -416,4 +439,3 @@ export function LaptopScene({
 }
 
 useGLTF.preload('/models/laptop.glb');
-

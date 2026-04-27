@@ -49,7 +49,7 @@ export const PROJECTS: Project[] = [
     title: 'Senda',
     description:
       'Real-time AI content generation platform. Built from 0→1 as sole backend engineer. Designed the entire distributed architecture: API gateway, async job queues, WebSocket streaming, multi-tenant data isolation.',
-    image: '/images/senda/course-details.png',
+    image: '/images/senda/senda.webm',
     side: 'right',
   },
   {
@@ -57,7 +57,7 @@ export const PROJECTS: Project[] = [
     title: 'Senda',
     description:
       'Real-time AI content generation platform. Built from 0→1 as sole backend engineer. Designed the entire distributed architecture: API gateway, async job queues, WebSocket streaming, multi-tenant data isolation.',
-    image: '/images/senda/course-details.png',
+    image: '/images/senda/Senda_demo_overview.mp4',
     side: 'left',
   },
 ];
