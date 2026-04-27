@@ -68,7 +68,8 @@ function LaptopModel({
   reducedMotion,
 }: LaptopModelProps) {
   const { nodes, materials } = useGLTF('/models/laptop.glb') as GLTFResult;
-  const { viewport } = useThree();
+  const { viewport, size } = useThree();
+  const isMobile = size.width < 696;
 
   const fallbackMedia = '/images/senda/course-details.png';
   const mediaPaths = useMemo<readonly string[]>(
@@ -104,11 +105,11 @@ function LaptopModel({
     if (lid) lid.rotation.x = lerp(LID_CLOSED, LID_OPEN, lidT);
 
     /* --- Lateral movement + Y rotation --- */
-    const maxSlide = viewport.width * 0.25;
+    const maxSlide = isMobile ? 0 : viewport.width * 0.25;
     let xOffset = 0;
     let yRot = 0;
 
-    if (numProjects > 0 && progress >= phaseLength) {
+    if (!isMobile && numProjects > 0 && progress >= phaseLength) {
       // Find current project index based on progress
       let activeIndex = Math.floor(
         (progress - phaseLength) / (phaseLength * 2),
@@ -209,8 +210,8 @@ function LaptopModel({
       {/* Laptop body */}
       <group
         ref={groupRef}
-        scale={LAPTOP_SCALE}
-        position={[0, -100, 0]}
+        scale={isMobile ? LAPTOP_SCALE * 0.9 : LAPTOP_SCALE}
+        position={[0, isMobile ? viewport.height * 0.06 : -100, 0]}
         rotation={[Math.PI / 20, 0, 0]}
       >
         <group dispose={null}>

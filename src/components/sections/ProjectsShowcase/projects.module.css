@@ -134,9 +134,12 @@
 @media (--mediaMobile) {
   .slide {
     width: 100%;
-    top: 50%;
+    top: 55%;
     bottom: 0;
     padding: 0 var(--spaceOuter);
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .slideRight,
