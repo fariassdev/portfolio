@@ -117,39 +117,41 @@ export function getScreenTransition(
 ): ScreenTransition {
   const phaseLen = getPhaseLength(projectCount);
   if (textureCount <= 0) {
-    return { textureIndex: 0, opacity: 0 };
+    return { fromIndex: 0, toIndex: 0, blend: 0, opacity: 0 };
   }
 
   const lidProgress = getLidProgress(progress, projectCount);
 
-  if (projectCount <= 1 || progress < phaseLen * 2) {
+  // Keep first project visible until the first horizontal sweep.
+  const transitionZoneStart = phaseLen * 3;
+
+  if (projectCount <= 1 || progress < transitionZoneStart) {
     return {
-      textureIndex: 0,
+      fromIndex: 0,
+      toIndex: 0,
+      blend: 0,
       opacity: lidProgress,
     };
   }
 
   const transitionsCount = projectCount - 1;
-  let activeTransition = Math.floor((progress - phaseLen * 2) / (phaseLen * 2));
+  let activeTransition = Math.floor(
+    (progress - transitionZoneStart) / (phaseLen * 2),
+  );
   activeTransition = clamp(activeTransition, 0, transitionsCount - 1);
 
-  const transitionStart = phaseLen * 2 + activeTransition * phaseLen * 2;
+  const transitionStart = transitionZoneStart + activeTransition * phaseLen * 2;
   const transitionProgress = clamp(
     (progress - transitionStart) / phaseLen,
     0,
     1,
   );
 
-  if (transitionProgress < 0.5) {
-    return {
-      textureIndex: clamp(activeTransition, 0, textureCount - 1),
-      opacity: 1 - transitionProgress * 2,
-    };
-  }
-
   return {
-    textureIndex: clamp(activeTransition + 1, 0, textureCount - 1),
-    opacity: (transitionProgress - 0.5) * 2,
+    fromIndex: clamp(activeTransition, 0, textureCount - 1),
+    toIndex: clamp(activeTransition + 1, 0, textureCount - 1),
+    blend: easeInOut(transitionProgress),
+    opacity: 1,
   };
 }
 

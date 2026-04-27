@@ -156,3 +156,103 @@
     font-size: 14px;
   }
 }
+
+/* ---- Laptop Screen (Html component) ---- */
+
+.screenContent {
+  position: relative;
+  width: 1280px; /* Reference width */
+  aspect-ratio: 16 / 10.4;
+  background: #000;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.screenLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, filter;
+}
+
+.screenLayerReveal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  will-change: clip-path, transform, filter;
+}
+
+.screenLayer img,
+.screenLayer video,
+.screenLayerReveal img,
+.screenLayerReveal video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.screenScanline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -2px; /* Position it exactly on the edge */
+  width: 4px;
+  background: var(--color-accent);
+  box-shadow:
+    0 0 10px var(--color-accent),
+    0 0 20px var(--color-accent),
+    0 0 40px var(--color-accent);
+  z-index: 3;
+}
+
+.screenMedia {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.screenPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #111;
+}
+
+.screenNoise {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+}
+
+/* ---- Stripe Reveal (Optimized Scramble) ---- */
+
+.stripsContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.screenStripe {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  will-change: transform, opacity;
+}

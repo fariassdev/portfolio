@@ -18,6 +18,8 @@ export interface LaptopTransform {
 }
 
 export interface ScreenTransition {
-  textureIndex: number;
+  fromIndex: number;
+  toIndex: number;
+  blend: number;
   opacity: number;
 }
