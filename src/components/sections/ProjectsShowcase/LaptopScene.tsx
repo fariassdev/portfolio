@@ -8,10 +8,6 @@ import * as THREE from 'three';
 import type { GLTF } from 'three-stdlib';
 import { useScreenMediaTextures } from './use-screen-media-textures';
 
-/* ------------------------------------------------------------------ */
-/*  Constants — match the reference portfolio exactly                  */
-/* ------------------------------------------------------------------ */
-
 const LID_CLOSED = Math.PI / 2;
 const LID_OPEN = 0;
 const LAPTOP_SCALE = 50;
@@ -48,10 +44,6 @@ type GLTFResult = GLTF &
     };
   };
 
-/* ------------------------------------------------------------------ */
-/*  Inner 3D component                                                  */
-/* ------------------------------------------------------------------ */
-
 interface LaptopModelProps {
   scrollProgress: MotionValue<number>;
   mouseX: MotionValue<number>;
@@ -78,12 +70,10 @@ function LaptopModel({
   );
   const screenTextures = useScreenMediaTextures(mediaPaths);
 
-  // Refs for animated sub-objects
   const groupRef = useRef<THREE.Group>(null);
   const lidRef = useRef<THREE.Group>(null);
   const screenMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
 
-  // Init lid rotation
   useEffect(() => {
     if (lidRef.current) {
       lidRef.current.rotation.x = LID_CLOSED;
@@ -100,17 +90,14 @@ function LaptopModel({
     const totalPhases = numProjects > 0 ? numProjects * 2 + 1 : 1;
     const phaseLength = 1 / totalPhases;
 
-    /* --- Lid opens during Phase 0 (0 → phaseLength) --- */
     const lidT = easeInOut(clamp(progress / phaseLength, 0, 1));
     if (lid) lid.rotation.x = lerp(LID_CLOSED, LID_OPEN, lidT);
 
-    /* --- Lateral movement + Y rotation --- */
     const maxSlide = isMobile ? 0 : viewport.width * 0.25;
     let xOffset = 0;
     let yRot = 0;
 
     if (!isMobile && numProjects > 0 && progress >= phaseLength) {
-      // Find current project index based on progress
       let activeIndex = Math.floor(
         (progress - phaseLength) / (phaseLength * 2),
       );
@@ -154,7 +141,6 @@ function LaptopModel({
       }
     }
 
-    /* --- Mouse parallax --- */
     const mouse = reducedMotion
       ? { x: 0, y: 0 }
       : {
@@ -207,7 +193,6 @@ function LaptopModel({
 
   return (
     <>
-      {/* Laptop body */}
       <group
         ref={groupRef}
         scale={isMobile ? LAPTOP_SCALE * 0.9 : LAPTOP_SCALE}
@@ -270,10 +255,6 @@ function LaptopModel({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Scene setup: lights                                                */
-/* ------------------------------------------------------------------ */
-
 interface LaptopSceneInnerProps {
   scrollProgress: MotionValue<number>;
   mouseX: MotionValue<number>;
@@ -291,9 +272,7 @@ function LaptopSceneInner({
 }: LaptopSceneInnerProps) {
   return (
     <>
-      {/* Main light from above-front, matching reference */}
       <pointLight intensity={3.5} position={[0, 700, 750]} decay={0} />
-      {/* Subtle fill */}
       <pointLight intensity={0.05} position={[-300, 100, 100]} decay={0} />
       <ambientLight intensity={0.4} color="#ffffff" />
       <LaptopModel
@@ -306,10 +285,6 @@ function LaptopSceneInner({
     </>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  Canvas export                                                      */
-/* ------------------------------------------------------------------ */
 
 export interface LaptopSceneProps {
   scrollProgress: MotionValue<number>;
@@ -329,15 +304,13 @@ export function LaptopScene({
   return (
     <Canvas
       camera={{ position: [0, 0, CAMERA_Z], fov: 70, near: 1, far: 5000 }}
-      onCreated={({ gl }) => {
-        gl.setClearColor(0x000000, 0);
-      }}
       style={{
         position: 'absolute',
         inset: 0,
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        background: 'transparent',
       }}
       gl={{
         alpha: true,

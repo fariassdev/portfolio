@@ -8,15 +8,10 @@ import { ProjectSlide } from './ProjectSlide';
 import { PROJECTS, SCROLL_PAGES } from './projects.constants';
 import styles from './projects.module.css';
 
-/* Dynamic import prevents Three.js / WebGL from running on the server */
 const LaptopScene = dynamic<LaptopSceneProps>(
   () => import('./LaptopScene').then((m) => ({ default: m.LaptopScene })),
   { ssr: false },
 );
-
-/* ------------------------------------------------------------------ */
-/*  ProjectsShowcase                                                   */
-/* ------------------------------------------------------------------ */
 
 export function ProjectsShowcase() {
   const spacerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +21,6 @@ export function ProjectsShowcase() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  /* framer-motion scroll tracking */
   const { scrollYProgress } = useScroll({
     target: spacerRef,
     offset: ['start start', 'end end'],
@@ -44,7 +38,6 @@ export function ProjectsShowcase() {
     pendingMouseRef.current = null;
   }, [mouseX, mouseY]);
 
-  /* Mouse tracking (normalized -1..1), batched with requestAnimationFrame */
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       pendingMouseRef.current = {
@@ -95,7 +88,6 @@ export function ProjectsShowcase() {
         style={{ height: `${SCROLL_PAGES * 100}vh` }}
       >
         <div className={styles.stickyViewport}>
-          {/* 3D Canvas — always visible; reduced-motion users get a static laptop */}
           <div className={styles.canvasWrapper}>
             <Suspense fallback={null}>
               <LaptopScene
@@ -108,7 +100,6 @@ export function ProjectsShowcase() {
             </Suspense>
           </div>
 
-          {/* HTML Slide Overlays */}
           <div className={styles.slidesContainer}>
             {PROJECTS.map((project, i) => {
               return (

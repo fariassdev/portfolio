@@ -58,7 +58,7 @@
   gap: 16px;
   padding: 0 clamp(24px, 4vw, 64px);
   contain: layout paint;
-  will-change: opacity, transform;
+  will-change: clip-path, opacity, transform;
 }
 
 .slideRight {

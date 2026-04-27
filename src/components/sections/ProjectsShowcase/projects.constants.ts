@@ -46,22 +46,18 @@ export function getProjectSlideState(
   const phaseLength = 1 / totalPages;
 
   const revealStart = (2 * index + 1) * phaseLength;
-  const blurStart = revealStart + phaseLength;
 
-  const activeStart = revealStart - phaseLength / 4;
-  const activeEnd = index === n - 1 ? 1 : blurStart + phaseLength;
+  const blurStart =
+    index === n - 1 ? revealStart + phaseLength : revealStart + 2 * phaseLength;
+
+  const activeStart = revealStart;
+  const activeEnd = blurStart + phaseLength;
 
   return {
     reveal: clamp((progress - revealStart) / phaseLength, 0, 1),
-    blur:
-      index === n - 1 ? 0 : clamp((progress - blurStart) / phaseLength, 0, 1),
+    blur: clamp((progress - blurStart) / phaseLength, 0, 1),
     active: progress >= activeStart && progress <= activeEnd,
   };
 }
 
-/**
- * Total scroll spacer height in viewport units.
- * Dynamically calculated based on number of projects.
- * Total phases = N * 2 + 1.
- */
 export const SCROLL_PAGES = PROJECTS.length > 0 ? PROJECTS.length * 2 + 1 : 1;
