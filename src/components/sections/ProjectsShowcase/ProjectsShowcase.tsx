@@ -78,7 +78,10 @@ export function ProjectsShowcase() {
     };
   }, [handleMouseMove, prefersReducedMotion]);
 
-  const images = useMemo(() => PROJECTS.map((project) => project.image), []);
+  const previewSources = useMemo(
+    () => PROJECTS.map((project) => project.previewSrc),
+    [],
+  );
 
   return (
     <section
@@ -99,7 +102,7 @@ export function ProjectsShowcase() {
                 scrollProgress={scrollYProgress}
                 mouseX={mouseX}
                 mouseY={mouseY}
-                images={images}
+                previewSources={previewSources}
                 reducedMotion={Boolean(prefersReducedMotion)}
               />
             </Suspense>
