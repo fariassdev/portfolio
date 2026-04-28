@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import styles from './ProjectsShowcase.module.css';
 import type { ScreenTransition } from './ProjectsShowcase.types';
 
@@ -62,82 +62,138 @@ MediaRenderer.displayName = 'MediaRenderer';
 /**
  * LaptopScreen Component
  *
- * Optimized & Distilled "Digital Morph".
- * Uses a limited number of horizontal strips for a scramble-like effect
- * with minimal performance overhead.
+ * Implements a vintage TV (CRT) turn-off/on transition effect.
+ * Collapses the screen vertically then horizontally to a dot,
+ * with scanlines, vignette, and brightness flash.
  */
 export const LaptopScreen = memo(
   ({ mediaPaths, transition }: LaptopScreenProps) => {
     const fromPath = mediaPaths[transition.fromIndex];
     const toPath = mediaPaths[transition.toIndex];
     const isTransitioning = transition.blend > 0 && transition.blend < 1;
+    const blend = transition.blend;
 
-    // Distilled Grid: 8 horizontal strips are enough for a techy feel
-    const STRIP_COUNT = 8;
+    // TV Animation Stages:
+    // 1. Vertical collapse (0.0 -> 0.3)
+    // 2. Horizontal collapse (0.3 -> 0.5)
+    // 3. Horizontal expand (0.5 -> 0.7)
+    // 4. Vertical expand (0.7 -> 1.0)
 
-    const strips = useMemo(() => {
-      return Array.from({ length: STRIP_COUNT }).map((_, i) => {
-        // Unique delay/offset for each strip
-        const delay = ((Math.sin(i * 0.5) + 1) / 2) * 0.3;
-        const progress = Math.max(
-          0,
-          Math.min(1, (transition.blend - delay) / 0.7),
-        );
+    const vCollapse = Math.max(0, Math.min(1, blend / 0.3));
+    const hCollapse = Math.max(0, Math.min(1, (blend - 0.3) / 0.2));
+    const hExpand = Math.max(0, Math.min(1, (blend - 0.5) / 0.2));
+    const vExpand = Math.max(0, Math.min(1, (blend - 0.7) / 0.3));
 
-        if (progress <= 0) return null;
+    const isTurningOff = blend < 0.5;
 
-        return (
-          <div
-            key={i}
-            className={styles.screenStripe}
-            style={{
-              top: `${(i * 100) / STRIP_COUNT}%`,
-              height: `${100 / STRIP_COUNT}%`,
-              opacity: progress,
-              transform: `translateX(${(1 - progress) * 20}px)`,
-            }}
-          >
-            <MediaRenderer
-              src={toPath}
-              style={{
-                height: `${STRIP_COUNT * 100}%`,
-                top: `${-i * 100}%`,
-                position: 'absolute',
-                width: '100%',
-                objectFit: 'cover',
-              }}
-            />
-          </div>
-        );
-      });
-    }, [toPath, transition.blend]);
+    let scaleX = 1;
+    let scaleY = 1;
+    let brightness = 1;
+    let flashOpacity = 0;
+
+    if (isTurningOff) {
+      scaleY = 1 - vCollapse * 0.998;
+      if (blend > 0.3) {
+        scaleX = 1 - hCollapse;
+      }
+      brightness = 1 + vCollapse * 1.5;
+    } else {
+      scaleX = hExpand;
+      scaleY = blend > 0.7 ? 0.002 + vExpand * 0.998 : 0.002;
+      brightness = 1 + (1 - vExpand) * 1.5;
+    }
+
+    // Flash at the midpoint
+    flashOpacity = Math.max(0, 1 - Math.abs(blend - 0.5) * 10);
+
+    // Glowing line intensity
+    const lineIntensity = isTurningOff
+      ? Math.max(0, (blend - 0.2) / 0.3)
+      : Math.max(0, 1 - (blend - 0.5) / 0.3);
 
     return (
       <div
         className={styles.screenContent}
         style={{ opacity: transition.opacity }}
       >
-        {/* Base Layer */}
+        {/* CRT Background */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: '#050505',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Main Media Layer with CRT scale */}
         <div
           className={styles.screenLayer}
           style={{
-            filter: isTransitioning
-              ? `blur(${transition.blend * 2}px)`
-              : 'none',
+            transform: `scale(${scaleX}, ${scaleY})`,
+            filter: `brightness(${brightness}) contrast(1.1)`,
+            zIndex: 1,
           }}
         >
-          <MediaRenderer src={fromPath} />
-        </div>
-
-        {/* Scramble Strips */}
-        <div className={styles.stripsContainer}>{strips}</div>
-
-        {/* Full Finish Layer */}
-        {transition.blend >= 0.98 && (
-          <div className={styles.screenLayer}>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              opacity: isTurningOff ? 1 : 0,
+              position: 'absolute',
+              background: '#000',
+            }}
+          >
+            <MediaRenderer src={fromPath} />
+          </div>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              opacity: isTurningOff ? 0 : 1,
+              position: 'absolute',
+              background: '#000',
+            }}
+          >
             <MediaRenderer src={toPath} />
           </div>
-        )}
+
+          {/* White Glow Line (Inner) */}
+          {isTransitioning && (
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: '50%',
+                height: '2px',
+                transform: 'translateY(-50%)',
+                background: '#fff',
+                boxShadow: '0 0 20px #fff, 0 0 40px #fff',
+                opacity: lineIntensity,
+                zIndex: 5,
+              }}
+            />
+          )}
+        </div>
+
+        {/* CRT Overlays */}
+        <div className={styles.crtOverlay}>
+          <div className={styles.scanlines} />
+          <div className={styles.vignette} />
+        </div>
+
+        {/* Mid-transition Flash */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: '#fff',
+            opacity: flashOpacity,
+            pointerEvents: 'none',
+            zIndex: 10,
+          }}
+        />
 
         {/* Simplified Noise Overlay */}
         <AnimatePresence>
@@ -146,7 +202,7 @@ export const LaptopScreen = memo(
               key="noise"
               className={styles.screenNoise}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.05 }}
+              animate={{ opacity: 0.1 }}
               exit={{ opacity: 0 }}
             />
           )}
