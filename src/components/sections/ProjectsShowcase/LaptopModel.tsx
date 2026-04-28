@@ -9,6 +9,7 @@ import type { GLTF } from 'three-stdlib';
 import { LaptopScreen } from './LaptopScreen';
 import {
   BASE_LAPTOP_ROTATION_X,
+  CAMERA_Z,
   DESKTOP_SLIDE_FACTOR,
   LAPTOP_SCALE,
   LID_CLOSED,
@@ -68,6 +69,18 @@ export const LaptopModel = memo(
     const { nodes, materials } = useGLTF('/models/laptop.glb') as GLTFResult;
     const { viewport, size } = useThree();
     const isMobile = size.width < MOBILE_BREAKPOINT;
+    const isTablet = size.width >= MOBILE_BREAKPOINT && size.width < 1040;
+
+    const currentScale = useMemo(() => {
+      if (isMobile) return LAPTOP_SCALE * 0.8;
+      if (isTablet) return LAPTOP_SCALE * 0.8;
+      return LAPTOP_SCALE;
+    }, [isMobile, isTablet]);
+
+    const currentPosition = useMemo<[number, number, number]>(() => {
+      if (isMobile) return [0, viewport.height * 0.06, 0];
+      return [0, -80, 0];
+    }, [isMobile, viewport.height]);
 
     const fallbackMedia = '/images/senda/course-details.png';
     const mediaPaths = useMemo<readonly string[]>(
@@ -118,6 +131,9 @@ export const LaptopModel = memo(
       group.rotation.y =
         laptopTransform.yRotation + mouse.x * PARALLAX_X_FACTOR;
 
+      // Perspective lean compensation
+      group.rotation.z = Math.atan(laptopTransform.xOffset / (CAMERA_Z * 6));
+
       // Calculate current transition state
       const currentTransition = getScreenTransition(
         progress,
@@ -131,8 +147,8 @@ export const LaptopModel = memo(
     return (
       <group
         ref={groupRef}
-        scale={isMobile ? LAPTOP_SCALE * 0.9 : LAPTOP_SCALE}
-        position={[0, isMobile ? viewport.height * 0.06 : -100, 0]}
+        scale={currentScale}
+        position={currentPosition}
         rotation={[BASE_LAPTOP_ROTATION_X, 0, 0]}
       >
         <group dispose={null}>

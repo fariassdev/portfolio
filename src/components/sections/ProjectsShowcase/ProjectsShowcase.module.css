@@ -51,22 +51,25 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 45%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 16px;
-  padding: 0 clamp(24px, 4vw, 64px);
   contain: layout paint;
   will-change: clip-path, opacity, transform;
 }
 
 .slideRight {
   right: 0;
+  padding-right: clamp(48px, 10vw, 160px);
+  padding-left: clamp(24px, 4vw, 48px);
 }
 
 .slideLeft {
   left: 0;
+  padding-left: clamp(48px, 10vw, 160px);
+  padding-right: clamp(24px, 4vw, 48px);
 }
 
 /* ---- Slide Typography ---- */
@@ -105,7 +108,7 @@
   font-size: 15px;
   line-height: 1.75;
   color: var(--color-text-muted);
-  max-width: 440px;
+  max-width: 480px;
   margin: 0;
 }
 
@@ -123,7 +126,7 @@
 
 @media (--mediaTablet) {
   .slide {
-    width: 50%;
+    width: 45%;
   }
 
   .slideTitle {
