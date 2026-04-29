@@ -32,6 +32,8 @@ export const LaptopScene = memo(
       <Canvas
         camera={{ position: [0, 0, CAMERA_Z], fov: 45, near: 1, far: 5000 }}
         dpr={[1, 1.5]}
+        performance={{ min: 0.5 }}
+        flat
         style={{
           position: 'absolute',
           inset: 0,
@@ -44,6 +46,8 @@ export const LaptopScene = memo(
           alpha: true,
           antialias: true,
           powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
         }}
       >
         <ambientLight intensity={0.4} color="#ffffff" />

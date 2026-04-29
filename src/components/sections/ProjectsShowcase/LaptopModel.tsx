@@ -2,11 +2,15 @@
 
 import { useGLTF, Html } from '@react-three/drei';
 import { useFrame, useThree, type ObjectMap } from '@react-three/fiber';
-import { useMotionValue, type MotionValue } from 'framer-motion';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useMotionValue,
+  useMotionValueEvent,
+  type MotionValue,
+} from 'framer-motion';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { type Group, type Mesh, type MeshStandardMaterial } from 'three';
 import type { GLTF } from 'three-stdlib';
-import { LaptopScreen } from './LaptopScreen';
+import { LaptopScreen, type LaptopScreenHandle } from './LaptopScreen';
 import {
   BASE_LAPTOP_ROTATION_X,
   CAMERA_Z,
@@ -99,10 +103,8 @@ export const LaptopModel = memo(
     // Track current indices in a ref (no re-render)
     const indicesRef = useRef({ fromIndex: 0, toIndex: 0 });
 
-    // State to trigger re-render only when indices actually change
-    const [indices, setIndices] = useState({ fromIndex: 0, toIndex: 0 });
+    const screenRef = useRef<LaptopScreenHandle>(null);
 
-    // Refs for continuous animation values (read once per frame)
     const progressRef = useRef(0);
 
     useEffect(() => {
@@ -111,35 +113,31 @@ export const LaptopModel = memo(
       }
     }, []);
 
-    // Discrete updates: detect index changes outside the animation loop
-    useEffect(() => {
-      const unsubscribe = scrollProgress.onChange((progress) => {
-        if (reducedMotion) return;
+    useMotionValueEvent(scrollProgress, 'change', (progress) => {
+      if (reducedMotion) return;
 
-        const currentTransition = getScreenTransition(
-          progress,
-          projectCount,
-          mediaPaths.length,
-        );
+      const currentTransition = getScreenTransition(
+        progress,
+        projectCount,
+        mediaPaths.length,
+      );
 
-        const current = indicesRef.current;
-        if (
-          current.fromIndex !== currentTransition.fromIndex ||
-          current.toIndex !== currentTransition.toIndex
-        ) {
-          indicesRef.current = {
-            fromIndex: currentTransition.fromIndex,
-            toIndex: currentTransition.toIndex,
-          };
-          setIndices({
-            fromIndex: currentTransition.fromIndex,
-            toIndex: currentTransition.toIndex,
-          });
-        }
-      });
+      const current = indicesRef.current;
+      if (
+        current.fromIndex !== currentTransition.fromIndex ||
+        current.toIndex !== currentTransition.toIndex
+      ) {
+        const from = current.fromIndex;
+        const to = currentTransition.toIndex;
 
-      return unsubscribe;
-    }, [scrollProgress, projectCount, mediaPaths.length, reducedMotion]);
+        indicesRef.current = {
+          fromIndex: currentTransition.fromIndex,
+          toIndex: currentTransition.toIndex,
+        };
+
+        screenRef.current?.transitionTo(from, to);
+      }
+    });
 
     // Continuous updates: animation loop only handles smooth values
     useFrame(() => {
@@ -180,7 +178,6 @@ export const LaptopModel = memo(
         mediaPaths.length,
       );
 
-      // Update motion values directly (no re-render, smooth 60fps)
       blendMotion.set(currentTransition.blend);
       opacityMotion.set(currentTransition.opacity);
     });
@@ -214,23 +211,20 @@ export const LaptopModel = memo(
 
               {/* Interactive HTML Screen */}
               <Html
-                transform
                 distanceFactor={2.6}
                 position={[0, 0.1, -0.09]}
                 rotation={[-Math.PI / 2, 0, 0]}
-                occlude
+                occlude={false}
+                transform
+                zIndexRange={[0, 0]}
+                prepend
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  transformStyle: 'preserve-3d',
-                  backfaceVisibility: 'hidden',
+                  pointerEvents: 'none',
                 }}
               >
                 <LaptopScreen
+                  ref={screenRef}
                   mediaPaths={mediaPaths}
-                  fromIndex={indices.fromIndex}
-                  toIndex={indices.toIndex}
-                  blendMotion={blendMotion}
                   opacityMotion={opacityMotion}
                 />
               </Html>

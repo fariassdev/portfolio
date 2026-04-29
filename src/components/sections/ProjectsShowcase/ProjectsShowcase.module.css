@@ -164,12 +164,18 @@
 
 .screenContent {
   position: relative;
-  width: 1280px; /* Reference width */
+  width: 1280px;
   aspect-ratio: 16 / 10.4;
   background: #000;
   overflow: hidden;
   user-select: none;
   -webkit-user-drag: none;
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  contain: strict;
+  isolation: isolate;
 }
 
 .screenLayer {
@@ -181,6 +187,8 @@
   align-items: center;
   justify-content: center;
   will-change: transform, filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .screenLayerReveal {
@@ -224,6 +232,8 @@
   object-fit: cover;
   display: block;
   pointer-events: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .screenPlaceholder {
@@ -269,4 +279,48 @@
     rgba(0, 0, 0, 0.4) 100%
   );
   pointer-events: none;
+}
+
+/* ---- CRT Animations ---- */
+
+@keyframes crtOff {
+  0% {
+    transform: scaleX(1) scaleY(1);
+    filter: brightness(1);
+  }
+  30% {
+    transform: scaleX(1) scaleY(0.002);
+    filter: brightness(2.5);
+  }
+  50% {
+    transform: scaleX(0) scaleY(0.002);
+    filter: brightness(2.5);
+  }
+  100% {
+    transform: scaleX(0) scaleY(0.002);
+    filter: brightness(2.5);
+  }
+}
+
+@keyframes crtOn {
+  0% {
+    transform: scaleX(0) scaleY(0.002);
+    filter: brightness(2.5);
+  }
+  50% {
+    transform: scaleX(1) scaleY(0.002);
+    filter: brightness(2.5);
+  }
+  100% {
+    transform: scaleX(1) scaleY(1);
+    filter: brightness(1);
+  }
+}
+
+.screenLayerCRTOff {
+  animation: crtOff 0.35s ease-in-out forwards;
+}
+
+.screenLayerCRTOn {
+  animation: crtOn 0.35s ease-in-out forwards;
 }
