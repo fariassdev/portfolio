@@ -97,9 +97,10 @@ export const LaptopModel = memo(
     const groupRef = useRef<Group>(null);
     const lidRef = useRef<Group>(null);
 
-    const phaseLen = 1 / (projectCount * 2 + 3);
+    const phaseLen = 1 / (projectCount * 2 + 1);
 
     // Declarative transformations for the lid and screen opacity
+    // Lid opens during phase 0 and closes during phase 2N
     const lidRotation = useTransform(
       scrollProgress,
       [0, phaseLen, 1 - phaseLen, 1],

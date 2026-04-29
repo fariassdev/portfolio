@@ -60,7 +60,7 @@ export const ProjectSlide = memo(function ProjectSlide({
 
   // Robust visibility: cover reveal, active, and blur phases
   const visibility = useTransform(scrollProgress, (progress) => {
-    const start = (2 * index + 1) * PHASE_LENGTH;
+    const start = 2 * index * PHASE_LENGTH;
     const end = start + 3.1 * PHASE_LENGTH; // Covers reveal (1), stable (2), and blur (0.1 extra for safety)
     return progress >= start && progress <= end ? 'visible' : 'hidden';
   });
@@ -71,10 +71,10 @@ export const ProjectSlide = memo(function ProjectSlide({
 
   // Scramble label: Activate shortly after reveal starts, and stop as soon as blur begins
   const isLabelActive = useTransform(scrollProgress, (progress) => {
-    const revealStart = (2 * index + 1) * PHASE_LENGTH;
+    const revealStart = 2 * index * PHASE_LENGTH;
     const blurStart = revealStart + 2 * PHASE_LENGTH;
 
-    const isRevealedEnough = progress > revealStart + PHASE_LENGTH * 0.5;
+    const isRevealedEnough = progress > revealStart + PHASE_LENGTH * 0.3; // Start earlier since it's the first phase
     const hasNotStartedBlurring = progress < blurStart + PHASE_LENGTH * 0.1;
 
     return isRevealedEnough && hasNotStartedBlurring;

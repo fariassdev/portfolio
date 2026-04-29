@@ -17,7 +17,7 @@ import type {
  * Calculates the length of a single animation phase.
  */
 export function getPhaseLength(projectCount: number): number {
-  return 1 / (projectCount > 0 ? projectCount * 2 + 3 : 1);
+  return 1 / Math.max(projectCount * 2 + 1, 1);
 }
 
 /**
@@ -29,12 +29,13 @@ export function getLaptopTransform(
   maxSlide: number,
 ): LaptopTransform {
   const phaseLen = getPhaseLength(projectCount);
-  if (projectCount <= 0 || progress < phaseLen || progress > 1 - phaseLen) {
+  if (projectCount <= 0) {
     return { xOffset: 0, yRotation: 0 };
   }
 
   // Calculate active index based on current progress
-  let activeIndex = Math.floor((progress - phaseLen) / (phaseLen * 2));
+  // Phase 0-1: Project 0, Phase 2-3: Project 1, etc.
+  let activeIndex = Math.floor(progress / (phaseLen * 2));
   activeIndex = clamp(activeIndex, 0, projectCount - 1);
 
   const isEven = activeIndex % 2 === 0;
@@ -47,14 +48,14 @@ export function getLaptopTransform(
     ? -MAX_LAPTOP_ROTATION_Y
     : MAX_LAPTOP_ROTATION_Y;
 
-  const projectStartPhase = phaseLen + activeIndex * phaseLen * 2;
+  const projectStartPhase = activeIndex * phaseLen * 2;
   const transitionInProgress = clamp(
     (progress - projectStartPhase) / phaseLen,
     0,
     1,
   );
 
-  // Final project "out" transition
+  // Final project "out" transition (Phase 2N)
   if (
     activeIndex === projectCount - 1 &&
     progress >= projectStartPhase + 2 * phaseLen
@@ -71,7 +72,7 @@ export function getLaptopTransform(
     };
   }
 
-  // First project initial sweep in
+  // First project initial sweep in (Phase 0)
   if (activeIndex === 0 && transitionInProgress < 1) {
     const eased = easeInOut(transitionInProgress);
     return {
@@ -80,7 +81,7 @@ export function getLaptopTransform(
     };
   }
 
-  // Intermediate transitions between projects
+  // Intermediate transitions between projects (Phases 2, 4, ...)
   if (transitionInProgress < 1) {
     const eased = easeInOut(transitionInProgress);
     return {
@@ -89,7 +90,7 @@ export function getLaptopTransform(
     };
   }
 
-  // Steady viewing state
+  // Steady viewing state (Phases 1, 3, ...)
   return {
     xOffset: targetX,
     yRotation: targetRotation,
@@ -109,8 +110,8 @@ export function getScreenTransition(
     return { fromIndex: 0, toIndex: 0, blend: 0 };
   }
 
-  // Keep first project visible until the first horizontal sweep.
-  const transitionZoneStart = phaseLen * 3;
+  // Transition zones start at phases 2, 4, 6...
+  const transitionZoneStart = phaseLen * 2;
 
   if (projectCount <= 1 || progress < transitionZoneStart) {
     return {
@@ -171,8 +172,9 @@ export function getProjectSlideState(
 ): ProjectSlideState {
   if (PROJECT_COUNT === 0) return { reveal: 0, blur: 0, active: false };
 
-  const revealStart = (2 * index + 1) * PHASE_LENGTH;
-  const blurStart = revealStart + 2 * PHASE_LENGTH;
+  // Project i: Reveal starts at phase 2*i, Blur starts at phase 2*i + 2
+  const revealStart = 2 * index * PHASE_LENGTH;
+  const blurStart = (2 * index + 2) * PHASE_LENGTH;
 
   const activeStart = revealStart;
   const activeEnd = blurStart + PHASE_LENGTH;

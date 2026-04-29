@@ -22,5 +22,5 @@ export const CLIP_PATH_TILT_FACTOR = 8;
 
 // Derived Animation Values
 export const PROJECT_COUNT = PROJECTS.length;
-export const SCROLL_PAGES = PROJECT_COUNT * 2 + 3;
+export const SCROLL_PAGES = Math.max(PROJECT_COUNT * 2 + 1, 1);
 export const PHASE_LENGTH = 1 / SCROLL_PAGES;
