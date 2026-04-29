@@ -1,14 +1,21 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  motion,
+  useTransform,
+  useMotionTemplate,
+  type MotionValue,
+} from 'framer-motion';
 import Image from 'next/image';
 import { memo } from 'react';
 import styles from './ProjectsShowcase.module.css';
-import type { ScreenTransition } from './ProjectsShowcase.types';
 
 interface LaptopScreenProps {
   mediaPaths: readonly string[];
-  transition: ScreenTransition;
+  fromIndex: number;
+  toIndex: number;
+  blendMotion: MotionValue<number>;
+  opacityMotion: MotionValue<number>;
 }
 
 /**
@@ -63,58 +70,81 @@ MediaRenderer.displayName = 'MediaRenderer';
  * LaptopScreen Component
  *
  * Implements a vintage TV (CRT) turn-off/on transition effect.
- * Collapses the screen vertically then horizontally to a dot,
- * with scanlines, vignette, and brightness flash.
+ * Uses framer-motion's MotionValues to bypass React render cycle for smooth 60fps animations.
  */
 export const LaptopScreen = memo(
-  ({ mediaPaths, transition }: LaptopScreenProps) => {
-    const fromPath = mediaPaths[transition.fromIndex];
-    const toPath = mediaPaths[transition.toIndex];
-    const isTransitioning = transition.blend > 0 && transition.blend < 1;
-    const blend = transition.blend;
+  ({
+    mediaPaths,
+    fromIndex,
+    toIndex,
+    blendMotion,
+    opacityMotion,
+  }: LaptopScreenProps) => {
+    const fromPath = mediaPaths[fromIndex];
+    const toPath = mediaPaths[toIndex];
 
-    // TV Animation Stages:
-    // 1. Vertical collapse (0.0 -> 0.3)
-    // 2. Horizontal collapse (0.3 -> 0.5)
-    // 3. Horizontal expand (0.5 -> 0.7)
-    // 4. Vertical expand (0.7 -> 1.0)
-
-    const vCollapse = Math.max(0, Math.min(1, blend / 0.3));
-    const hCollapse = Math.max(0, Math.min(1, (blend - 0.3) / 0.2));
-    const hExpand = Math.max(0, Math.min(1, (blend - 0.5) / 0.2));
-    const vExpand = Math.max(0, Math.min(1, (blend - 0.7) / 0.3));
-
-    const isTurningOff = blend < 0.5;
-
-    let scaleX = 1;
-    let scaleY = 1;
-    let brightness = 1;
-    let flashOpacity = 0;
-
-    if (isTurningOff) {
-      scaleY = 1 - vCollapse * 0.998;
-      if (blend > 0.3) {
-        scaleX = 1 - hCollapse;
+    const scaleX = useTransform(blendMotion, (blend) => {
+      if (blend < 0.5) {
+        return blend > 0.3
+          ? 1 - Math.max(0, Math.min(1, (blend - 0.3) / 0.2))
+          : 1;
+      } else {
+        return Math.max(0, Math.min(1, (blend - 0.5) / 0.2));
       }
-      brightness = 1 + vCollapse * 1.5;
-    } else {
-      scaleX = hExpand;
-      scaleY = blend > 0.7 ? 0.002 + vExpand * 0.998 : 0.002;
-      brightness = 1 + (1 - vExpand) * 1.5;
-    }
+    });
 
-    // Flash at the midpoint
-    flashOpacity = Math.max(0, 1 - Math.abs(blend - 0.5) * 10);
+    const scaleY = useTransform(blendMotion, (blend) => {
+      if (blend < 0.5) {
+        const vC = Math.max(0, Math.min(1, blend / 0.3));
+        return 1 - vC * 0.998;
+      } else {
+        const vE = Math.max(0, Math.min(1, (blend - 0.7) / 0.3));
+        return blend > 0.7 ? 0.002 + vE * 0.998 : 0.002;
+      }
+    });
 
-    // Glowing line intensity
-    const lineIntensity = isTurningOff
-      ? Math.max(0, (blend - 0.2) / 0.3)
-      : Math.max(0, 1 - (blend - 0.5) / 0.3);
+    const brightness = useTransform(blendMotion, (blend) => {
+      if (blend < 0.5) {
+        const vC = Math.max(0, Math.min(1, blend / 0.3));
+        return 1 + vC * 1.5;
+      } else {
+        const vE = Math.max(0, Math.min(1, (blend - 0.7) / 0.3));
+        return 1 + (1 - vE) * 1.5;
+      }
+    });
+
+    const flashOpacity = useTransform(blendMotion, (blend) =>
+      Math.max(0, 1 - Math.abs(blend - 0.5) * 10),
+    );
+
+    const lineIntensity = useTransform(blendMotion, (blend) => {
+      const isOff = blend < 0.5;
+      return isOff
+        ? Math.max(0, (blend - 0.2) / 0.3)
+        : Math.max(0, 1 - (blend - 0.5) / 0.3);
+    });
+
+    const noiseOpacity = useTransform(blendMotion, (blend) => {
+      return blend > 0 && blend < 1 ? 0.1 : 0;
+    });
+
+    const fromOpacity = useTransform(blendMotion, (blend) =>
+      blend < 0.5 ? 1 : 0,
+    );
+    const toOpacity = useTransform(blendMotion, (blend) =>
+      blend < 0.5 ? 0 : 1,
+    );
+    const lineDisplay = useTransform(blendMotion, (blend) =>
+      blend > 0 && blend < 1 ? 'block' : 'none',
+    );
+
+    const layerTransform = useMotionTemplate`scale(${scaleX}, ${scaleY})`;
+    const layerFilter = useMotionTemplate`brightness(${brightness}) contrast(1.1)`;
 
     return (
-      <div
+      <motion.div
         className={styles.screenContent}
-        style={{ opacity: transition.opacity }}
+        style={{ opacity: opacityMotion }}
       >
         {/* CRT Background */}
         <div
@@ -127,55 +157,54 @@ export const LaptopScreen = memo(
         />
 
         {/* Main Media Layer with CRT scale */}
-        <div
+        <motion.div
           className={styles.screenLayer}
           style={{
-            transform: `scale(${scaleX}, ${scaleY})`,
-            filter: `brightness(${brightness}) contrast(1.1)`,
+            transform: layerTransform,
+            filter: layerFilter,
             zIndex: 1,
           }}
         >
-          <div
+          <motion.div
             style={{
               width: '100%',
               height: '100%',
-              opacity: isTurningOff ? 1 : 0,
+              opacity: fromOpacity,
               position: 'absolute',
               background: '#000',
             }}
           >
             <MediaRenderer src={fromPath} />
-          </div>
-          <div
+          </motion.div>
+          <motion.div
             style={{
               width: '100%',
               height: '100%',
-              opacity: isTurningOff ? 0 : 1,
+              opacity: toOpacity,
               position: 'absolute',
               background: '#000',
             }}
           >
             <MediaRenderer src={toPath} />
-          </div>
+          </motion.div>
 
           {/* White Glow Line (Inner) */}
-          {isTransitioning && (
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: '50%',
-                height: '2px',
-                transform: 'translateY(-50%)',
-                background: '#fff',
-                boxShadow: '0 0 20px #fff, 0 0 40px #fff',
-                opacity: lineIntensity,
-                zIndex: 5,
-              }}
-            />
-          )}
-        </div>
+          <motion.div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: '50%',
+              height: '2px',
+              transform: 'translateY(-50%)',
+              background: '#fff',
+              boxShadow: '0 0 20px #fff, 0 0 40px #fff',
+              opacity: lineIntensity,
+              display: lineDisplay,
+              zIndex: 5,
+            }}
+          />
+        </motion.div>
 
         {/* CRT Overlays */}
         <div className={styles.crtOverlay}>
@@ -184,7 +213,7 @@ export const LaptopScreen = memo(
         </div>
 
         {/* Mid-transition Flash */}
-        <div
+        <motion.div
           style={{
             position: 'absolute',
             inset: 0,
@@ -196,18 +225,11 @@ export const LaptopScreen = memo(
         />
 
         {/* Simplified Noise Overlay */}
-        <AnimatePresence>
-          {isTransitioning && (
-            <motion.div
-              key="noise"
-              className={styles.screenNoise}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.1 }}
-              exit={{ opacity: 0 }}
-            />
-          )}
-        </AnimatePresence>
-      </div>
+        <motion.div
+          className={styles.screenNoise}
+          style={{ opacity: noiseOpacity }}
+        />
+      </motion.div>
     );
   },
 );

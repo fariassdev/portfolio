@@ -31,6 +31,7 @@ export const LaptopScene = memo(
     return (
       <Canvas
         camera={{ position: [0, 0, CAMERA_Z], fov: 45, near: 1, far: 5000 }}
+        dpr={[1, 1.5]}
         style={{
           position: 'absolute',
           inset: 0,
