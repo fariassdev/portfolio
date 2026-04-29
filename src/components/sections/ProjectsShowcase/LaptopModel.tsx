@@ -100,11 +100,11 @@ export const LaptopModel = memo(
     const blendMotion = useMotionValue(0);
     const opacityMotion = useMotionValue(0);
 
-    // Track current indices in a ref (no re-render)
-    const indicesRef = useRef({ fromIndex: 0, toIndex: 0 });
-
+    // Track the last settled project to trigger transitions correctly
+    const lastProjectRef = useRef(0);
     const screenRef = useRef<LaptopScreenHandle>(null);
 
+    // Refs for continuous animation values (read once per frame)
     const progressRef = useRef(0);
 
     useEffect(() => {
@@ -113,6 +113,7 @@ export const LaptopModel = memo(
       }
     }, []);
 
+    // Discrete updates: detect index changes outside the animation loop
     useMotionValueEvent(scrollProgress, 'change', (progress) => {
       if (reducedMotion) return;
 
@@ -122,19 +123,17 @@ export const LaptopModel = memo(
         mediaPaths.length,
       );
 
-      const current = indicesRef.current;
-      if (
-        current.fromIndex !== currentTransition.fromIndex ||
-        current.toIndex !== currentTransition.toIndex
-      ) {
-        const from = current.fromIndex;
-        const to = currentTransition.toIndex;
+      const intendedProject =
+        currentTransition.blend > 0.5
+          ? currentTransition.toIndex
+          : currentTransition.fromIndex;
 
-        indicesRef.current = {
-          fromIndex: currentTransition.fromIndex,
-          toIndex: currentTransition.toIndex,
-        };
+      if (intendedProject !== lastProjectRef.current) {
+        const from = lastProjectRef.current;
+        const to = intendedProject;
+        lastProjectRef.current = to;
 
+        // Trigger imperative transition
         screenRef.current?.transitionTo(from, to);
       }
     });
@@ -178,6 +177,7 @@ export const LaptopModel = memo(
         mediaPaths.length,
       );
 
+      // Update motion values directly (no re-render, smooth 60fps)
       blendMotion.set(currentTransition.blend);
       opacityMotion.set(currentTransition.opacity);
     });

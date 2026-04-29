@@ -14,6 +14,10 @@ interface LaptopScreenProps {
   opacityMotion: MotionValue<number>;
 }
 
+/**
+ * MediaRenderer Component
+ * Optimized to handle images and videos efficiently.
+ */
 const MediaRenderer = memo(
   ({
     src,
@@ -58,11 +62,18 @@ const MediaRenderer = memo(
 
 MediaRenderer.displayName = 'MediaRenderer';
 
+/**
+ * LaptopScreen Component
+ *
+ * Implements a vintage TV (CRT) turn-off/on transition effect.
+ * Uses an imperative handle to bypass React's main render cycle for state changes
+ * and CSS animations for high-performance transitions.
+ */
 export const LaptopScreen = memo(
   forwardRef<LaptopScreenHandle, LaptopScreenProps>(
     ({ mediaPaths, opacityMotion }, ref) => {
-      const [indices, setIndices] = useState({ from: 0, to: 0 });
-      const [isTransitioning, setIsTransitioning] = useState(false);
+      const [displayIndex, setDisplayIndex] = useState(0);
+      const [prevIndex, setPrevIndex] = useState(0);
       const [transitionStep, setTransitionStep] = useState<'off' | 'on' | null>(
         null,
       );
@@ -71,26 +82,27 @@ export const LaptopScreen = memo(
 
       useImperativeHandle(ref, () => ({
         transitionTo(from, to) {
-          if (from === to) return;
-
+          // Clear any pending transition timeouts
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-          setIndices({ from, to });
-          setIsTransitioning(true);
+          setPrevIndex(from);
           setTransitionStep('off');
 
+          // After 'off' animation finishes (0.35s), switch to 'on'
           timeoutRef.current = setTimeout(() => {
+            setDisplayIndex(to);
             setTransitionStep('on');
+
+            // After 'on' animation finishes, reset state
             timeoutRef.current = setTimeout(() => {
-              setIsTransitioning(false);
               setTransitionStep(null);
             }, 350);
           }, 350);
         },
       }));
 
-      const fromPath = mediaPaths[indices.from];
-      const toPath = mediaPaths[indices.to];
+      const activeIndex = transitionStep === 'off' ? prevIndex : displayIndex;
+      const currentPath = mediaPaths[activeIndex];
 
       return (
         <motion.div
@@ -122,27 +134,15 @@ export const LaptopScreen = memo(
               style={{
                 width: '100%',
                 height: '100%',
-                opacity: transitionStep === 'on' ? 0 : 1,
                 position: 'absolute',
                 background: '#000',
               }}
             >
-              <MediaRenderer src={fromPath} />
-            </div>
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                opacity: transitionStep === 'on' ? 1 : 0,
-                position: 'absolute',
-                background: '#000',
-              }}
-            >
-              <MediaRenderer src={toPath} />
+              <MediaRenderer src={currentPath} />
             </div>
 
             {/* White Glow Line during transition */}
-            {isTransitioning && (
+            {(transitionStep === 'off' || transitionStep === 'on') && (
               <div
                 style={{
                   position: 'absolute',
@@ -165,7 +165,7 @@ export const LaptopScreen = memo(
             <div className={styles.vignette} />
           </div>
 
-          {/* Mid-transition Flash (CSS handles the main brightness now, but we can keep a subtle flash if desired) */}
+          {/* Mid-transition Flash */}
           {transitionStep === 'off' && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -184,7 +184,9 @@ export const LaptopScreen = memo(
           {/* Simplified Noise Overlay */}
           <div
             className={styles.screenNoise}
-            style={{ opacity: isTransitioning ? 0.1 : 0.03 }}
+            style={{
+              opacity: transitionStep ? 0.1 : 0.03,
+            }}
           />
         </motion.div>
       );
