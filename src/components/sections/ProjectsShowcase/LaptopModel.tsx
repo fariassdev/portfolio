@@ -5,6 +5,7 @@ import { useFrame, useThree, type ObjectMap } from '@react-three/fiber';
 import {
   useMotionValue,
   useMotionValueEvent,
+  useTransform,
   type MotionValue,
 } from 'framer-motion';
 import { memo, useEffect, useMemo, useRef } from 'react';
@@ -17,12 +18,12 @@ import {
   DESKTOP_SLIDE_FACTOR,
   LAPTOP_SCALE,
   LID_CLOSED,
+  LID_OPEN,
   MOBILE_BREAKPOINT,
   PARALLAX_X_FACTOR,
   PARALLAX_Y_FACTOR,
 } from './ProjectsShowcase.constants';
 import {
-  getLidRotation,
   getLaptopTransform,
   getScreenTransition,
 } from './ProjectsShowcase.helpers';
@@ -96,9 +97,23 @@ export const LaptopModel = memo(
     const groupRef = useRef<Group>(null);
     const lidRef = useRef<Group>(null);
 
+    const phaseLen = 1 / (projectCount * 2 + 3);
+
+    // Declarative transformations for the lid and screen opacity
+    const lidRotation = useTransform(
+      scrollProgress,
+      [0, phaseLen, 1 - phaseLen, 1],
+      [LID_CLOSED, LID_OPEN, LID_OPEN, LID_CLOSED],
+    );
+
+    const opacityMotion = useTransform(
+      scrollProgress,
+      [0, phaseLen, 1 - phaseLen, 1],
+      [0, 1, 1, 0],
+    );
+
     // Use framer-motion values for continuous animation (no React re-renders)
     const blendMotion = useMotionValue(0);
-    const opacityMotion = useMotionValue(0);
 
     // Track the last settled project to trigger transitions correctly
     const lastProjectRef = useRef(0);
@@ -147,9 +162,9 @@ export const LaptopModel = memo(
       const group = groupRef.current;
       if (!group) return;
 
-      // Hinge animation
+      // Hinge animation (Declarative via useTransform + get())
       if (lid) {
-        lid.rotation.x = getLidRotation(progress, projectCount);
+        lid.rotation.x = lidRotation.get();
       }
 
       // Laptop position and parallax
@@ -179,7 +194,6 @@ export const LaptopModel = memo(
 
       // Update motion values directly (no re-render, smooth 60fps)
       blendMotion.set(currentTransition.blend);
-      opacityMotion.set(currentTransition.opacity);
     });
 
     return (

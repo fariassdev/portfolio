@@ -3,8 +3,6 @@ import {
   CLIP_PATH_CENTER,
   CLIP_PATH_TILT_FACTOR,
   CLIP_PATH_WIDTH,
-  LID_CLOSED,
-  LID_OPEN,
   MAX_LAPTOP_ROTATION_Y,
   PHASE_LENGTH,
   PROJECT_COUNT,
@@ -19,21 +17,7 @@ import type {
  * Calculates the length of a single animation phase.
  */
 export function getPhaseLength(projectCount: number): number {
-  return 1 / (projectCount > 0 ? projectCount * 2 + 1 : 1);
-}
-
-/**
- * Calculates the lid opening progress (0 to 1).
- */
-export function getLidProgress(progress: number, projectCount: number): number {
-  return easeInOut(clamp(progress / getPhaseLength(projectCount), 0, 1));
-}
-
-/**
- * Calculates the lid rotation in radians.
- */
-export function getLidRotation(progress: number, projectCount: number): number {
-  return lerp(LID_CLOSED, LID_OPEN, getLidProgress(progress, projectCount));
+  return 1 / (projectCount > 0 ? projectCount * 2 + 3 : 1);
 }
 
 /**
@@ -45,10 +29,11 @@ export function getLaptopTransform(
   maxSlide: number,
 ): LaptopTransform {
   const phaseLen = getPhaseLength(projectCount);
-  if (projectCount <= 0 || progress < phaseLen) {
+  if (projectCount <= 0 || progress < phaseLen || progress > 1 - phaseLen) {
     return { xOffset: 0, yRotation: 0 };
   }
 
+  // Calculate active index based on current progress
   let activeIndex = Math.floor((progress - phaseLen) / (phaseLen * 2));
   activeIndex = clamp(activeIndex, 0, projectCount - 1);
 
@@ -69,20 +54,13 @@ export function getLaptopTransform(
     1,
   );
 
-  if (activeIndex === 0 && transitionInProgress < 1) {
-    const eased = easeInOut(transitionInProgress);
-    return {
-      xOffset: lerp(0, targetX, eased),
-      yRotation: lerp(0, targetRotation, eased),
-    };
-  }
-
+  // Final project "out" transition
   if (
     activeIndex === projectCount - 1 &&
-    progress >= projectStartPhase + phaseLen
+    progress >= projectStartPhase + 2 * phaseLen
   ) {
     const transitionOutProgress = clamp(
-      (progress - (projectStartPhase + phaseLen)) / phaseLen,
+      (progress - (projectStartPhase + 2 * phaseLen)) / phaseLen,
       0,
       1,
     );
@@ -93,6 +71,16 @@ export function getLaptopTransform(
     };
   }
 
+  // First project initial sweep in
+  if (activeIndex === 0 && transitionInProgress < 1) {
+    const eased = easeInOut(transitionInProgress);
+    return {
+      xOffset: lerp(0, targetX, eased),
+      yRotation: lerp(0, targetRotation, eased),
+    };
+  }
+
+  // Intermediate transitions between projects
   if (transitionInProgress < 1) {
     const eased = easeInOut(transitionInProgress);
     return {
@@ -101,6 +89,7 @@ export function getLaptopTransform(
     };
   }
 
+  // Steady viewing state
   return {
     xOffset: targetX,
     yRotation: targetRotation,
@@ -117,10 +106,8 @@ export function getScreenTransition(
 ): ScreenTransition {
   const phaseLen = getPhaseLength(projectCount);
   if (textureCount <= 0) {
-    return { fromIndex: 0, toIndex: 0, blend: 0, opacity: 0 };
+    return { fromIndex: 0, toIndex: 0, blend: 0 };
   }
-
-  const lidProgress = getLidProgress(progress, projectCount);
 
   // Keep first project visible until the first horizontal sweep.
   const transitionZoneStart = phaseLen * 3;
@@ -130,7 +117,6 @@ export function getScreenTransition(
       fromIndex: 0,
       toIndex: 0,
       blend: 0,
-      opacity: lidProgress,
     };
   }
 
@@ -151,7 +137,6 @@ export function getScreenTransition(
     fromIndex: clamp(activeTransition, 0, textureCount - 1),
     toIndex: clamp(activeTransition + 1, 0, textureCount - 1),
     blend: easeInOut(transitionProgress),
-    opacity: 1,
   };
 }
 
@@ -187,11 +172,7 @@ export function getProjectSlideState(
   if (PROJECT_COUNT === 0) return { reveal: 0, blur: 0, active: false };
 
   const revealStart = (2 * index + 1) * PHASE_LENGTH;
-
-  const blurStart =
-    index === PROJECT_COUNT - 1
-      ? revealStart + PHASE_LENGTH
-      : revealStart + 2 * PHASE_LENGTH;
+  const blurStart = revealStart + 2 * PHASE_LENGTH;
 
   const activeStart = revealStart;
   const activeEnd = blurStart + PHASE_LENGTH;

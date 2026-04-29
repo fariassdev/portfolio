@@ -1,6 +1,12 @@
 'use client';
 
-import { useMotionValue, useReducedMotion, useScroll } from 'framer-motion';
+import {
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { LaptopSceneProps } from './LaptopScene';
@@ -24,6 +30,23 @@ export function ProjectsShowcase() {
     target: spacerRef,
     offset: ['start start', 'end end'],
   });
+
+  // Smoothly snap to the nearest animation phase.
+  // This satisfies the "no intermediate position" requirement visually.
+  const smoothProgress = useSpring(
+    useTransform(scrollYProgress, (v) => {
+      if (v <= 0) return 0;
+      if (v >= 1) return 1;
+      const phase = Math.round(v * SCROLL_PAGES);
+      return phase / SCROLL_PAGES;
+    }),
+    {
+      stiffness: 100,
+      damping: 30,
+      mass: 0.5,
+      restDelta: 0.0001,
+    },
+  );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -65,7 +88,7 @@ export function ProjectsShowcase() {
           <div className={styles.canvasWrapper}>
             <Suspense fallback={null}>
               <LaptopScene
-                scrollProgress={scrollYProgress}
+                scrollProgress={smoothProgress}
                 mouseX={mouseX}
                 mouseY={mouseY}
                 previewSources={previewSources}
@@ -81,7 +104,7 @@ export function ProjectsShowcase() {
                   key={project.id}
                   project={project}
                   index={i}
-                  scrollProgress={scrollYProgress}
+                  scrollProgress={smoothProgress}
                 />
               );
             })}

@@ -21,5 +21,4 @@ export interface ScreenTransition {
   fromIndex: number;
   toIndex: number;
   blend: number;
-  opacity: number;
 }
