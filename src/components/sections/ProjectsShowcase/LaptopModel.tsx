@@ -107,9 +107,9 @@ export const LaptopModel = memo(
     );
 
     const opacityMotion = useTransform(
-      scrollProgress,
-      [0, phaseLen, 1 - phaseLen, 1],
-      [0, 1, 1, 0],
+      lidRotation,
+      [LID_CLOSED, LID_CLOSED * 0.7, LID_OPEN],
+      [0, 0, 1],
     );
 
     // Use framer-motion values for continuous animation (no React re-renders)
