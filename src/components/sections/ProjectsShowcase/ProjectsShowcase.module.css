@@ -72,6 +72,13 @@
   padding-right: clamp(24px, 4vw, 48px);
 }
 
+.slideContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
 /* ---- Slide Typography ---- */
 
 .slideLabel {
@@ -110,6 +117,15 @@
   color: var(--color-text-muted);
   max-width: 480px;
   margin: 0;
+  will-change: transform, opacity;
+}
+
+/* ---- Decrypt/Sweep Helpers ---- */
+
+.slideLabel [data-char='glyph'] {
+  color: var(--color-accent);
+  opacity: 0.8;
+  text-shadow: 0 0 8px var(--color-accent);
 }
 
 /* ---- Reduced Motion ---- */
@@ -137,26 +153,41 @@
 @media (--mediaMobile) {
   .slide {
     width: 100%;
-    top: 55%;
-    bottom: 0;
-    padding: 0 var(--spaceOuter);
+    top: 50%;
+    height: 50vh;
+    padding: 24px var(--spaceOuter);
     justify-content: flex-start;
     align-items: flex-start;
     text-align: left;
+    background: linear-gradient(to bottom, transparent, var(--color-bg) 20%);
   }
 
   .slideRight,
   .slideLeft {
     left: 0;
     right: 0;
+    padding-left: var(--spaceOuter);
+    padding-right: var(--spaceOuter);
+  }
+
+  .slideContent {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
   }
 
   .slideTitle {
-    font-size: clamp(24px, 7vw, 36px);
+    font-size: clamp(28px, 8vw, 42px);
+    max-width: 90%;
   }
 
   .slideDescription {
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
+    color: var(--color-text-muted);
   }
 }
 

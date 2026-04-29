@@ -1,5 +1,6 @@
 'use client';
 
+import { type MotionValue } from 'framer-motion';
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
 import { useDecryptText } from './use-decrypt-text';
 
@@ -9,6 +10,7 @@ interface DecryptTextProps {
   charset?: string;
   delay?: number;
   className?: string;
+  isActive?: boolean | MotionValue<boolean>;
 }
 
 export function DecryptText({
@@ -17,11 +19,12 @@ export function DecryptText({
   charset,
   delay = 0,
   className,
+  isActive,
 }: Readonly<DecryptTextProps>) {
   const { ref, isInView } = useScrollReveal();
   const { containerRef } = useDecryptText({
     text,
-    isActive: isInView,
+    isActive: isActive ?? isInView,
     charset,
     delay,
   });

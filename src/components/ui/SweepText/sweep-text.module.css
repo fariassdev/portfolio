@@ -1,0 +1,34 @@
+.container {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+
+.text {
+  display: block;
+  will-change: clip-path;
+}
+
+.scanline {
+  position: absolute;
+  top: -5%;
+  bottom: -5%;
+  width: 2px;
+  background: var(--color-accent);
+  box-shadow:
+    0 0 8px var(--color-accent),
+    0 0 16px var(--color-accent);
+  pointer-events: none;
+  z-index: 10;
+  will-change: left, opacity;
+  transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text {
+    clip-path: none !important;
+  }
+  .scanline {
+    display: none;
+  }
+}

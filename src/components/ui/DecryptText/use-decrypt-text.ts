@@ -1,13 +1,13 @@
 'use client';
 
-import { useReducedMotion, useSpring } from 'framer-motion';
+import { useReducedMotion, useSpring, type MotionValue } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 
 const DEFAULT_CHARSET = '!@#$%^&*()_+-=[]{}|;:,.<>?0123456789';
 
 interface UseDecryptTextOptions {
   readonly text: string;
-  readonly isActive: boolean;
+  readonly isActive: boolean | MotionValue<boolean>;
   readonly charset?: string;
   readonly delay?: number;
 }
@@ -89,10 +89,35 @@ export function useDecryptText({
 
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    if (isActive) {
+    const startAnimation = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      decoderSpring.jump(0);
       timeoutId = setTimeout(() => {
         decoderSpring.set(content.length);
       }, delay);
+    };
+
+    const stopAnimation = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      decoderSpring.set(0);
+    };
+
+    if (typeof isActive === 'boolean') {
+      if (isActive) startAnimation();
+      else stopAnimation();
+    } else {
+      // It's a MotionValue
+      const unsub = isActive.on('change', (latest) => {
+        if (latest) startAnimation();
+        else stopAnimation();
+      });
+      if (isActive.get()) startAnimation();
+
+      return () => {
+        unsubscribe();
+        unsub();
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
+      };
     }
 
     return () => {
