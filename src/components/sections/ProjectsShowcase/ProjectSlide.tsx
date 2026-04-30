@@ -4,8 +4,6 @@ import {
   type MotionStyle,
   type MotionValue,
   motion,
-  useMotionValue,
-  useMotionValueEvent,
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
@@ -59,33 +57,21 @@ export const ProjectSlide = memo(function ProjectSlide({
 
   const mobileEntranceY = useTransform(
     slideState,
-    (state) => (1 - state.reveal) * 50,
+    (state) => `${(1 - state.reveal) * 50}px`,
   );
   const mobileEntranceOpacity = useTransform(slideState, (state) =>
     clamp(state.reveal * 2, 0, 1),
   );
 
-  const entranceProgress = useTransform(slideState, (state) =>
-    Math.min(state.reveal, 1 - state.blur),
+  // Drive sweep strictly from entrance reveal.
+  // Since reveal stays at 1 during the exit (blur) phase,
+  // text stays fully revealed and simply fades out via contentOpacity.
+  const sweepReveal = useTransform(slideState, (state) =>
+    clamp((state.reveal - 0.3) / 0.65, 0, 1),
   );
 
-  const latchedProgress = useMotionValue(0);
-  useMotionValueEvent(entranceProgress, 'change', (progressValue) => {
-    if (progressValue > latchedProgress.get()) {
-      latchedProgress.set(progressValue);
-    } else if (progressValue < 0.05) {
-      latchedProgress.set(0);
-    }
-  });
-
-  const sweepReveal = useTransform(latchedProgress, [0.3, 0.95], [0, 1], {
-    clamp: true,
-  });
-
-  const isLabelActive = useTransform(
-    latchedProgress,
-    (progressValue) => progressValue > 0.6,
-  );
+  // `isLabelActive` triggers the decrypt animation after the sweep is well underway.
+  const isLabelActive = useTransform(sweepReveal, (reveal) => reveal > 0.6);
 
   const contentOpacity = useTransform(slideState, (state) => {
     const fadeIn = clamp(state.reveal / 0.2, 0, 1);
@@ -94,9 +80,8 @@ export const ProjectSlide = memo(function ProjectSlide({
   });
 
   const contentY = useTransform(slideState, (state) => {
-    const forwardY = state.blur * -20;
-    const backwardY = (1 - clamp(state.reveal / 0.2, 0, 1)) * 20;
-    return forwardY + backwardY;
+    const revealEased = clamp(state.reveal / 0.2, 0, 1);
+    return state.blur * -20 + (1 - revealEased) * 20;
   });
 
   return (
@@ -106,7 +91,7 @@ export const ProjectSlide = memo(function ProjectSlide({
         {
           clipPath: reduceMotion ? 'none' : clipPath,
           visibility,
-          '--mobile-y': useTransform(mobileEntranceY, (y) => `${y}px`),
+          '--mobile-y': mobileEntranceY,
           '--mobile-opacity': mobileEntranceOpacity,
         } as MotionStyle
       }
@@ -126,14 +111,12 @@ export const ProjectSlide = memo(function ProjectSlide({
           />
         </div>
 
-        <div>
-          <SweepText
-            as="h3"
-            text={project.title}
-            className={styles.slideTitle}
-            revealProgress={sweepReveal}
-          />
-        </div>
+        <SweepText
+          as="h3"
+          text={project.title}
+          className={styles.slideTitle}
+          revealProgress={sweepReveal}
+        />
 
         <p className={styles.slideDescription}>{project.description}</p>
       </motion.div>

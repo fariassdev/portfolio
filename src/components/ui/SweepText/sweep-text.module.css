@@ -7,7 +7,6 @@
 
 .text {
   display: inline-block;
-  will-change: clip-path;
 }
 
 .scanline {
@@ -22,7 +21,6 @@
     0 0 30px 8px color-mix(in srgb, var(--color-accent) 25%, transparent);
   pointer-events: none;
   z-index: 10;
-  will-change: left, opacity;
   transform: translateX(-50%);
 }
 
@@ -39,7 +37,6 @@
     color-mix(in srgb, var(--color-accent) 15%, transparent) 40%,
     color-mix(in srgb, var(--color-accent) 30%, transparent) 100%
   );
-  will-change: left, opacity;
   transform: translateX(-100%);
 }
 
@@ -47,7 +44,8 @@
   .text {
     clip-path: none !important;
   }
-  .scanline {
+  .scanline,
+  .glow {
     display: none;
   }
 }
