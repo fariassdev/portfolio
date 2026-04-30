@@ -6,12 +6,11 @@ import {
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
 import { clamp } from '@/helpers/math.helpers';
 import {
-  PHASE_LENGTH,
   PROJECT_COUNT,
   SLIDE_CLIP_MAX_OFFSET,
 } from './ProjectsShowcase.constants';
@@ -29,6 +28,16 @@ interface ProjectSlideProps {
   scrollProgress: MotionValue<number>;
 }
 
+/**
+ * Renders a single project's text overlay (label, title, description)
+ * alongside the 3D laptop scene.
+ *
+ * All timing is derived from a single `slideState` object to avoid
+ * duplicated phase calculations. The slideState provides:
+ *  - `reveal` (0→1): controls text entrance
+ *  - `blur` (0→1): controls text exit
+ *  - `active`: whether this slide is in its visible window
+ */
 export const ProjectSlide = memo(function ProjectSlide({
   project,
   index,
@@ -37,72 +46,44 @@ export const ProjectSlide = memo(function ProjectSlide({
   const reduceMotion = useReducedMotion();
   const isRight = project.side === 'right';
 
+  // ── Single source of truth for all sub-animation timing ──
   const slideState = useTransform(scrollProgress, (progress) =>
     getProjectSlideState(progress, index),
   );
 
-  const laptopX = useTransform(scrollProgress, (progress) => {
-    if (reduceMotion) {
-      return 0;
-    }
+  // ── Visibility: derived from slideState.active ──
+  const visibility = useTransform(slideState, (s) =>
+    s.active ? 'visible' : 'hidden',
+  );
 
+  // ── Clip path (desktop only — CSS handles mobile via media query) ──
+  const clipPath = useTransform(scrollProgress, (progress) => {
+    if (reduceMotion) return 'none';
     const transform = getLaptopTransform(
       progress,
       PROJECT_COUNT,
       SLIDE_CLIP_MAX_OFFSET,
     );
-    return transform.xOffset;
+    return getSlideClipPath(transform.xOffset, project.side);
   });
 
-  const clipPath = useTransform(laptopX, (x) =>
-    getSlideClipPath(x, project.side),
-  );
-
-  // Robust visibility: cover reveal, active, and blur phases
-  const visibility = useTransform(scrollProgress, (progress) => {
-    const start = 2 * index * PHASE_LENGTH;
-    const end = start + 3.1 * PHASE_LENGTH; // Covers reveal (1), stable (2), and blur (0.1 extra for safety)
-    return progress >= start && progress <= end ? 'visible' : 'hidden';
-  });
-
-  // Individual progress values for sub-animations
+  // ── SweepText sub-progress values ──
   const revealProgress = useTransform(slideState, (s) => s.reveal);
   const hideProgress = useTransform(slideState, (s) => s.blur);
 
-  // Scramble label: Activate shortly after reveal starts, and stop as soon as blur begins
-  const isLabelActive = useTransform(scrollProgress, (progress) => {
-    const revealStart = 2 * index * PHASE_LENGTH;
-    const blurStart = revealStart + 2 * PHASE_LENGTH;
-
-    const isRevealedEnough = progress > revealStart + PHASE_LENGTH * 0.3; // Start earlier since it's the first phase
-    const hasNotStartedBlurring = progress < blurStart + PHASE_LENGTH * 0.1;
-
-    return isRevealedEnough && hasNotStartedBlurring;
+  // ── DecryptText activation: active when reveal is past 30% and blur hasn't started ──
+  const isLabelActive = useTransform(slideState, (s) => {
+    return s.reveal > 0.3 && s.blur < 0.05;
   });
 
-  // On mobile, we might want to disable the complex clipPath
-  // and rely on the element-level animations for a cleaner look.
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const slideClipPath = useTransform(clipPath, (cp) => {
-    if (isMobile) return 'none';
-    return cp;
-  });
-
-  // Description animation: slight delay and vertical movement
+  // ── Description opacity: fade in after 20% reveal, fade out during blur ──
   const descriptionOpacity = useTransform(slideState, (s) => {
-    const reveal = clamp((s.reveal - 0.2) / 0.8, 0, 1);
-    const hide = clamp(s.blur / 0.8, 0, 1);
-    return reveal * (1 - hide);
+    const fadeIn = clamp((s.reveal - 0.2) / 0.8, 0, 1);
+    const fadeOut = clamp(s.blur / 0.8, 0, 1);
+    return fadeIn * (1 - fadeOut);
   });
 
+  // ── Description Y offset: slide up on reveal, slide down on blur ──
   const descriptionY = useTransform(slideState, (s) => {
     const revealY = (1 - clamp((s.reveal - 0.2) / 0.8, 0, 1)) * 20;
     const hideY = clamp(s.blur / 0.8, 0, 1) * -20;
@@ -113,7 +94,7 @@ export const ProjectSlide = memo(function ProjectSlide({
     <motion.div
       className={`${styles.slide} ${isRight ? styles.slideRight : styles.slideLeft}`}
       style={{
-        clipPath: reduceMotion ? 'none' : slideClipPath,
+        clipPath: reduceMotion ? 'none' : clipPath,
         visibility,
       }}
     >
