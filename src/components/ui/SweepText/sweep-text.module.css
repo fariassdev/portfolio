@@ -39,8 +39,8 @@
     color-mix(in srgb, var(--color-accent) 15%, transparent) 40%,
     color-mix(in srgb, var(--color-accent) 30%, transparent) 100%
   );
-  transform: translateX(-100%);
   will-change: left, opacity;
+  transform: translateX(-100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

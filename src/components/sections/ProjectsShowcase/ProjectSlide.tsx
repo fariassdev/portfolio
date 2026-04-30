@@ -85,8 +85,8 @@ export const ProjectSlide = memo(function ProjectSlide({
   );
 
   // Sweep reveal: driven by entranceProgress
-  const delayedReveal = useTransform(entranceProgress, (v) => {
-    return clamp((v - 0.3) / 0.7, 0, 1);
+  const delayedReveal = useTransform(entranceProgress, [0.3, 0.95], [0, 1], {
+    clamp: true,
   });
 
   // Only entrance animations for these effects
@@ -108,12 +108,21 @@ export const ProjectSlide = memo(function ProjectSlide({
   });
 
   // ── Description Entrance (Exit is handled by parent) ──
-  const descriptionEntranceOpacity = useTransform(entranceProgress, (v) =>
-    clamp((v - 0.2) / 0.8, 0, 1),
+  const descriptionEntranceOpacity = useTransform(
+    entranceProgress,
+    [0.2, 0.95],
+    [0, 1],
+    {
+      clamp: true,
+    },
   );
   const descriptionEntranceY = useTransform(
     entranceProgress,
-    (v) => (1 - clamp((v - 0.2) / 0.8, 0, 1)) * 20,
+    [0.2, 0.95],
+    [20, 0],
+    {
+      clamp: true,
+    },
   );
 
   return (
