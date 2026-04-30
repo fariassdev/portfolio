@@ -1,8 +1,10 @@
 'use client';
 
 import {
+  type MotionStyle,
   type MotionValue,
   motion,
+  useMotionValue,
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
@@ -67,38 +69,72 @@ export const ProjectSlide = memo(function ProjectSlide({
     return getSlideClipPath(transform.xOffset, project.side);
   });
 
-  // ── SweepText sub-progress values ──
-  const revealProgress = useTransform(slideState, (s) => s.reveal);
-  const hideProgress = useTransform(slideState, (s) => s.blur);
+  // ── Mobile-only Entrance (applied via CSS variables) ──
+  const mobileEntranceY = useTransform(slideState, (s) => (1 - s.reveal) * 50);
+  const mobileEntranceOpacity = useTransform(slideState, (s) =>
+    clamp(s.reveal * 2, 0, 1),
+  );
 
-  // ── DecryptText activation: active when reveal is past 30% and blur hasn't started ──
-  const isLabelActive = useTransform(slideState, (s) => {
-    return s.reveal > 0.3 && s.blur < 0.05;
+  // ── SweepText & DecryptText sub-progress ──
+  // Delay reveal so mobile slide/fade has time, and desktop laptop opens a bit
+  // ── Unified Entrance Progress (Handles both directions) ──
+  // This value goes 0 -> 1 when entering a project from either side.
+  // scrolling down: reveal 0->1. scrolling up: 1-blur 0->1.
+  const entranceProgress = useTransform(slideState, (s) =>
+    Math.min(s.reveal, 1 - s.blur),
+  );
+
+  // Sweep reveal: driven by entranceProgress
+  const delayedReveal = useTransform(entranceProgress, (v) => {
+    return clamp((v - 0.3) / 0.7, 0, 1);
   });
 
-  // ── Description opacity: fade in after 20% reveal, fade out during blur ──
-  const descriptionOpacity = useTransform(slideState, (s) => {
-    const fadeIn = clamp((s.reveal - 0.2) / 0.8, 0, 1);
-    const fadeOut = clamp(s.blur / 0.8, 0, 1);
-    return fadeIn * (1 - fadeOut);
+  // Only entrance animations for these effects
+  const noHide = useMotionValue(0);
+  const isLabelActive = useTransform(entranceProgress, (v) => v > 0.6);
+
+  // ── Unified Content Transition (Exit phase) ──
+  // Fast fade in/out at the boundaries to ensure we don't see reverse sweep/scramble.
+  const contentExitOpacity = useTransform(slideState, (s) => {
+    const fadeIn = clamp(s.reveal / 0.2, 0, 1);
+    const fadeOut = clamp((1 - s.blur) / 0.2, 0, 1);
+    return Math.min(fadeIn, fadeOut);
   });
 
-  // ── Description Y offset: slide up on reveal, slide down on blur ──
-  const descriptionY = useTransform(slideState, (s) => {
-    const revealY = (1 - clamp((s.reveal - 0.2) / 0.8, 0, 1)) * 20;
-    const hideY = clamp(s.blur / 0.8, 0, 1) * -20;
-    return revealY + hideY;
+  const contentExitY = useTransform(slideState, (s) => {
+    const forwardY = s.blur * -20;
+    const backwardY = (1 - clamp(s.reveal / 0.2, 0, 1)) * 20;
+    return forwardY + backwardY;
   });
+
+  // ── Description Entrance (Exit is handled by parent) ──
+  const descriptionEntranceOpacity = useTransform(entranceProgress, (v) =>
+    clamp((v - 0.2) / 0.8, 0, 1),
+  );
+  const descriptionEntranceY = useTransform(
+    entranceProgress,
+    (v) => (1 - clamp((v - 0.2) / 0.8, 0, 1)) * 20,
+  );
 
   return (
     <motion.div
       className={`${styles.slide} ${isRight ? styles.slideRight : styles.slideLeft}`}
-      style={{
-        clipPath: reduceMotion ? 'none' : clipPath,
-        visibility,
-      }}
+      style={
+        {
+          clipPath: reduceMotion ? 'none' : clipPath,
+          visibility,
+          '--mobile-y': useTransform(mobileEntranceY, (y) => `${y}px`),
+          '--mobile-opacity': mobileEntranceOpacity,
+        } as MotionStyle
+      }
     >
-      <div className={styles.slideContent}>
+      <motion.div
+        className={styles.slideContent}
+        style={{
+          opacity: contentExitOpacity,
+          y: contentExitY,
+        }}
+      >
         <DecryptText
           text="Featured Project"
           className={styles.slideLabel}
@@ -107,23 +143,23 @@ export const ProjectSlide = memo(function ProjectSlide({
         />
 
         <SweepText
-          text={project.title}
           as="h3"
+          text={project.title}
           className={styles.slideTitle}
-          revealProgress={revealProgress}
-          hideProgress={hideProgress}
+          revealProgress={delayedReveal}
+          hideProgress={noHide}
         />
 
         <motion.p
           className={styles.slideDescription}
           style={{
-            opacity: descriptionOpacity,
-            y: descriptionY,
+            opacity: descriptionEntranceOpacity,
+            y: descriptionEntranceY,
           }}
         >
           {project.description}
         </motion.p>
-      </div>
+      </motion.div>
     </motion.div>
   );
 });

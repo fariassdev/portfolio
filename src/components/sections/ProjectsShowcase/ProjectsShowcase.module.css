@@ -161,6 +161,8 @@
     text-align: left;
     background: linear-gradient(to bottom, transparent, var(--color-bg) 20%);
     clip-path: none !important;
+    transform: translateY(var(--mobile-y, 0));
+    opacity: var(--mobile-opacity, 1);
   }
 
   .slideRight,

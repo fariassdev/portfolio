@@ -6,7 +6,7 @@ import styles from './sweep-text.module.css';
 
 interface SweepTextProps {
   readonly text: string;
-  readonly as?: 'h1' | 'h2' | 'h3' | 'h4' | 'span';
+  readonly as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span';
   readonly revealProgress: MotionValue<number>;
   readonly hideProgress: MotionValue<number>;
   readonly className?: string;
@@ -43,10 +43,14 @@ export const SweepText = memo(function SweepText({
     ([r, h]) => {
       const rv = r as number;
       const hv = h as number;
-      // Tighten thresholds to ensure scanline is only visible during active movement
-      const isRevealing = rv > 0.02 && rv < 0.98;
-      const isHiding = hv > 0.02 && hv < 0.98;
-      return isRevealing || isHiding ? 1 : 0;
+
+      // Create a smooth fade-in/fade-out at the edges (0-10% and 90-100%)
+      const getFade = (v: number) => {
+        if (v <= 0 || v >= 1) return 0;
+        return Math.min(v / 0.1, (1 - v) / 0.1, 1);
+      };
+
+      return Math.max(getFade(rv), getFade(hv));
     },
   );
 
@@ -63,7 +67,16 @@ export const SweepText = memo(function SweepText({
       >
         {text}
       </motion.span>
-      <motion.div
+
+      <motion.span
+        className={styles.glow}
+        style={{
+          left: scanlineX,
+          opacity: scanlineOpacity,
+        }}
+      />
+
+      <motion.span
         className={styles.scanline}
         style={{
           left: scanlineX,
