@@ -8,11 +8,16 @@ vi.mock(import('framer-motion'), async (importOriginal) => {
   return {
     ...originalModule,
     useReducedMotion: vi.fn(() => true),
-    useInView: vi.fn(() => true),
     useSpring: vi.fn(() => ({
       set: vi.fn(),
+      get: vi.fn(() => 0),
       on: vi.fn(() => vi.fn()),
     })) as unknown as typeof originalModule.useSpring,
+    useTransform: vi.fn((_input: unknown, mapFn?: unknown) => {
+      if (typeof mapFn === 'function')
+        return (mapFn as (v: number) => unknown)(0);
+      return 0;
+    }) as unknown as typeof originalModule.useTransform,
   };
 });
 
