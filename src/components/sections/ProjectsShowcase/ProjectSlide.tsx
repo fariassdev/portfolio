@@ -5,6 +5,7 @@ import {
   type MotionValue,
   motion,
   useMotionValue,
+  useMotionValueEvent,
   useReducedMotion,
   useTransform,
 } from 'framer-motion';
@@ -75,26 +76,50 @@ export const ProjectSlide = memo(function ProjectSlide({
     clamp(s.reveal * 2, 0, 1),
   );
 
-  // ── SweepText & DecryptText sub-progress ──
-  // Delay reveal so mobile slide/fade has time, and desktop laptop opens a bit
   // ── Unified Entrance Progress (Handles both directions) ──
   // This value goes 0 -> 1 when entering a project from either side.
-  // scrolling down: reveal 0->1. scrolling up: 1-blur 0->1.
   const entranceProgress = useTransform(slideState, (s) =>
     Math.min(s.reveal, 1 - s.blur),
   );
 
-  // Sweep reveal: driven by entranceProgress
-  const delayedReveal = useTransform(entranceProgress, [0.3, 0.95], [0, 1], {
+  // ── Latched Entrance Progress (One-way effects) ──
+  // These effects (sweep, scramble) should only play their "entrance" animation.
+  // We use a latched progress that only increases while the slide is active,
+  // preventing reverse animations during exit.
+  const latchedEntranceProgress = useMotionValue(0);
+  useMotionValueEvent(entranceProgress, 'change', (v) => {
+    // Only increase the progress (entrance from either side)
+    if (v > latchedEntranceProgress.get()) {
+      latchedEntranceProgress.set(v);
+    }
+    // Reset when completely out so it can play again if we return
+    else if (v < 0.05) {
+      latchedEntranceProgress.set(0);
+    }
+  });
+
+  // Sweep reveal & Decrypt activation: driven by latched progress
+  const delayedReveal = useTransform(
+    latchedEntranceProgress,
+    [0.3, 0.95],
+    [0, 1],
+    { clamp: true },
+  );
+  const isLabelActive = useTransform(latchedEntranceProgress, (v) => v > 0.6);
+
+  // Only entrance animations for sweep
+  const noHide = useMotionValue(0);
+
+  // ── Unified Content Transition (Entrance & Exit) ──
+  // All text elements (label, title, description) follow the same reveal/hide
+  // curve for opacity and vertical movement to ensure a cohesive look.
+  const textOpacity = useTransform(entranceProgress, [0.2, 0.95], [0, 1], {
+    clamp: true,
+  });
+  const textY = useTransform(entranceProgress, [0.2, 0.95], [20, 0], {
     clamp: true,
   });
 
-  // Only entrance animations for these effects
-  const noHide = useMotionValue(0);
-  const isLabelActive = useTransform(entranceProgress, (v) => v > 0.6);
-
-  // ── Unified Content Transition (Exit phase) ──
-  // Fast fade in/out at the boundaries to ensure we don't see reverse sweep/scramble.
   const contentExitOpacity = useTransform(slideState, (s) => {
     const fadeIn = clamp(s.reveal / 0.2, 0, 1);
     const fadeOut = clamp((1 - s.blur) / 0.2, 0, 1);
@@ -107,23 +132,7 @@ export const ProjectSlide = memo(function ProjectSlide({
     return forwardY + backwardY;
   });
 
-  // ── Description Entrance (Exit is handled by parent) ──
-  const descriptionEntranceOpacity = useTransform(
-    entranceProgress,
-    [0.2, 0.95],
-    [0, 1],
-    {
-      clamp: true,
-    },
-  );
-  const descriptionEntranceY = useTransform(
-    entranceProgress,
-    [0.2, 0.95],
-    [20, 0],
-    {
-      clamp: true,
-    },
-  );
+  // (Timings are now unified above)
 
   return (
     <motion.div
@@ -144,26 +153,40 @@ export const ProjectSlide = memo(function ProjectSlide({
           y: contentExitY,
         }}
       >
-        <DecryptText
-          text="Featured Project"
+        <motion.div
           className={styles.slideLabel}
-          isActive={isLabelActive}
-          delay={200}
-        />
+          style={{
+            opacity: textOpacity,
+            y: textY,
+          }}
+        >
+          <DecryptText
+            text="Featured Project"
+            isActive={isLabelActive}
+            delay={200}
+          />
+        </motion.div>
 
-        <SweepText
-          as="h3"
-          text={project.title}
-          className={styles.slideTitle}
-          revealProgress={delayedReveal}
-          hideProgress={noHide}
-        />
+        <motion.div
+          style={{
+            opacity: textOpacity,
+            y: textY,
+          }}
+        >
+          <SweepText
+            as="h3"
+            text={project.title}
+            className={styles.slideTitle}
+            revealProgress={delayedReveal}
+            hideProgress={noHide}
+          />
+        </motion.div>
 
         <motion.p
           className={styles.slideDescription}
           style={{
-            opacity: descriptionEntranceOpacity,
-            y: descriptionEntranceY,
+            opacity: textOpacity,
+            y: textY,
           }}
         >
           {project.description}
