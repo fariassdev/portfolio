@@ -8,10 +8,7 @@ import { CAMERA_Z } from './ProjectsShowcase.constants';
 
 export interface LaptopSceneProps {
   scrollProgress: MotionValue<number>;
-  mouseX: MotionValue<number>;
-  mouseY: MotionValue<number>;
   previewSources: string[];
-  reducedMotion?: boolean;
 }
 
 /**
@@ -21,13 +18,7 @@ export interface LaptopSceneProps {
  * Responsible for setting up the R3F Canvas and global lighting.
  */
 export const LaptopScene = memo(
-  ({
-    scrollProgress,
-    mouseX,
-    mouseY,
-    previewSources,
-    reducedMotion = false,
-  }: LaptopSceneProps) => {
+  ({ scrollProgress, previewSources }: LaptopSceneProps) => {
     return (
       <Canvas
         camera={{ position: [0, 0, CAMERA_Z], fov: 45, near: 1, far: 5000 }}
@@ -57,10 +48,7 @@ export const LaptopScene = memo(
         <Suspense fallback={null}>
           <LaptopModel
             scrollProgress={scrollProgress}
-            mouseX={mouseX}
-            mouseY={mouseY}
             previewSources={previewSources}
-            reducedMotion={reducedMotion}
           />
         </Suspense>
       </Canvas>

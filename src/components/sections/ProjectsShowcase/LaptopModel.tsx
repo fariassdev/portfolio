@@ -2,12 +2,7 @@
 
 import { useGLTF, Html } from '@react-three/drei';
 import { useFrame, useThree, type ObjectMap } from '@react-three/fiber';
-import {
-  useMotionValue,
-  useMotionValueEvent,
-  useTransform,
-  type MotionValue,
-} from 'framer-motion';
+import { useReducedMotion, type MotionValue } from 'framer-motion';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { type Group, type Mesh, type MeshStandardMaterial } from 'three';
 import type { GLTF } from 'three-stdlib';
@@ -18,15 +13,13 @@ import {
   DESKTOP_SLIDE_FACTOR,
   LAPTOP_SCALE,
   LID_CLOSED,
-  LID_OPEN,
   MOBILE_BREAKPOINT,
-  PARALLAX_X_FACTOR,
-  PARALLAX_Y_FACTOR,
 } from './ProjectsShowcase.constants';
 import {
   getLaptopTransform,
   getScreenTransition,
 } from './ProjectsShowcase.helpers';
+import { useLaptopAnimation } from './use-laptop-animation';
 
 type GLTFResult = GLTF &
   ObjectMap & {
@@ -51,180 +44,141 @@ type GLTFResult = GLTF &
 
 interface LaptopModelProps {
   scrollProgress: MotionValue<number>;
-  mouseX: MotionValue<number>;
-  mouseY: MotionValue<number>;
   previewSources: string[];
-  reducedMotion: boolean;
 }
 
 /**
  * LaptopModel Component
  *
  * Manages the 3D representation of the laptop, including hinge animations
- * and synchronization with scroll/mouse parallax.
+ * and synchronization with scroll-based transformations.
+ *
+ * Animation strategy (simplified):
+ * - Lid and opacity: Declarative (useTransform), read in useFrame
+ * - Position and rotation: Imperative (useFrame with calculations)
+ * - Transitions: Event-driven (useMotionValueEvent)
+ * - No mouse parallax (accessibility + performance)
  */
 export const LaptopModel = memo(
-  ({
-    scrollProgress,
-    mouseX,
-    mouseY,
-    previewSources,
-    reducedMotion,
-  }: LaptopModelProps) => {
+  ({ scrollProgress, previewSources }: LaptopModelProps) => {
     const { nodes, materials } = useGLTF('/models/laptop.glb') as GLTFResult;
     const { viewport, size } = useThree();
+    const reduceMotion = useReducedMotion();
+
+    // Layout calculations
     const isMobile = size.width < MOBILE_BREAKPOINT;
     const isTablet = size.width >= MOBILE_BREAKPOINT && size.width < 1040;
 
-    const currentScale = useMemo(() => {
-      if (isMobile) return LAPTOP_SCALE * 0.8;
+    const laptopScale = useMemo(() => {
+      if (isMobile) return LAPTOP_SCALE * 0.7;
       if (isTablet) return LAPTOP_SCALE * 0.8;
       return LAPTOP_SCALE;
     }, [isMobile, isTablet]);
 
-    const currentPosition = useMemo<[number, number, number]>(() => {
+    const laptopPosition = useMemo<[number, number, number]>(() => {
       if (isMobile) return [0, viewport.height * 0.06, 0];
       return [0, -80, 0];
     }, [isMobile, viewport.height]);
 
-    const fallbackMedia = '/images/senda/course-details.png';
+    // Media paths with fallback
+    const fallbackMediaPath = '/images/senda/course-details.png';
     const mediaPaths = useMemo<readonly string[]>(
-      () => (previewSources.length > 0 ? previewSources : [fallbackMedia]),
-      [previewSources, fallbackMedia],
+      () => (previewSources.length > 0 ? previewSources : [fallbackMediaPath]),
+      [previewSources],
     );
 
     const projectCount = mediaPaths.length;
     const groupRef = useRef<Group>(null);
     const lidRef = useRef<Group>(null);
-
-    const phaseLen = 1 / (projectCount * 2 + 1);
-
-    // Declarative transformations for the lid and screen opacity
-    // Lid opens during phase 0 and closes during phase 2N
-    const lidRotation = useTransform(
-      scrollProgress,
-      [0, phaseLen, 1 - phaseLen, 1],
-      [LID_CLOSED, LID_OPEN, LID_OPEN, LID_CLOSED],
-    );
-
-    const opacityMotion = useTransform(
-      lidRotation,
-      [LID_CLOSED, LID_CLOSED * 0.7, LID_OPEN],
-      [0, 0, 1],
-    );
-
-    // Use framer-motion values for continuous animation (no React re-renders)
-    const blendMotion = useMotionValue(0);
-
-    // Track the last settled project to trigger transitions correctly
-    const lastProjectRef = useRef(0);
     const screenRef = useRef<LaptopScreenHandle>(null);
 
-    // Refs for continuous animation values (read once per frame)
-    const progressRef = useRef(0);
+    // Animation state
+    const laptopAnimation = useLaptopAnimation(
+      scrollProgress,
+      projectCount,
+      mediaPaths.length,
+      (fromIndex, toIndex) => {
+        // Callback when project index changes
+        screenRef.current?.transitionTo(fromIndex, toIndex);
+      },
+    );
 
+    // Initialize lid to closed state
     useEffect(() => {
       if (lidRef.current) {
         lidRef.current.rotation.x = LID_CLOSED;
       }
     }, []);
 
-    // Discrete updates: detect index changes outside the animation loop
-    useMotionValueEvent(scrollProgress, 'change', (progress) => {
-      if (reducedMotion) return;
-
-      const currentTransition = getScreenTransition(
-        progress,
-        projectCount,
-        mediaPaths.length,
-      );
-
-      const intendedProject =
-        currentTransition.blend > 0.5
-          ? currentTransition.toIndex
-          : currentTransition.fromIndex;
-
-      if (intendedProject !== lastProjectRef.current) {
-        const from = lastProjectRef.current;
-        const to = intendedProject;
-        lastProjectRef.current = to;
-
-        // Trigger imperative transition
-        screenRef.current?.transitionTo(from, to);
-      }
-    });
-
-    // Continuous updates: animation loop only handles smooth values
+    // Continuous animation loop: read motion values and update 3D transforms
     useFrame(() => {
-      const progress = reducedMotion ? 0 : scrollProgress.get();
-      progressRef.current = progress;
-
+      const currentProgress = reduceMotion ? 0 : scrollProgress.get();
       const lid = lidRef.current;
       const group = groupRef.current;
+
       if (!group) return;
 
-      // Hinge animation (Declarative via useTransform + get())
+      // Update lid hinge rotation
       if (lid) {
-        lid.rotation.x = lidRotation.get();
+        lid.rotation.x = laptopAnimation.lidRotation.get();
       }
 
-      // Laptop position and parallax
-      const maxSlide = isMobile ? 0 : viewport.width * DESKTOP_SLIDE_FACTOR;
-      const laptopTransform = isMobile
+      // Calculate laptop position and rotation based on scroll progress
+      const maxSlideDistance = isMobile
+        ? 0
+        : viewport.width * DESKTOP_SLIDE_FACTOR;
+      const transform = isMobile
         ? { xOffset: 0, yRotation: 0 }
-        : getLaptopTransform(progress, projectCount, maxSlide);
+        : getLaptopTransform(currentProgress, projectCount, maxSlideDistance);
 
-      const mouse = reducedMotion
-        ? { x: 0, y: 0 }
-        : { x: mouseX.get(), y: mouseY.get() };
+      // Apply position and rotation transforms
+      group.position.x = transform.xOffset;
+      group.rotation.x = BASE_LAPTOP_ROTATION_X;
+      group.rotation.y = transform.yRotation;
 
-      group.position.x = laptopTransform.xOffset;
-      group.rotation.x = BASE_LAPTOP_ROTATION_X + mouse.y * PARALLAX_Y_FACTOR;
-      group.rotation.y =
-        laptopTransform.yRotation + mouse.x * PARALLAX_X_FACTOR;
+      // Perspective tilt compensation based on horizontal offset
+      group.rotation.z = Math.atan(transform.xOffset / (CAMERA_Z * 6));
 
-      // Perspective lean compensation
-      group.rotation.z = Math.atan(laptopTransform.xOffset / (CAMERA_Z * 6));
-
-      // Calculate current transition state for continuous values
-      const currentTransition = getScreenTransition(
-        progress,
+      // Update texture blend state for LaptopScreen component
+      const screenTransition = getScreenTransition(
+        currentProgress,
         projectCount,
         mediaPaths.length,
       );
-
-      // Update motion values directly (no re-render, smooth 60fps)
-      blendMotion.set(currentTransition.blend);
+      laptopAnimation.blendMotion.set(screenTransition.blend);
     });
 
     return (
       <group
         ref={groupRef}
-        scale={currentScale}
-        position={currentPosition}
+        scale={laptopScale}
+        position={laptopPosition}
         rotation={[BASE_LAPTOP_ROTATION_X, 0, 0]}
       >
         <group dispose={null}>
-          {/* Lid Group */}
+          {/* Laptop Lid (rotates on hinge) */}
           <group
             ref={lidRef}
             position={[0.002, -0.038, 0.414]}
             rotation={[0.014, 0, 0]}
           >
+            {/* Lid display group */}
             <group position={[0, 2.965, -0.13]} rotation={[Math.PI / 2, 0, 0]}>
+              {/* Lid shell */}
               <mesh
                 geometry={nodes.Cube008.geometry}
                 material={materials.aluminium}
               />
+              {/* Lid matte finish */}
               <mesh
                 geometry={nodes.Cube008_1.geometry}
                 material={materials['matte.001']}
               />
 
-              {/* Virtual Screen Placeholder (Transparent for occlusion) */}
+              {/* Screen occlusion placeholder (invisible geometry for hit detection) */}
               <mesh geometry={nodes.Cube008_2.geometry} visible={false} />
 
-              {/* Interactive HTML Screen */}
+              {/* Interactive HTML screen content rendered onto 3D surface */}
               <Html
                 distanceFactor={2.6}
                 position={[0, 0.1, -0.09]}
@@ -233,20 +187,18 @@ export const LaptopModel = memo(
                 transform
                 zIndexRange={[0, 0]}
                 prepend
-                style={{
-                  pointerEvents: 'none',
-                }}
+                style={{ pointerEvents: 'none' }}
               >
                 <LaptopScreen
                   ref={screenRef}
                   mediaPaths={mediaPaths}
-                  opacityMotion={opacityMotion}
+                  opacityMotion={laptopAnimation.screenOpacity}
                 />
               </Html>
             </group>
           </group>
 
-          {/* Base / Keyboard */}
+          {/* Laptop Base (keyboard) */}
           <mesh geometry={nodes.keyboard.geometry} position={[1.793, 0, 3.451]}>
             <meshPhongMaterial
               color={0x1a1a1a}
@@ -255,6 +207,8 @@ export const LaptopModel = memo(
               shininess={100}
             />
           </mesh>
+
+          {/* Laptop Base Frame */}
           <group position={[0, -0.1, 3.394]}>
             <mesh
               geometry={nodes.Cube002.geometry}
@@ -265,6 +219,8 @@ export const LaptopModel = memo(
               material={materials.trackpad}
             />
           </group>
+
+          {/* Touch Bar */}
           <mesh
             geometry={nodes.touchbar.geometry}
             material={materials.touchbar}
