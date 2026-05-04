@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, type Transition } from 'framer-motion';
 import { memo } from 'react';
 import styles from './sweep-text.module.css';
 
@@ -22,9 +22,9 @@ export const SweepText = memo(function SweepText({
   className,
 }: SweepTextProps) {
   // Shared transition configuration for synchronized movement
-  const transition = {
+  const transition: Transition = {
     duration: 0.8,
-    ease: [0.33, 1, 0.68, 1] as [number, number, number, number],
+    ease: [0.33, 1, 0.68, 1],
   };
 
   // Variants ensure reliable string interpolation for complex CSS properties like clip-path
