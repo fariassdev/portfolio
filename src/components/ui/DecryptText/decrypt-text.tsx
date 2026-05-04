@@ -19,7 +19,7 @@ interface DecryptTextProps {
    * - `MotionValue<boolean>` — reactive (e.g. driven by scroll progress)
    * If omitted, the animation plays immediately.
    */
-  isActive?: boolean | MotionValue<boolean>;
+  animate?: boolean | MotionValue<boolean>;
 }
 
 /**
@@ -39,11 +39,11 @@ export function DecryptText({
   charset,
   delay = 0,
   className,
-  isActive = true,
+  animate = true,
 }: Readonly<DecryptTextProps>) {
   const { containerRef, progress } = useDecryptText({
     text,
-    isActive,
+    animate,
     charset,
     delay,
   });

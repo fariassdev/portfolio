@@ -14,24 +14,24 @@ import styles from './sweep-text.module.css';
 interface SweepTextProps {
   readonly text: string;
   readonly as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span';
-  readonly isActive: MotionValue<boolean>;
+  readonly animate: MotionValue<boolean>;
   readonly className?: string;
 }
 
 /**
  * Reveals text from left to right with an animated scanline and glow effect.
- * Once the `isActive` motion value becomes true, the animation plays to completion.
+ * Once the `animate` motion value becomes true, the animation plays to completion.
  */
 export const SweepText = memo(function SweepText({
   text,
   as: Tag = 'span',
-  isActive,
+  animate: shouldAnimate,
   className,
 }: SweepTextProps) {
   const progress = useMotionValue(0);
 
   // Use motion value events to trigger the animation without triggering React re-renders
-  useMotionValueEvent(isActive, 'change', (latest) => {
+  useMotionValueEvent(shouldAnimate, 'change', (latest) => {
     if (latest) {
       // Trigger automatic reveal animation
       animate(progress, 1, {

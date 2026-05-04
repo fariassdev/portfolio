@@ -44,7 +44,7 @@ export const ProjectSlide = memo(function ProjectSlide({
         <div className={styles.slideLabel}>
           <DecryptText
             text="Featured Project"
-            isActive={animation.isTextActive}
+            animate={animation.shouldAnimateText}
             delay={200}
           />
         </div>
@@ -53,7 +53,7 @@ export const ProjectSlide = memo(function ProjectSlide({
           as="h3"
           text={project.title}
           className={styles.slideTitle}
-          isActive={animation.isTextActive}
+          animate={animation.shouldAnimateText}
         />
 
         <p className={styles.slideDescription}>{project.description}</p>

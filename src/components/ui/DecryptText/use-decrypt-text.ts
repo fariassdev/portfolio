@@ -7,7 +7,7 @@ const DEFAULT_CHARSET = '!@#$%^&*()_+-=[]{}|;:,.<>?0123456789';
 
 interface UseDecryptTextOptions {
   readonly text: string;
-  readonly isActive: boolean | MotionValue<boolean>;
+  readonly animate: boolean | MotionValue<boolean>;
   readonly charset?: string;
   readonly delay?: number;
 }
@@ -25,7 +25,7 @@ interface UseDecryptTextOptions {
  */
 export function useDecryptText({
   text,
-  isActive,
+  animate: shouldAnimate,
   charset = DEFAULT_CHARSET,
   delay = 0,
 }: UseDecryptTextOptions) {
@@ -34,7 +34,7 @@ export function useDecryptText({
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
-  const isActiveRef = useRef(false);
+  const isAnimatingRef = useRef(false);
 
   const spring = useSpring(0, { stiffness: 30, damping: 12 });
 
@@ -106,7 +106,7 @@ export function useDecryptText({
     // Subscribe to spring value changes → re-render characters
     const unsubSpring = spring.on('change', (value) => {
       // When fully settled at 0 and not active, clear the container
-      if (value <= 0.01 && !isActiveRef.current) {
+      if (value <= 0.01 && !isAnimatingRef.current) {
         clear();
         return;
       }
@@ -114,7 +114,7 @@ export function useDecryptText({
     });
 
     const activate = () => {
-      isActiveRef.current = true;
+      isAnimatingRef.current = true;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
       // Render initial scramble immediately so the container isn't empty
@@ -126,25 +126,25 @@ export function useDecryptText({
     };
 
     const deactivate = () => {
-      isActiveRef.current = false;
+      isAnimatingRef.current = false;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       spring.set(0);
     };
 
-    // Wire up isActive (boolean or MotionValue)
+    // Wire up animate (boolean or MotionValue)
     let unsubMV: (() => void) | undefined;
 
-    if (typeof isActive === 'boolean') {
-      if (isActive) activate();
+    if (typeof shouldAnimate === 'boolean') {
+      if (shouldAnimate) activate();
       else deactivate();
     } else {
       // MotionValue<boolean>
-      unsubMV = isActive.on('change', (v) => {
+      unsubMV = shouldAnimate.on('change', (v) => {
         if (v) activate();
         else deactivate();
       });
       // Initial state
-      if (isActive.get()) activate();
+      if (shouldAnimate.get()) activate();
       else clear();
     }
 
@@ -155,7 +155,7 @@ export function useDecryptText({
     };
   }, [
     text,
-    isActive,
+    shouldAnimate,
     charset,
     delay,
     shouldReduceMotion,

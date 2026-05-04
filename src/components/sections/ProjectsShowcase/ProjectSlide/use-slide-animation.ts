@@ -64,7 +64,7 @@ export function useSlideAnimation(
   );
 
   // Master trigger for text animations: starts at SWEEP_START_PERCENT reveal
-  const isTextActive = useTransform(
+  const shouldAnimateText = useTransform(
     slideState,
     (state) => state.reveal >= SWEEP_START_PERCENT,
   );
@@ -91,7 +91,7 @@ export function useSlideAnimation(
     visibility,
     mobileEntranceY,
     mobileEntranceOpacity,
-    isTextActive,
+    shouldAnimateText,
     contentOpacity,
     contentY,
   };
