@@ -2,15 +2,16 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense, useMemo, useRef } from 'react';
-import type { LaptopSceneProps } from './LaptopScene';
-import { ProjectSlide } from './ProjectSlide';
+import type { LaptopSceneProps } from './Laptop/LaptopScene';
+import { ProjectSlide } from './ProjectSlide/ProjectSlide';
 import { SCROLL_PAGES } from './ProjectsShowcase.constants';
 import { PROJECTS } from './ProjectsShowcase.data';
 import styles from './ProjectsShowcase.module.css';
 import { useScrollProgressAnimation } from './use-scroll-progress-animation';
 
 const LaptopScene = dynamic<LaptopSceneProps>(
-  () => import('./LaptopScene').then((m) => ({ default: m.LaptopScene })),
+  () =>
+    import('./Laptop/LaptopScene').then((m) => ({ default: m.LaptopScene })),
   { ssr: false },
 );
 

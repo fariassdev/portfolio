@@ -4,8 +4,8 @@ import { type MotionValue, motion } from 'framer-motion';
 import { memo } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
-import styles from './ProjectsShowcase.module.css';
-import type { Project } from './ProjectsShowcase.types';
+import type { Project } from '../ProjectsShowcase.types';
+import styles from './ProjectSlide.module.css';
 import { useSlideAnimation } from './use-slide-animation';
 
 interface ProjectSlideProps {

@@ -3,8 +3,8 @@
 import { Canvas } from '@react-three/fiber';
 import type { MotionValue } from 'framer-motion';
 import { Suspense, memo } from 'react';
+import { CAMERA_Z } from './Laptop.constants';
 import { LaptopModel } from './LaptopModel';
-import { CAMERA_Z } from './ProjectsShowcase.constants';
 
 export interface LaptopSceneProps {
   scrollProgress: MotionValue<number>;

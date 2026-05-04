@@ -6,25 +6,9 @@ import {
   useTransform,
 } from 'framer-motion';
 import { useRef } from 'react';
-import { getScreenTransition } from './ProjectsShowcase.helpers';
-
-/**
- * Unified laptop animation state for frame updates.
- * Consolidates all laptop-related animation values and state management.
- */
-interface LaptopAnimationState {
-  /** Lid hinge rotation motion value (0 = open, π/2 = closed) */
-  lidRotation: MotionValue<number>;
-  /** Screen content opacity based on lid position */
-  screenOpacity: MotionValue<number>;
-  /** Internal blend state for texture transitions */
-  blendMotion: MotionValue<number>;
-}
-
-/**
- * Transition trigger callback when project changes.
- */
-type TransitionCallback = (fromIndex: number, toIndex: number) => void;
+import { LID_OPEN, LID_CLOSED } from './Laptop.constants';
+import { getScreenTransition } from './Laptop.helpers';
+import type { LaptopAnimationState, TransitionCallback } from './Laptop.types';
 
 /**
  * Custom hook that manages laptop animation state and transitions.
@@ -56,7 +40,7 @@ export function useLaptopAnimation(
   const lidRotation = useTransform(
     scrollProgress,
     [0, phaseLength, 1 - phaseLength, 1],
-    [Math.PI / 2, 0, 0, Math.PI / 2],
+    [LID_CLOSED, LID_OPEN, LID_OPEN, LID_CLOSED],
   );
 
   /**
@@ -66,7 +50,7 @@ export function useLaptopAnimation(
    */
   const screenOpacity = useTransform(
     lidRotation,
-    [Math.PI / 2, (Math.PI / 2) * 0.7, 0],
+    [LID_CLOSED, LID_CLOSED * 0.7, LID_OPEN],
     [0, 0, 1],
   );
 

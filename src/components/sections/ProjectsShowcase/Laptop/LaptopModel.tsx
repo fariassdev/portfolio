@@ -4,21 +4,19 @@ import { useGLTF, Html } from '@react-three/drei';
 import { useFrame, useThree, type ObjectMap } from '@react-three/fiber';
 import { useReducedMotion, type MotionValue } from 'framer-motion';
 import { memo, useEffect, useMemo, useRef } from 'react';
-import { type Group, type Mesh, type MeshStandardMaterial } from 'three';
+import type { Group, Mesh, MeshStandardMaterial } from 'three';
 import type { GLTF } from 'three-stdlib';
-import { LaptopScreen, type LaptopScreenHandle } from './LaptopScreen';
+import { MOBILE_BREAKPOINT } from '../ProjectsShowcase.constants';
 import {
   BASE_LAPTOP_ROTATION_X,
   CAMERA_Z,
   DESKTOP_SLIDE_FACTOR,
   LAPTOP_SCALE,
   LID_CLOSED,
-  MOBILE_BREAKPOINT,
-} from './ProjectsShowcase.constants';
-import {
-  getLaptopTransform,
-  getScreenTransition,
-} from './ProjectsShowcase.helpers';
+} from './Laptop.constants';
+import { getLaptopTransform, getScreenTransition } from './Laptop.helpers';
+import type { LaptopScreenHandle } from './Laptop.types';
+import { LaptopScreen } from './LaptopScreen';
 import { useLaptopAnimation } from './use-laptop-animation';
 
 type GLTFResult = GLTF &

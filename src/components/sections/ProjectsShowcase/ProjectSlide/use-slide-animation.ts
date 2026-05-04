@@ -4,43 +4,18 @@ import {
   useTransform,
 } from 'framer-motion';
 import { clamp } from '@/helpers/math.helpers';
+import { getLaptopTransform } from '../Laptop/Laptop.helpers';
+import { PROJECT_COUNT } from '../ProjectsShowcase.constants';
 import {
-  PROJECT_COUNT,
   SLIDE_CLIP_MAX_OFFSET,
   SWEEP_START_PERCENT,
   SWEEP_DURATION_PERCENT,
   LABEL_TRIGGER_PERCENT,
   FADE_DURATION_PERCENT,
   MOBILE_ENTRANCE_DISTANCE_PX,
-} from './ProjectsShowcase.constants';
-import {
-  getLaptopTransform,
-  getProjectSlideState,
-  getSlideClipPath,
-} from './ProjectsShowcase.helpers';
-
-/**
- * Animation state for a single project slide.
- * Consolidates all slide-related motion values into a single object.
- */
-interface SlideAnimationState {
-  /** CSS clip-path for masking the slide content */
-  clipPath: MotionValue<string>;
-  /** Visibility state (visible/hidden) */
-  visibility: MotionValue<'visible' | 'hidden'>;
-  /** Mobile entrance Y offset in pixels */
-  mobileEntranceY: MotionValue<number>;
-  /** Mobile entrance opacity (0 to 1) */
-  mobileEntranceOpacity: MotionValue<number>;
-  /** Text sweep reveal progress (0 to 1) */
-  sweepReveal: MotionValue<number>;
-  /** Whether the decrypt label animation should be active */
-  isLabelActive: MotionValue<boolean>;
-  /** Content fade in/out opacity */
-  contentOpacity: MotionValue<number>;
-  /** Content Y position with reveal and blur transforms */
-  contentY: MotionValue<number>;
-}
+} from './ProjectSlide.constants';
+import { getProjectSlideState, getSlideClipPath } from './ProjectSlide.helpers';
+import type { SlideAnimationState } from './ProjectSlide.types';
 
 /**
  * Custom hook that consolidates all animation logic for a project slide.

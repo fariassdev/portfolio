@@ -3,11 +3,8 @@
 import { motion, type MotionValue } from 'framer-motion';
 import Image from 'next/image';
 import { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
-import styles from './ProjectsShowcase.module.css';
-
-export interface LaptopScreenHandle {
-  transitionTo: (fromIndex: number, toIndex: number) => void;
-}
+import styles from './Laptop.module.css';
+import type { LaptopScreenHandle } from './Laptop.types';
 
 interface LaptopScreenProps {
   mediaPaths: readonly string[];
