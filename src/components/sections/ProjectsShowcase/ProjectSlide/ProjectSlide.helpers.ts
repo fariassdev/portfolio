@@ -38,9 +38,9 @@ export function getProjectSlideState(
 ): ProjectSlideState {
   if (PROJECT_COUNT === 0) return { reveal: 0, blur: 0, active: false };
 
-  // Project i: Reveal starts at phase 2*i, Blur starts at phase 2*i + 2
-  const revealStart = 2 * index * PHASE_LENGTH;
-  const blurStart = (2 * index + 2) * PHASE_LENGTH;
+  // Project i: Reveal starts at phase 2*i + 1, Blur starts at phase 2*i + 3
+  const revealStart = (2 * index + 1) * PHASE_LENGTH;
+  const blurStart = (2 * index + 3) * PHASE_LENGTH;
 
   const activeStart = revealStart;
   const activeEnd = blurStart + PHASE_LENGTH;

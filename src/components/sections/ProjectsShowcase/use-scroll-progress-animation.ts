@@ -8,8 +8,8 @@ import type { RefObject } from 'react';
  */
 const SCROLL_SNAP_CONFIG = {
   stiffness: 100,
-  damping: 30,
-  mass: 0.5,
+  damping: 20,
+  mass: 0.8,
   restDelta: 0.0001,
 } as const;
 
@@ -41,7 +41,19 @@ export function useScrollProgressAnimation(
     if (rawProgress <= 0) return 0;
     if (rawProgress >= 1) return 1;
 
-    // Round to nearest phase
+    const phaseLength = 1 / scrollPages;
+
+    // Opening phase: Fluid movement
+    if (rawProgress < phaseLength) {
+      return rawProgress;
+    }
+
+    // Closing phase: Fluid movement
+    if (rawProgress > 1 - phaseLength) {
+      return rawProgress;
+    }
+
+    // Intermediate project phases: Snapped movement
     const phase = Math.round(rawProgress * scrollPages);
     return phase / scrollPages;
   });

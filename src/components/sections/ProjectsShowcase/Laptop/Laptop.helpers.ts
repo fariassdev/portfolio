@@ -6,7 +6,7 @@ import type { LaptopTransform, ScreenTransition } from './Laptop.types';
  * Calculates the length of a single animation phase.
  */
 export function getPhaseLength(projectCount: number): number {
-  return 1 / Math.max(projectCount * 2 + 1, 1);
+  return 1 / Math.max(projectCount * 2 + 3, 1);
 }
 
 /**
@@ -22,9 +22,14 @@ export function getLaptopTransform(
     return { xOffset: 0, yRotation: 0 };
   }
 
+  // Phase 0: Opening (Lid only)
+  if (progress <= phaseLen) {
+    return { xOffset: 0, yRotation: 0 };
+  }
+
   // Calculate active index based on current progress
-  // Phase 0-1: Project 0, Phase 2-3: Project 1, etc.
-  let activeIndex = Math.floor(progress / (phaseLen * 2));
+  // Phase 1-2: Project 0, Phase 3-4: Project 1, etc.
+  let activeIndex = Math.floor((progress - phaseLen) / (phaseLen * 2));
   activeIndex = clamp(activeIndex, 0, projectCount - 1);
 
   const isEven = activeIndex % 2 === 0;
@@ -37,14 +42,14 @@ export function getLaptopTransform(
     ? -MAX_LAPTOP_ROTATION_Y
     : MAX_LAPTOP_ROTATION_Y;
 
-  const projectStartPhase = activeIndex * phaseLen * 2;
+  const projectStartPhase = phaseLen + activeIndex * phaseLen * 2;
   const transitionInProgress = clamp(
     (progress - projectStartPhase) / phaseLen,
     0,
     1,
   );
 
-  // Final project "out" transition (Phase 2N)
+  // Final project "out" transition (Phase 2N+1)
   if (
     activeIndex === projectCount - 1 &&
     progress >= projectStartPhase + 2 * phaseLen
@@ -61,7 +66,7 @@ export function getLaptopTransform(
     };
   }
 
-  // First project initial sweep in (Phase 0)
+  // First project initial sweep in (Phase 1)
   if (activeIndex === 0 && transitionInProgress < 1) {
     const eased = easeInOut(transitionInProgress);
     return {
@@ -70,7 +75,7 @@ export function getLaptopTransform(
     };
   }
 
-  // Intermediate transitions between projects (Phases 2, 4, ...)
+  // Intermediate transitions between projects (Phases 3, 5, ...)
   if (transitionInProgress < 1) {
     const eased = easeInOut(transitionInProgress);
     return {
@@ -79,7 +84,7 @@ export function getLaptopTransform(
     };
   }
 
-  // Steady viewing state (Phases 1, 3, ...)
+  // Steady viewing state (Phases 2, 4, ...)
   return {
     xOffset: targetX,
     yRotation: targetRotation,
@@ -99,8 +104,8 @@ export function getScreenTransition(
     return { fromIndex: 0, toIndex: 0, blend: 0 };
   }
 
-  // Transition zones start at phases 2, 4, 6...
-  const transitionZoneStart = phaseLen * 2;
+  // Transition zones start at phases 3, 5, 7...
+  const transitionZoneStart = phaseLen * 3;
 
   if (projectCount <= 1 || progress < transitionZoneStart) {
     return {
