@@ -7,8 +7,8 @@ import type { RefObject } from 'react';
  * Controls how smoothly the animation snaps between phases.
  */
 const SCROLL_SNAP_CONFIG = {
-  stiffness: 100,
-  damping: 20,
+  stiffness: 120,
+  damping: 30,
   mass: 0.8,
   restDelta: 0.0001,
 } as const;
