@@ -1,14 +1,11 @@
-.revealWrapper {
+.container {
   position: relative;
-  display: inline-block;
-  padding: 2px 8px;
-  margin: -2px -8px;
-  border-radius: 4px;
-  overflow: hidden;
+  display: block;
+  width: fit-content;
+  overflow: visible;
 }
 
-.baseText {
-  color: inherit;
+.text {
   display: inline-block;
 }
 
@@ -17,25 +14,38 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  pointer-events: none;
-  z-index: 2;
   background: var(--color-accent);
   box-shadow:
     0 0 6px 1px var(--color-accent),
     0 0 16px 4px color-mix(in srgb, var(--color-accent) 60%, transparent),
     0 0 30px 8px color-mix(in srgb, var(--color-accent) 25%, transparent);
+  pointer-events: none;
+  z-index: 10;
+  transform: translateX(-50%);
 }
 
 .glow {
   position: absolute;
   top: 0;
   bottom: 0;
+  width: 80px;
   pointer-events: none;
-  z-index: 1;
+  z-index: 5;
   background: linear-gradient(
     to right,
     transparent 0%,
     color-mix(in srgb, var(--color-accent) 15%, transparent) 40%,
     color-mix(in srgb, var(--color-accent) 30%, transparent) 100%
   );
+  transform: translateX(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text {
+    clip-path: none !important;
+  }
+  .scanline,
+  .glow {
+    display: none;
+  }
 }
