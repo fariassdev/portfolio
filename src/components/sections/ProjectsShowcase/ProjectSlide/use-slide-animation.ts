@@ -10,7 +10,6 @@ import {
   SLIDE_CLIP_MAX_OFFSET,
   SWEEP_START_PERCENT,
   FADE_DURATION_PERCENT,
-  MOBILE_ENTRANCE_DISTANCE_PX,
 } from './ProjectSlide.constants';
 import { getProjectSlideState, getSlideClipPath } from './ProjectSlide.helpers';
 import type { SlideAnimationState } from './ProjectSlide.types';
@@ -52,16 +51,12 @@ export function useSlideAnimation(
     return getSlideClipPath(laptopTransform.xOffset, side);
   });
 
-  // Mobile entrance animation (Y offset): starts at MOBILE_ENTRANCE_DISTANCE_PX below
-  const mobileEntranceY = useTransform(
-    slideState,
-    (state) => (1 - state.reveal) * MOBILE_ENTRANCE_DISTANCE_PX,
-  );
-
-  // Mobile entrance animation (opacity): fades in over first 50% of reveal
-  const mobileEntranceOpacity = useTransform(slideState, (state) =>
-    clamp(state.reveal * 2, 0, 1),
-  );
+  // Mobile entrance animation (opacity): fades in/out over first 20% of reveal/blur
+  const mobileEntranceOpacity = useTransform(slideState, (state) => {
+    const fadeIn = clamp(state.reveal / FADE_DURATION_PERCENT, 0, 1);
+    const fadeOut = clamp(1 - state.blur / FADE_DURATION_PERCENT, 0, 1);
+    return Math.min(fadeIn, fadeOut);
+  });
 
   // Master trigger for text animations: starts at SWEEP_START_PERCENT reveal
   // and resets when the slide is 50% blurred to allow re-triggering when scrolling back.
@@ -72,28 +67,16 @@ export function useSlideAnimation(
 
   // Content opacity with dual-phase fading (fade in + fade out)
   const contentOpacity = useTransform(slideState, (state) => {
-    const fadeInProgress = clamp(state.reveal / FADE_DURATION_PERCENT, 0, 1);
-    const fadeOutProgress = clamp(
-      (1 - state.blur) / FADE_DURATION_PERCENT,
-      0,
-      1,
-    );
-    return Math.min(fadeInProgress, fadeOutProgress);
-  });
-
-  // Content Y position: moves up during reveal, down during blur
-  const contentY = useTransform(slideState, (state) => {
-    const revealEased = clamp(state.reveal / FADE_DURATION_PERCENT, 0, 1);
-    return state.blur * -20 + (1 - revealEased) * 20;
+    const fadeIn = clamp(state.reveal / FADE_DURATION_PERCENT, 0, 1);
+    const fadeOut = clamp(1 - state.blur / FADE_DURATION_PERCENT, 0, 1);
+    return Math.min(fadeIn, fadeOut);
   });
 
   return {
     clipPath,
     visibility,
-    mobileEntranceY,
     mobileEntranceOpacity,
     shouldAnimateText,
     contentOpacity,
-    contentY,
   };
 }

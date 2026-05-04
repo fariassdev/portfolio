@@ -39,15 +39,14 @@ export const ProjectSlide = memo(function ProjectSlide({
       style={{
         clipPath: animation.clipPath,
         visibility: animation.visibility,
-        y: animation.mobileEntranceY,
         opacity: animation.mobileEntranceOpacity,
+        zIndex: 10 - index,
       }}
     >
       <motion.div
         className={styles.slideContent}
         style={{
           opacity: animation.contentOpacity,
-          y: animation.contentY,
         }}
       >
         <div className={styles.slideLabel}>
