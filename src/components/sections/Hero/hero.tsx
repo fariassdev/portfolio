@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/Button';
 import { DecryptText } from '@/components/ui/DecryptText';
-import { TextReveal } from '@/components/ui/TextReveal';
+import { SweepText } from '@/components/ui/SweepText';
 import {
   HERO_NAME,
   HERO_TITLE,
@@ -27,8 +27,7 @@ export function Hero() {
             {HERO_TITLE} &amp; {currentRole}
           </span>
           <span aria-hidden="true">
-            <TextReveal className={styles.staticRole}>{HERO_TITLE}</TextReveal>
-            <br />
+            <SweepText className={styles.staticRole} text={HERO_TITLE} />
             <span className={styles.staticRole}>{'& '}</span>
             <span className={styles.rotatingRole}>{text}</span>
             <span className={styles.cursor} />
