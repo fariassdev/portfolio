@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type MotionValue, useTransform } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
 import { useDecryptText } from './use-decrypt-text';
 
 interface DecryptTextProps {
@@ -15,11 +15,9 @@ interface DecryptTextProps {
   className?: string;
   /**
    * Controls when the animation plays.
-   * - `boolean` — static on/off
-   * - `MotionValue<boolean>` — reactive (e.g. driven by scroll progress)
    * If omitted, the animation plays immediately.
    */
-  animate?: boolean | MotionValue<boolean>;
+  shouldAnimate?: boolean;
 }
 
 /**
@@ -39,11 +37,11 @@ export function DecryptText({
   charset,
   delay = 0,
   className,
-  animate = true,
+  shouldAnimate = true,
 }: Readonly<DecryptTextProps>) {
   const { containerRef, progress } = useDecryptText({
     text,
-    animate,
+    shouldAnimate,
     charset,
     delay,
   });

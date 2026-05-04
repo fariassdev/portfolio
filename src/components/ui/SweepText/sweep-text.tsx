@@ -1,82 +1,81 @@
 'use client';
 
-import {
-  motion,
-  useTransform,
-  useMotionValue,
-  animate,
-  useMotionValueEvent,
-  type MotionValue,
-} from 'framer-motion';
+import { motion } from 'framer-motion';
 import { memo } from 'react';
 import styles from './sweep-text.module.css';
 
 interface SweepTextProps {
   readonly text: string;
   readonly as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span';
-  readonly animate: MotionValue<boolean>;
+  readonly shouldAnimate?: boolean;
   readonly className?: string;
 }
 
 /**
  * Reveals text from left to right with an animated scanline and glow effect.
- * Once the `animate` motion value becomes true, the animation plays to completion.
+ * Once the `shouldAnimate` prop becomes true, the animation plays to completion.
  */
 export const SweepText = memo(function SweepText({
   text,
   as: Tag = 'span',
-  animate: shouldAnimate,
+  shouldAnimate = true,
   className,
 }: SweepTextProps) {
-  const progress = useMotionValue(0);
+  // Shared transition configuration for synchronized movement
+  const transition = {
+    duration: 0.8,
+    ease: [0.33, 1, 0.68, 1] as [number, number, number, number],
+  };
 
-  // Use motion value events to trigger the animation without triggering React re-renders
-  useMotionValueEvent(shouldAnimate, 'change', (latest) => {
-    if (latest) {
-      // Trigger automatic reveal animation
-      animate(progress, 1, {
-        duration: 0.8,
-        ease: [0.33, 1, 0.68, 1], // quartOut for smooth deceleration
-      });
-    } else {
-      // Reset progress when not active so it can re-trigger
-      progress.set(0);
-    }
-  });
-
-  // Clips the text, expanding the visible region from left (0%) to right (100%).
-  const clipPath = useTransform(
-    progress,
-    (v) => `inset(0 ${(1 - v) * 100}% 0 0)`,
-  );
-
-  // Scanline fades in quickly at the start and out quickly at the end.
-  const scanlineOpacity = useTransform(progress, (v) => {
-    if (v <= 0 || v >= 1) return 0;
-    const fadeIn = v / 0.1;
-    const fadeOut = (1 - v) / 0.1;
-    return Math.min(fadeIn, fadeOut, 1);
-  });
-
-  // Scanline and glow share the same horizontal position.
-  const scanlineX = useTransform(progress, (v) => `${v * 100}%`);
+  // Variants ensure reliable string interpolation for complex CSS properties like clip-path
+  const variants = {
+    hidden: {
+      clipPath: 'inset(0% 100% 0% 0%)',
+    },
+    visible: {
+      clipPath: 'inset(0% 0% 0% 0%)',
+    },
+  };
 
   return (
     <Tag className={`${styles.container} ${className}`}>
-      <motion.span className={styles.text} style={{ clipPath }}>
+      {/* Animated text layer with expanding clip-path */}
+      <motion.span
+        className={styles.text}
+        variants={variants}
+        initial="hidden"
+        animate={shouldAnimate ? 'visible' : 'hidden'}
+        transition={transition}
+      >
         {text}
       </motion.span>
 
       {/* Soft glow precedes the scanline */}
       <motion.span
         className={styles.glow}
-        style={{ left: scanlineX, opacity: scanlineOpacity }}
+        initial={{ left: '0%', opacity: 0 }}
+        animate={{
+          left: shouldAnimate ? '100%' : '0%',
+          opacity: shouldAnimate ? [0, 1, 1, 0] : 0,
+        }}
+        transition={{
+          ...transition,
+          opacity: { ...transition, times: [0, 0.1, 0.9, 1] },
+        }}
       />
 
       {/* Hard scanline edge */}
       <motion.span
         className={styles.scanline}
-        style={{ left: scanlineX, opacity: scanlineOpacity }}
+        initial={{ left: '0%', opacity: 0 }}
+        animate={{
+          left: shouldAnimate ? '100%' : '0%',
+          opacity: shouldAnimate ? [0, 1, 1, 0] : 0,
+        }}
+        transition={{
+          ...transition,
+          opacity: { ...transition, times: [0, 0.1, 0.9, 1] },
+        }}
       />
     </Tag>
   );

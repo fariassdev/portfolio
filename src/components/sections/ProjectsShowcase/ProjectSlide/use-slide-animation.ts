@@ -64,9 +64,10 @@ export function useSlideAnimation(
   );
 
   // Master trigger for text animations: starts at SWEEP_START_PERCENT reveal
+  // and resets when the slide is 50% blurred to allow re-triggering when scrolling back.
   const shouldAnimateText = useTransform(
     slideState,
-    (state) => state.reveal >= SWEEP_START_PERCENT,
+    (state) => state.reveal >= SWEEP_START_PERCENT && state.blur <= 0.5,
   );
 
   // Content opacity with dual-phase fading (fade in + fade out)

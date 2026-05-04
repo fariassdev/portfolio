@@ -1,13 +1,13 @@
 'use client';
 
-import { useReducedMotion, useSpring, type MotionValue } from 'framer-motion';
+import { useReducedMotion, useSpring } from 'framer-motion';
 import { useCallback, useEffect, useRef } from 'react';
 
 const DEFAULT_CHARSET = '!@#$%^&*()_+-=[]{}|;:,.<>?0123456789';
 
 interface UseDecryptTextOptions {
   readonly text: string;
-  readonly animate: boolean | MotionValue<boolean>;
+  readonly shouldAnimate: boolean;
   readonly charset?: string;
   readonly delay?: number;
 }
@@ -25,7 +25,7 @@ interface UseDecryptTextOptions {
  */
 export function useDecryptText({
   text,
-  animate: shouldAnimate,
+  shouldAnimate,
   charset = DEFAULT_CHARSET,
   delay = 0,
 }: UseDecryptTextOptions) {
@@ -131,26 +131,12 @@ export function useDecryptText({
       spring.set(0);
     };
 
-    // Wire up animate (boolean or MotionValue)
-    let unsubMV: (() => void) | undefined;
-
-    if (typeof shouldAnimate === 'boolean') {
-      if (shouldAnimate) activate();
-      else deactivate();
-    } else {
-      // MotionValue<boolean>
-      unsubMV = shouldAnimate.on('change', (v) => {
-        if (v) activate();
-        else deactivate();
-      });
-      // Initial state
-      if (shouldAnimate.get()) activate();
-      else clear();
-    }
+    // Wire up animate (boolean)
+    if (shouldAnimate) activate();
+    else deactivate();
 
     return () => {
       unsubSpring();
-      unsubMV?.();
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [

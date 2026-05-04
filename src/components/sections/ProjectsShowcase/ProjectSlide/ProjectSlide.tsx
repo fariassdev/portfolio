@@ -1,7 +1,7 @@
 'use client';
 
-import { type MotionValue, motion } from 'framer-motion';
-import { memo } from 'react';
+import { type MotionValue, motion, useMotionValueEvent } from 'framer-motion';
+import { memo, useState } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
 import type { Project } from '../ProjectsShowcase.types';
@@ -24,6 +24,15 @@ export const ProjectSlide = memo(function ProjectSlide({
   // Unified hook consolidates all animation logic
   const animation = useSlideAnimation(scrollProgress, index, project.side);
 
+  // Sync motion value to local state for simple boolean prop access
+  const [shouldAnimate, setShouldAnimate] = useState(
+    animation.shouldAnimateText.get(),
+  );
+
+  useMotionValueEvent(animation.shouldAnimateText, 'change', (latest) => {
+    setShouldAnimate(latest);
+  });
+
   return (
     <motion.div
       className={`${styles.slide} ${isRight ? styles.slideRight : styles.slideLeft}`}
@@ -44,7 +53,7 @@ export const ProjectSlide = memo(function ProjectSlide({
         <div className={styles.slideLabel}>
           <DecryptText
             text="Featured Project"
-            animate={animation.shouldAnimateText}
+            shouldAnimate={shouldAnimate}
             delay={200}
           />
         </div>
@@ -53,7 +62,7 @@ export const ProjectSlide = memo(function ProjectSlide({
           as="h3"
           text={project.title}
           className={styles.slideTitle}
-          animate={animation.shouldAnimateText}
+          shouldAnimate={shouldAnimate}
         />
 
         <p className={styles.slideDescription}>{project.description}</p>
