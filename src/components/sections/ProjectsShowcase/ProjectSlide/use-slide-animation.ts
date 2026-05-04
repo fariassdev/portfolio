@@ -9,8 +9,6 @@ import { PROJECT_COUNT } from '../ProjectsShowcase.constants';
 import {
   SLIDE_CLIP_MAX_OFFSET,
   SWEEP_START_PERCENT,
-  SWEEP_DURATION_PERCENT,
-  LABEL_TRIGGER_PERCENT,
   FADE_DURATION_PERCENT,
   MOBILE_ENTRANCE_DISTANCE_PX,
 } from './ProjectSlide.constants';
@@ -65,15 +63,10 @@ export function useSlideAnimation(
     clamp(state.reveal * 2, 0, 1),
   );
 
-  // Sweep text animation: starts at SWEEP_START_PERCENT, completes at 95%
-  const sweepReveal = useTransform(slideState, (state) =>
-    clamp((state.reveal - SWEEP_START_PERCENT) / SWEEP_DURATION_PERCENT, 0, 1),
-  );
-
-  // Label decrypt trigger: waits until sweep reveal reaches LABEL_TRIGGER_PERCENT
-  const isLabelActive = useTransform(
-    sweepReveal,
-    (sweepProgress) => sweepProgress > LABEL_TRIGGER_PERCENT,
+  // Master trigger for text animations: starts at SWEEP_START_PERCENT reveal
+  const isTextActive = useTransform(
+    slideState,
+    (state) => state.reveal >= SWEEP_START_PERCENT,
   );
 
   // Content opacity with dual-phase fading (fade in + fade out)
@@ -98,8 +91,7 @@ export function useSlideAnimation(
     visibility,
     mobileEntranceY,
     mobileEntranceOpacity,
-    sweepReveal,
-    isLabelActive,
+    isTextActive,
     contentOpacity,
     contentY,
   };

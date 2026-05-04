@@ -19,10 +19,8 @@ export interface SlideAnimationState {
   mobileEntranceY: MotionValue<number>;
   /** Mobile entrance opacity (0 to 1) */
   mobileEntranceOpacity: MotionValue<number>;
-  /** Text sweep reveal progress (0 to 1) */
-  sweepReveal: MotionValue<number>;
-  /** Whether the decrypt label animation should be active */
-  isLabelActive: MotionValue<boolean>;
+  /** Whether the text animations (sweep and decrypt) should be active */
+  isTextActive: MotionValue<boolean>;
   /** Content fade in/out opacity */
   contentOpacity: MotionValue<number>;
   /** Content Y position with reveal and blur transforms */
