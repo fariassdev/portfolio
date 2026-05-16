@@ -5,15 +5,15 @@ export const PROJECTS: Project[] = [
     id: 'senda',
     title: 'Senda',
     description:
-      'Real-time AI content generation platform. Built from 0→1 as sole backend engineer. Designed the entire distributed architecture: API gateway, async job queues, WebSocket streaming, multi-tenant data isolation.',
+      'AI-powered meditation platform designed to generate automated guided courses. Orchestrates Google Gemini for script synthesis and KokoroTTS for audio production via a FastAPI backend. Features a Next.js CMS and a persistent virtual guide architecture for structured content delivery.',
     previewSrc: '/images/senda/senda.webm',
     side: 'right',
   },
   {
-    id: 'couple-organizer',
-    title: 'Couple Organizer',
+    id: 'twodo',
+    title: 'Twodo',
     description:
-      'Calendar and to-do web app for couples. Built from 0→1 as sole developer. Designed the entire distributed architecture: API gateway, async job queues, WebSocket streaming, multi-tenant data isolation.',
+      'Household coordination platform for couples designed to reduce mental load through shared task management and expense tracking. Features a mobile-first interface with collaborative shopping lists and real-time balance metrics. Engineered with React 19, Supabase, and TanStack Query, implementing robust offline persistence via IndexedDB.',
     previewSrc: '/images/senda/Senda_demo_overview.mp4',
     side: 'left',
   },
