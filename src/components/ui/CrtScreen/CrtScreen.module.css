@@ -59,6 +59,7 @@
     rgba(0, 0, 0, 0.35) 100%
   );
   box-shadow:
+    0 0 0 9999px var(--color-bg),
     inset 0 0 60px rgba(0, 0, 0, 0.95),
     0 0 40px rgba(0, 0, 0, 0.85);
 }
