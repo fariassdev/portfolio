@@ -1,0 +1,143 @@
+/* ============================================================
+   CrtScreen — Retro CRT Monitor Overlay
+   All layers are pointer-events: none — purely decorative.
+   ============================================================ */
+
+@keyframes screenFlicker {
+  0% {
+    opacity: 0.985;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes glitchOverlay {
+  0% {
+    transform: translate(0);
+  }
+  1% {
+    transform: translate(-0.5px, 0.5px);
+  }
+  2% {
+    transform: translate(0.5px, -0.5px);
+  }
+  3% {
+    transform: translate(0);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes beamAnimation {
+  0% {
+    top: -15vh;
+  }
+  100% {
+    top: 115vh;
+  }
+}
+
+.crtOverlay {
+  position: absolute;
+  /* Physical retro monitor framing: inset with rounded corners and thick bezel chassis */
+  inset: 12px;
+  border-radius: 32px;
+  border: 12px solid #0d0d0d;
+  z-index: 20;
+  pointer-events: none;
+  overflow: hidden;
+  animation:
+    glitchOverlay 6s infinite,
+    screenFlicker 0.4s infinite alternate;
+  /* Glowing retro developer terminal phosphor radial backlight */
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(197, 255, 74, 0.08) 0%,
+    rgba(197, 255, 74, 0.02) 55%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.95),
+    0 0 40px rgba(0, 0, 0, 0.85);
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  /* High-fidelity 2D Phosphor Shadow Mask */
+  background-image: radial-gradient(
+    circle at center,
+    rgba(197, 255, 74, 0.35) 0%,
+    rgba(197, 255, 74, 0.16) 30%,
+    rgba(0, 0, 0, 0.22) 60%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  background-size: 3px 3px;
+  pointer-events: none;
+}
+
+.beam {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 15vh;
+  /* Slow, extremely faint vertical electron sweep */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(197, 255, 74, 0.005) 70%,
+    rgba(197, 255, 74, 0.02) 95%,
+    rgba(197, 255, 74, 0.04) 98%,
+    rgba(197, 255, 74, 0.005) 100%
+  );
+  filter: blur(1px);
+  pointer-events: none;
+  animation: beamAnimation 8s linear infinite;
+  opacity: 0.2;
+}
+
+.glare {
+  position: absolute;
+  inset: 0;
+  /* Convex spherical glass light streak reflection */
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0) 65%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.015) 0%,
+      rgba(255, 255, 255, 0) 35%,
+      rgba(255, 255, 255, 0) 65%,
+      rgba(255, 255, 255, 0.012) 100%
+    );
+  pointer-events: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  /* Convex spherical lens refraction shading that bulges the screen in 3D */
+  background: radial-gradient(
+    circle at center,
+    transparent 45%,
+    rgba(0, 0, 0, 0.2) 65%,
+    rgba(0, 0, 0, 0.75) 92%,
+    #000000 100%
+  );
+  pointer-events: none;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.95);
+}
+
+.screenNoise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}

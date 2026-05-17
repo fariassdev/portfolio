@@ -1,15 +1,3 @@
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    box-shadow: 0 0 8px var(--color-accent);
-  }
-  50% {
-    opacity: 0.4;
-    box-shadow: none;
-  }
-}
-
 @keyframes blink {
   0%,
   100% {
@@ -17,15 +5,6 @@
   }
   50% {
     opacity: 0;
-  }
-}
-
-@keyframes scanline {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100vh);
   }
 }
 
@@ -40,20 +19,45 @@
   }
 }
 
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ==================
+   Hero Section
+   150vh = 1vh display + scroll room for zoom-through
+==================== */
+
 .heroSection {
+  position: relative;
+  width: 100%;
+  height: 150vh;
+  background: var(--color-bg);
+}
+
+.stickyWrapper {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  padding: 120px 40px 80px;
-  position: relative;
   overflow: hidden;
-  border-bottom: 1px solid var(--color-border);
 }
 
-.heroSection::before {
-  content: '';
+/* ==================
+   Background
+==================== */
+
+.backgroundGradients {
   position: absolute;
   inset: 0;
   background:
@@ -68,29 +72,35 @@
       transparent 40%
     );
   pointer-events: none;
+  z-index: 0;
 }
 
-.heroSection::after {
-  content: '';
+/* ==================
+   Zoom Container
+==================== */
+
+.zoomContainer {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(197, 255, 74, 0.15),
-    transparent
-  );
-  animation: scanline 6s linear infinite;
-  pointer-events: none;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+  /* Interactive — content inside must be clickable */
+  pointer-events: auto;
 }
+
+/* ==================
+   Hero Content
+==================== */
 
 .heroContent {
   position: relative;
   z-index: 1;
   text-align: left;
   max-width: 730px;
+  padding: 0 40px;
   animation: fadeUp 0.8s ease both;
 }
 
@@ -151,38 +161,6 @@
   margin-bottom: 40px;
 }
 
-@media (--mediaTablet) {
-  .heroSection {
-    padding: 100px 32px 60px;
-  }
-
-  .heroRole {
-    font-size: clamp(28px, 4vw, 48px);
-    min-height: 2.6em;
-  }
-}
-
-@media (--mediaMobile) {
-  .heroSection {
-    padding: 80px var(--spaceOuter) 60px;
-    align-items: flex-start;
-  }
-
-  .heroContent {
-    max-width: 100%;
-  }
-
-  .heroRole {
-    font-size: clamp(24px, 7vw, 36px);
-    min-height: 3em;
-  }
-
-  .heroDescription {
-    font-size: 14px;
-    margin-bottom: 32px;
-  }
-}
-
 /* ==================
    CTA Buttons
 ==================== */
@@ -205,27 +183,6 @@
    Scroll Hint
 ==================== */
 
-@keyframes floatY {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .scrollHint {
   position: absolute;
   bottom: 32px;
@@ -241,6 +198,7 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   animation: fadeUp 1s ease 0.5s both;
+  pointer-events: none;
 }
 
 .arrow {
@@ -252,7 +210,36 @@
   animation: floatY 1.5s ease-in-out infinite;
 }
 
+/* ==================
+   Responsive
+==================== */
+
+@media (--mediaTablet) {
+  .heroRole {
+    font-size: clamp(28px, 4vw, 48px);
+    min-height: 2.6em;
+  }
+}
+
 @media (--mediaMobile) {
+  .heroSection {
+    padding: 0;
+  }
+
+  .heroContent {
+    max-width: 100%;
+  }
+
+  .heroRole {
+    font-size: clamp(24px, 7vw, 36px);
+    min-height: 3em;
+  }
+
+  .heroDescription {
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
   .scrollHint {
     bottom: 20px;
   }

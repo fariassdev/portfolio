@@ -19,12 +19,17 @@ export function getLaptopTransform(
 ): LaptopTransform {
   const phaseLen = getPhaseLength(projectCount);
   if (projectCount <= 0) {
-    return { xOffset: 0, yRotation: 0 };
+    return { xOffset: 0, yOffset: 0, yRotation: 0 };
   }
+
+  // Initial vertical offset: starts high (150 units) and moves to centered (0 units)
+  // This satisfies the "only modify initial position" requirement
+  const initialYOffset = 150;
+  const yOffset = lerp(initialYOffset, 0, clamp(progress / phaseLen, 0, 1));
 
   // Phase 0: Opening (Lid only)
   if (progress <= phaseLen) {
-    return { xOffset: 0, yRotation: 0 };
+    return { xOffset: 0, yOffset, yRotation: 0 };
   }
 
   // Calculate active index based on current progress
@@ -62,6 +67,7 @@ export function getLaptopTransform(
     const eased = easeInOut(transitionOutProgress);
     return {
       xOffset: lerp(targetX, 0, eased),
+      yOffset: 0,
       yRotation: lerp(targetRotation, 0, eased),
     };
   }
@@ -71,6 +77,7 @@ export function getLaptopTransform(
     const eased = easeInOut(transitionInProgress);
     return {
       xOffset: lerp(0, targetX, eased),
+      yOffset: 0,
       yRotation: lerp(0, targetRotation, eased),
     };
   }
@@ -80,6 +87,7 @@ export function getLaptopTransform(
     const eased = easeInOut(transitionInProgress);
     return {
       xOffset: lerp(oppositeX, targetX, eased),
+      yOffset: 0,
       yRotation: lerp(oppositeRotation, targetRotation, eased),
     };
   }
@@ -87,6 +95,7 @@ export function getLaptopTransform(
   // Steady viewing state (Phases 2, 4, ...)
   return {
     xOffset: targetX,
+    yOffset: 0,
     yRotation: targetRotation,
   };
 }

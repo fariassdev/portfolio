@@ -126,13 +126,23 @@ export const LaptopModel = memo(
         ? 0
         : viewport.width * DESKTOP_SLIDE_FACTOR;
       const transform = isMobile
-        ? { xOffset: 0, yRotation: 0 }
+        ? { xOffset: 0, yOffset: 0, yRotation: 0 }
         : getLaptopTransform(currentProgress, projectCount, maxSlideDistance);
+
+      // Entrance zoom effect: the laptop starts small and grows as we enter the section
+      // Phase length is approx 1 / (projectCount * 2 + 1)
+      const phaseLength = 1 / Math.max(projectCount * 2 + 1, 1);
+      const entranceScale = Math.min(
+        1,
+        Math.max(0.2, currentProgress / phaseLength),
+      );
 
       // Apply position and rotation transforms
       group.position.x = transform.xOffset;
+      group.position.y = laptopPosition[1] + transform.yOffset;
       group.rotation.x = BASE_LAPTOP_ROTATION_X;
       group.rotation.y = transform.yRotation;
+      group.scale.setScalar(laptopScale * entranceScale);
 
       // Perspective tilt compensation based on horizontal offset
       group.rotation.z = Math.atan(transform.xOffset / (CAMERA_Z * 6));
