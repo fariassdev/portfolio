@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from 'framer-motion';
+import { useScroll, useSpring, type MotionValue } from 'framer-motion';
 import {
   createContext,
   useContext,
@@ -14,10 +9,6 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import {
-  SCROLL_PAGES,
-  PHASE_LENGTH,
-} from '@/components/sections/ProjectsShowcase/ProjectsShowcase.constants';
 
 interface ScrollTimelineContextType {
   // Element references managed by the coordinator
@@ -64,27 +55,8 @@ export function ScrollTimelineProvider({
     offset: ['start start', 'end end'],
   });
 
-  // Snapping logic for project slider animation phases
-  const projectsSnappedProgress = useTransform(
-    projectsRawScroll,
-    (progress) => {
-      if (progress <= 0) return 0;
-      if (progress >= 1) return 1;
-
-      const scrollPages = SCROLL_PAGES;
-      const phaseLength = PHASE_LENGTH;
-
-      // Do not snap during the title and laptop entrance phases (Phase 0 and 1) to ensure ultra-smooth, progressive scrolling
-      if (progress < 2 * phaseLength) return progress;
-      if (progress > 1 - phaseLength) return progress;
-
-      const phase = Math.round(progress * scrollPages);
-      return phase / scrollPages;
-    },
-  );
-
-  // Smooth snapping spring configuration for projects slides
-  const projectsProgress = useSpring(projectsSnappedProgress, {
+  // Smooth spring configuration for projects slides (perfectly smooth, linear scrolling)
+  const projectsProgress = useSpring(projectsRawScroll, {
     stiffness: 120,
     damping: 30,
     mass: 0.8,
