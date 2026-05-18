@@ -1,12 +1,10 @@
 'use client';
 
-import { motion, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useTransform, useScroll, useSpring } from 'framer-motion';
+import { useRef, type RefObject } from 'react';
 import { Button } from '@/components/ui/Button';
-import { CrtScreen } from '@/components/ui/CrtScreen';
 import { DecryptText } from '@/components/ui/DecryptText';
 import { SweepText } from '@/components/ui/SweepText';
-import { useScrollProgressAnimation } from '@/hooks/use-scroll-progress-animation';
 import {
   HERO_NAME,
   HERO_TITLE,
@@ -16,36 +14,45 @@ import {
 import styles from './hero.module.css';
 import { useTypewriter } from './use-typewriter';
 
-// The Hero occupies 150vh — 1 vh for display, the rest for the zoom-through scroll
-const HERO_SCROLL_PAGES = 1;
+interface HeroProps {
+  sectionRef?: RefObject<HTMLElement | null>;
+}
 
-export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
+export function Hero({ sectionRef }: HeroProps) {
+  const localRef = useRef<HTMLElement>(null);
+  const activeRef = sectionRef || localRef;
   const { text, currentRole } = useTypewriter({ roles: ROLES });
 
-  const smoothProgress = useScrollProgressAnimation(
-    sectionRef,
-    HERO_SCROLL_PAGES,
-  );
+  const { scrollYProgress } = useScroll({
+    target: activeRef,
+    offset: ['start start', 'end end'],
+  });
+
+  // Snappy but perfectly smoothed spring configuration to track scroll in real-time
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 250,
+    damping: 35,
+    mass: 0.5,
+    restDelta: 0.0001,
+  });
 
   // Zoom-through: content scales up and disappears as user scrolls
   const zoomScale = useTransform(smoothProgress, [0, 1], [1, 30]);
-  const zoomOpacity = useTransform(smoothProgress, [0, 0.8, 1], [1, 1, 0]);
+  const zoomOpacity = useTransform(smoothProgress, [0, 0.7, 1], [1, 1, 0]);
 
-  // CRT screen scales up as user scrolls, pushing the physical bezel off-screen for perfect immersion
-  const crtScale = useTransform(smoothProgress, [0, 0.6, 1], [1, 5, 10]);
-
-  // CRT effect dissolves as we plunge inside the screen (from 0.5 to 0.8 progress)
-  const crtOpacity = useTransform(smoothProgress, [0, 0.5, 0.8], [1, 1, 0]);
+  // Disable pointer events once zoom-through completes so it doesn't block interactive elements behind it
+  const pointerEvents = useTransform(smoothProgress, (p) =>
+    p >= 0.9 ? 'none' : 'auto',
+  );
 
   return (
     <section
       id="hero"
-      ref={sectionRef}
+      ref={activeRef}
       className={styles.heroSection}
       aria-label="Hero"
     >
-      <div className={styles.stickyWrapper}>
+      <motion.div className={styles.stickyWrapper} style={{ pointerEvents }}>
         {/* Background gradients — decorative, no pointer events */}
         <div className={styles.backgroundGradients} />
 
@@ -93,15 +100,12 @@ export function Hero() {
           </div>
         </motion.div>
 
-        {/* CRT screen overlay — rendered after content so it sits on top */}
-        <CrtScreen opacity={crtOpacity} scale={crtScale} />
-
         {/* Scroll hint */}
         <div className={styles.scrollHint} aria-hidden="true">
           <div className={styles.arrow} />
           <span>Scroll</span>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
