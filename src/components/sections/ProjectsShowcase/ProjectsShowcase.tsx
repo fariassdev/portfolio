@@ -1,62 +1,93 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { Suspense, useMemo, useRef } from 'react';
-import type { LaptopSceneProps } from './Laptop/LaptopScene';
+import { motion, useTransform, useMotionValueEvent } from 'framer-motion';
+import { useState } from 'react';
+import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
+import { SweepText } from '@/components/ui/SweepText/sweep-text';
+import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import { ProjectSlide } from './ProjectSlide/ProjectSlide';
-import { SCROLL_PAGES } from './ProjectsShowcase.constants';
+import { SCROLL_PAGES, PHASE_LENGTH } from './ProjectsShowcase.constants';
 import { PROJECTS } from './ProjectsShowcase.data';
 import styles from './ProjectsShowcase.module.css';
-import { useScrollProgressAnimation } from './use-scroll-progress-animation';
-
-const LaptopScene = dynamic<LaptopSceneProps>(
-  () =>
-    import('./Laptop/LaptopScene').then((m) => ({ default: m.LaptopScene })),
-  { ssr: false },
-);
 
 export function ProjectsShowcase() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { projectsRef, projectsProgress } = useScrollTimeline();
+  const [shouldAnimateTitle, setShouldAnimateTitle] = useState(false);
 
-  // Simplified animation: just scroll-based progress
-  const smoothProgress = useScrollProgressAnimation(
-    scrollContainerRef,
-    SCROLL_PAGES,
+  const totalSpacerHeight = SCROLL_PAGES * 100;
+
+  // Choreographed animation timing constants (tuned so that title enters first, then laptop follows)
+  const TITLE_ENTRANCE_END = PHASE_LENGTH * 0.45; // Title settles halfway through Phase 0 (approx 0.04)
+  const TITLE_EXIT_START = PHASE_LENGTH * 1.2; // Title stays solid while laptop is opening, starts exiting in Phase 1 (approx 0.11)
+  const TITLE_EXIT_END = PHASE_LENGTH * 1.8; // Title exits fully before Phase 2 starts (approx 0.16)
+
+  // Projects Title Opacity: fades in rapidly, stays solid, then fades out as first project details appear
+  const titleOpacity = useTransform(
+    projectsProgress,
+    [0, TITLE_ENTRANCE_END * 0.7, TITLE_EXIT_START, TITLE_EXIT_END],
+    [0, 1, 1, 0],
   );
 
-  const previewSources = useMemo(
-    () => PROJECTS.map((project) => project.previewSrc),
-    [],
+  // Projects Title Y position: starts slightly lower (80px), settles in dead center (0px), then slides up to top of screen (-240px)
+  const titleY = useTransform(
+    projectsProgress,
+    [0, TITLE_ENTRANCE_END, TITLE_EXIT_START, TITLE_EXIT_END],
+    [80, 0, 0, -240],
   );
+
+  // Projects Title Scale: zooms in to full size quickly, then continues expanding as it zooms out
+  const titleScale = useTransform(
+    projectsProgress,
+    [0, TITLE_ENTRANCE_END, TITLE_EXIT_END],
+    [0.55, 1.0, 1.05],
+  );
+
+  // Trigger title entrance animation when section reaches the projects phase
+  useMotionValueEvent(projectsProgress, 'change', (progress) => {
+    if (progress > 0.01 && !shouldAnimateTitle) {
+      setShouldAnimateTitle(true);
+    }
+  });
 
   return (
     <section
-      id="work"
+      id="projects"
       className={styles.section}
       aria-label="Selected Projects"
     >
       <div
-        ref={scrollContainerRef}
+        ref={projectsRef}
         className={styles.scrollSpacer}
-        style={{ height: `${SCROLL_PAGES * 100}vh` }}
+        style={{ height: `${totalSpacerHeight}vh` }}
       >
         <div className={styles.stickyViewport}>
-          <div className={styles.canvasWrapper}>
-            <Suspense fallback={null}>
-              <LaptopScene
-                scrollProgress={smoothProgress}
-                previewSources={previewSources}
-              />
-            </Suspense>
-          </div>
+          {/* Projects Title */}
+          <motion.div
+            className={styles.titleWrapper}
+            style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
+          >
+            <div className={styles.titleBackground}>
+              CATALOG_ID: 2026_PRJ // SRC: PORTFOLIO_V4
+            </div>
+            <div className={styles.titleLabel}>
+              <DecryptText text="Selected" shouldAnimate={shouldAnimateTitle} />
+            </div>
+            <SweepText
+              as="h2"
+              text="Projects"
+              className={styles.projectsTitle}
+              shouldAnimate={shouldAnimateTitle}
+            />
+          </motion.div>
 
+          {/* Project Slides */}
           <div className={styles.slidesContainer}>
             {PROJECTS.map((project, index) => (
               <ProjectSlide
                 key={project.id}
                 project={project}
                 index={index}
-                scrollProgress={smoothProgress}
+                scrollProgress={projectsProgress}
               />
             ))}
           </div>

@@ -38,7 +38,7 @@ describe('Navbar Component', () => {
 
     const hrefs = links.map((link) => link.getAttribute('href'));
     expect(hrefs).toContain('#hero');
-    expect(hrefs).toContain('#work');
+    expect(hrefs).toContain('#projects');
     expect(hrefs).toContain('#stack');
     expect(hrefs).toContain('#experience');
     expect(hrefs).toContain('#contact');

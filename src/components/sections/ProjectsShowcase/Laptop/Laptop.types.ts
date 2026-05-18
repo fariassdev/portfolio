@@ -2,6 +2,7 @@ import { type MotionValue } from 'framer-motion';
 
 export interface LaptopTransform {
   xOffset: number;
+  yOffset: number;
   yRotation: number;
 }
 

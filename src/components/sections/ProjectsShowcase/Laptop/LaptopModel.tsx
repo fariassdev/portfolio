@@ -2,7 +2,11 @@
 
 import { useGLTF, Html } from '@react-three/drei';
 import { useFrame, useThree, type ObjectMap } from '@react-three/fiber';
-import { useReducedMotion, type MotionValue } from 'framer-motion';
+import {
+  useReducedMotion,
+  useMotionValueEvent,
+  type MotionValue,
+} from 'framer-motion';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import type { Group, Mesh, MeshStandardMaterial } from 'three';
 import type { GLTF } from 'three-stdlib';
@@ -14,7 +18,11 @@ import {
   LAPTOP_SCALE,
   LID_CLOSED,
 } from './Laptop.constants';
-import { getLaptopTransform, getScreenTransition } from './Laptop.helpers';
+import {
+  getLaptopTransform,
+  getScreenTransition,
+  getPhaseLength,
+} from './Laptop.helpers';
 import type { LaptopScreenHandle } from './Laptop.types';
 import { LaptopScreen } from './LaptopScreen';
 import { useLaptopAnimation } from './use-laptop-animation';
@@ -60,7 +68,7 @@ interface LaptopModelProps {
 export const LaptopModel = memo(
   ({ scrollProgress, previewSources }: LaptopModelProps) => {
     const { nodes, materials } = useGLTF('/models/laptop.glb') as GLTFResult;
-    const { viewport, size } = useThree();
+    const { viewport, size, invalidate } = useThree();
     const reduceMotion = useReducedMotion();
 
     // Layout calculations
@@ -108,6 +116,14 @@ export const LaptopModel = memo(
       }
     }, []);
 
+    useEffect(() => {
+      invalidate();
+    }, [invalidate]);
+
+    useMotionValueEvent(scrollProgress, 'change', () => {
+      invalidate();
+    });
+
     // Continuous animation loop: read motion values and update 3D transforms
     useFrame(() => {
       const currentProgress = reduceMotion ? 0 : scrollProgress.get();
@@ -126,13 +142,27 @@ export const LaptopModel = memo(
         ? 0
         : viewport.width * DESKTOP_SLIDE_FACTOR;
       const transform = isMobile
-        ? { xOffset: 0, yRotation: 0 }
+        ? { xOffset: 0, yOffset: 0, yRotation: 0 }
         : getLaptopTransform(currentProgress, projectCount, maxSlideDistance);
+
+      // Entrance & exit zoom effect: the laptop starts small and grows as we enter, and shrinks as we exit
+      const phaseLength = getPhaseLength(projectCount);
+      const entranceScale = Math.min(
+        1,
+        Math.max(0.2, currentProgress / phaseLength),
+      );
+      const exitScale = Math.min(
+        1,
+        Math.max(0.2, (1 - currentProgress) / phaseLength),
+      );
+      const scaleMultiplier = Math.min(entranceScale, exitScale);
 
       // Apply position and rotation transforms
       group.position.x = transform.xOffset;
+      group.position.y = laptopPosition[1] + transform.yOffset;
       group.rotation.x = BASE_LAPTOP_ROTATION_X;
       group.rotation.y = transform.yRotation;
+      group.scale.setScalar(laptopScale * scaleMultiplier);
 
       // Perspective tilt compensation based on horizontal offset
       group.rotation.z = Math.atan(transform.xOffset / (CAMERA_Z * 6));

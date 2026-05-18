@@ -5,7 +5,7 @@ import {
 } from 'framer-motion';
 import { clamp } from '@/helpers/math.helpers';
 import { getLaptopTransform } from '../Laptop/Laptop.helpers';
-import { PROJECT_COUNT } from '../ProjectsShowcase.constants';
+import { PROJECT_COUNT, PHASE_LENGTH } from '../ProjectsShowcase.constants';
 import {
   SLIDE_CLIP_MAX_OFFSET,
   SWEEP_START_PERCENT,
@@ -30,8 +30,21 @@ export function useSlideAnimation(
 ): SlideAnimationState {
   const reduceMotion = useReducedMotion();
 
-  // Primary animation state derived from scroll progress
-  const slideState = useTransform(scrollProgress, (progress) =>
+  // Create a synchronized timeline that maps raw projectsProgress to the laptop's horizontal transition timeline
+  // This mirrors the laptopScrollProgress mapping defined in ViewportOverlay.tsx:
+  // [PHASE_LENGTH, PHASE_LENGTH * 1.8, 1] -> [0, PHASE_LENGTH, 1]
+  const synchronizedProgress = useTransform(scrollProgress, (progress) => {
+    if (progress <= PHASE_LENGTH) return 0;
+    if (progress <= PHASE_LENGTH * 1.8) {
+      const t = (progress - PHASE_LENGTH) / (PHASE_LENGTH * 0.8);
+      return clamp(t * PHASE_LENGTH, 0, PHASE_LENGTH);
+    }
+    const t = (progress - PHASE_LENGTH * 1.8) / (1 - PHASE_LENGTH * 1.8);
+    return clamp(PHASE_LENGTH + t * (1 - PHASE_LENGTH), PHASE_LENGTH, 1);
+  });
+
+  // Primary animation state derived from synchronized scroll progress
+  const slideState = useTransform(synchronizedProgress, (progress) =>
     getProjectSlideState(progress, index),
   );
 
@@ -41,7 +54,7 @@ export function useSlideAnimation(
   );
 
   // Clip-path animation that creates the illusion of sliding in from the laptop
-  const clipPath = useTransform(scrollProgress, (progress) => {
+  const clipPath = useTransform(synchronizedProgress, (progress) => {
     if (reduceMotion) return 'none';
     const laptopTransform = getLaptopTransform(
       progress,

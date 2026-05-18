@@ -5,16 +5,32 @@ export const PROJECTS: Project[] = [
     id: 'senda',
     title: 'Senda',
     description:
-      'AI-powered meditation platform designed to generate automated guided courses. Orchestrates Google Gemini for script synthesis and KokoroTTS for audio production via a FastAPI backend. Features a Next.js CMS and a persistent virtual guide architecture for structured content delivery.',
-    previewSrc: '/images/senda/senda.webm',
+      'AI-powered guided meditation platform featuring LLM-based generative script creation (Google Gemini API), neural audio synthesis (KokoroTTS), and prompt engineering for structured content generation. Built with hexagonal architecture (FastAPI) and React/Next.js CMS. Final Degree Project receiving Honors with maximum grade.',
+    previewSrc: '/videos/senda_demo.webm',
     side: 'right',
+    githubUrl: 'https://github.com/fariassdev/senda',
+    liveUrl: 'https://senda-cms.vercel.app?ref=fernandoas.com',
+    technologies: [
+      { name: 'FastAPI', iconClass: 'devicon-fastapi-plain' },
+      { name: 'Python', iconClass: 'devicon-python-plain' },
+      { name: 'Next.js', iconClass: 'devicon-nextjs-plain' },
+      { name: 'React', iconClass: 'devicon-react-original' },
+    ],
   },
   {
     id: 'twodo',
     title: 'Twodo',
     description:
-      'Household coordination platform for couples designed to reduce mental load through shared task management and expense tracking. Features a mobile-first interface with collaborative shopping lists and real-time balance metrics. Engineered with React 19, Supabase, and TanStack Query, implementing robust offline persistence via IndexedDB.',
-    previewSrc: '/images/senda/Senda_demo_overview.mp4',
+      'Side project started for fun and evolved as a household coordination platform for couples to manage tasks, expenses, and shopping lists collaboratively. Mobile-first React 19 app with Supabase backend, real-time sync, and offline-first capabilities using TanStack Query and IndexedDB.',
+    previewSrc: '/videos/twodo_demo.webm',
     side: 'left',
+    githubUrl: 'https://github.com/fariassdev/twodo-web',
+    liveUrl: 'https://twodo.co?ref=fernandoas.com',
+    technologies: [
+      { name: 'Node.js', iconClass: 'devicon-nodejs-plain' },
+      { name: 'TypeScript', iconClass: 'devicon-typescript-plain' },
+      { name: 'React', iconClass: 'devicon-react-original' },
+      { name: 'Supabase', iconClass: 'devicon-supabase-plain' },
+    ],
   },
 ];

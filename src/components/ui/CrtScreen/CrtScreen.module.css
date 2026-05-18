@@ -1,0 +1,194 @@
+/* ============================================================
+   CrtScreen — High-Fidelity Retro 3D CRT Monitor Overlay
+   All layers are pointer-events: none — purely decorative.
+   ============================================================ */
+
+@keyframes screenFlicker {
+  0% {
+    opacity: 0.982;
+  }
+  50% {
+    opacity: 0.995;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes glitchOverlay {
+  0% {
+    transform: translate(0) skew(0deg);
+  }
+  1% {
+    transform: translate(-0.5px, 0.5px) skew(0.1deg);
+  }
+  2% {
+    transform: translate(0.5px, -0.5px) skew(-0.1deg);
+  }
+  3% {
+    transform: translate(0) skew(0deg);
+  }
+  98% {
+    transform: translate(0) skew(0deg);
+  }
+  99% {
+    transform: translate(1px, -0.5px) skew(0.2deg);
+  }
+  100% {
+    transform: translate(0) skew(0deg);
+  }
+}
+
+@keyframes beamAnimation {
+  0% {
+    top: -25vh;
+  }
+  100% {
+    top: 125vh;
+  }
+}
+
+.crtWrapper {
+  position: absolute;
+  inset: 0;
+
+  z-index: 20;
+  pointer-events: none;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.crtOverlay {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+  overflow: hidden;
+
+  /* Micro animations: realistic scan flickering and occasional CRT screen scan skew glitches */
+  animation:
+    glitchOverlay 8s infinite,
+    screenFlicker 0.25s infinite alternate;
+
+  /* Glowing phosphor cathode ray tube backlight */
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(197, 255, 74, 0.045) 0%,
+    rgba(197, 255, 74, 0.012) 60%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+/* Authentic Sony Trinitron aperture grille (vertical subpixel mask)
+   Extremely fine lines that texture the display without cutting text readability */
+.apertureGrille {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    rgba(0, 0, 0, 0.07) 1px,
+    rgba(0, 0, 0, 0.07) 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 3px
+  );
+  background-size: 3px 100%;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+}
+
+/* High-fidelity horizontal scanlines
+   Perfect scale and blending to look authentic while maintaining excellent text legibility */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.14) 0px,
+    rgba(0, 0, 0, 0.14) 1.2px,
+    transparent 1.2px,
+    transparent 2.4px
+  );
+  background-size: 100% 2.4px;
+  z-index: 3;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.95;
+}
+
+/* Electron raster scanbeam sweeping vertically down the screen */
+.beam {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 25vh;
+  /* Faint glowing band representing the vertical electron gun pass */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(197, 255, 74, 0.003) 60%,
+    rgba(197, 255, 74, 0.015) 90%,
+    rgba(197, 255, 74, 0.035) 98%,
+    rgba(197, 255, 74, 0.003) 100%
+  );
+  filter: blur(1px);
+  pointer-events: none;
+  animation: beamAnimation 9s linear infinite;
+  opacity: 0.35;
+  z-index: 4;
+}
+
+/* Convex glass surface reflection simulation */
+.glare {
+  position: absolute;
+  inset: 0;
+  /* Simulates lighting reflections on a rounded cathode-ray tube glass dome */
+  background:
+    radial-gradient(
+      circle at 50% 12%,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0) 55%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.015) 0%,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0) 70%,
+      rgba(255, 255, 255, 0.012) 100%
+    );
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Vignette that provides screen curvature illusion by heavily shading screen corners */
+.vignette {
+  position: absolute;
+  inset: 0;
+  /* Radial lens falloff to give the visual illusion of a bulging spherical tube face */
+  background: radial-gradient(
+    circle at center,
+    transparent 42%,
+    rgba(0, 0, 0, 0.25) 62%,
+    rgba(0, 0, 0, 0.88) 90%,
+    #000000 100%
+  );
+  pointer-events: none;
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.95);
+  z-index: 6;
+}
+
+/* High performance fractal SVG noise representing screen analog film grain */
+.screenNoise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+  opacity: 0.024;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 7;
+}

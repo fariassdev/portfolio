@@ -135,4 +135,68 @@
     max-width: 100%;
     color: var(--color-text-muted);
   }
+
+  .slideButtons {
+    margin-top: 8px;
+    gap: 8px;
+  }
+
+  .techStack {
+    margin-top: 8px;
+    gap: 6px;
+  }
+}
+
+.slideButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.techStack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+.techTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+  cursor: default;
+}
+
+.techTag:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.techTag i {
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.techTag i[class*='devicon-nextjs-'] {
+  color: #ffffff !important;
+}
+
+.techName {
+  font-weight: 500;
+  line-height: 1;
 }

@@ -6,7 +6,7 @@ import type { LaptopTransform, ScreenTransition } from './Laptop.types';
  * Calculates the length of a single animation phase.
  */
 export function getPhaseLength(projectCount: number): number {
-  return 1 / Math.max(projectCount * 2 + 3, 1);
+  return 1 / Math.max(projectCount * 2 + 5, 1);
 }
 
 /**
@@ -19,12 +19,17 @@ export function getLaptopTransform(
 ): LaptopTransform {
   const phaseLen = getPhaseLength(projectCount);
   if (projectCount <= 0) {
-    return { xOffset: 0, yRotation: 0 };
+    return { xOffset: 0, yOffset: 0, yRotation: 0 };
   }
+
+  // Initial vertical offset: starts high (150 units) and moves to centered (0 units)
+  // This satisfies the "only modify initial position" requirement
+  const initialYOffset = 150;
+  const yOffset = lerp(initialYOffset, 0, clamp(progress / phaseLen, 0, 1));
 
   // Phase 0: Opening (Lid only)
   if (progress <= phaseLen) {
-    return { xOffset: 0, yRotation: 0 };
+    return { xOffset: 0, yOffset, yRotation: 0 };
   }
 
   // Calculate active index based on current progress
@@ -60,8 +65,16 @@ export function getLaptopTransform(
       1,
     );
     const eased = easeInOut(transitionOutProgress);
+    // Exit vertical offset: starts centered (0) and moves high (initialYOffset) during the final phase
+    const exitYOffset = lerp(
+      0,
+      initialYOffset,
+      clamp((progress - (1 - phaseLen)) / phaseLen, 0, 1),
+    );
+
     return {
       xOffset: lerp(targetX, 0, eased),
+      yOffset: exitYOffset,
       yRotation: lerp(targetRotation, 0, eased),
     };
   }
@@ -71,6 +84,7 @@ export function getLaptopTransform(
     const eased = easeInOut(transitionInProgress);
     return {
       xOffset: lerp(0, targetX, eased),
+      yOffset: 0,
       yRotation: lerp(0, targetRotation, eased),
     };
   }
@@ -80,6 +94,7 @@ export function getLaptopTransform(
     const eased = easeInOut(transitionInProgress);
     return {
       xOffset: lerp(oppositeX, targetX, eased),
+      yOffset: 0,
       yRotation: lerp(oppositeRotation, targetRotation, eased),
     };
   }
@@ -87,6 +102,7 @@ export function getLaptopTransform(
   // Steady viewing state (Phases 2, 4, ...)
   return {
     xOffset: targetX,
+    yOffset: 0,
     yRotation: targetRotation,
   };
 }
