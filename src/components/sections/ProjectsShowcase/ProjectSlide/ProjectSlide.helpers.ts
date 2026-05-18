@@ -4,6 +4,7 @@ import {
   CLIP_PATH_CENTER,
   CLIP_PATH_TILT_FACTOR,
   CLIP_PATH_WIDTH,
+  SLIDE_CLIP_MAX_OFFSET,
 } from './ProjectSlide.constants';
 import type { ProjectSlideState } from './ProjectSlide.types';
 
@@ -12,7 +13,7 @@ import type { ProjectSlideState } from './ProjectSlide.types';
  */
 export function getSlideClipPath(laptopX: number, side: 'left' | 'right') {
   const xPercent = CLIP_PATH_CENTER + laptopX;
-  const tilt = (laptopX / 25) * CLIP_PATH_TILT_FACTOR;
+  const tilt = (laptopX / SLIDE_CLIP_MAX_OFFSET) * CLIP_PATH_TILT_FACTOR;
 
   if (side === 'right') {
     const edge = xPercent + CLIP_PATH_WIDTH / 2;
