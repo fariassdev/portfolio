@@ -16,6 +16,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   href?: string;
   download?: boolean | string;
   asChild?: boolean;
+  target?: string;
+  rel?: string;
 }
 
 export const Button = React.forwardRef<

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, Space_Mono } from 'next/font/google';
 import './globals.css';
+import 'devicon/devicon.min.css';
 import { Navbar } from '@/components/ui/Navbar';
 
 const spaceGrotesk = Space_Grotesk({
