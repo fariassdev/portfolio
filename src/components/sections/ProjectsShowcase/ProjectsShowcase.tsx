@@ -53,8 +53,8 @@ export function ProjectsShowcase() {
         if (latestSmooth >= 0.15) return 0;
         return 1 - (latestSmooth - 0.05) / 0.1;
       } else {
-        if (latestEntrance <= 0.3) return 0;
-        return (latestEntrance - 0.3) / 0.7;
+        if (latestEntrance <= 0.4) return 0;
+        return (latestEntrance - 0.4) / 0.6;
       }
     },
   ) as MotionValue<number>;
@@ -67,22 +67,37 @@ export function ProjectsShowcase() {
         if (latestSmooth >= 0.15) return -40;
         return (latestSmooth / 0.15) * -40;
       } else {
-        if (latestEntrance <= 0.3) return 60;
-        return 60 - ((latestEntrance - 0.3) / 0.7) * 60;
+        if (latestEntrance <= 0.4) return 60;
+        return 60 - ((latestEntrance - 0.4) / 0.6) * 60;
       }
     },
   ) as MotionValue<number>;
 
-  // Laptop Opacity: starts fading in in the distance during entrance, zooms to full focus on scroll
+  // Laptop Opacity: starts fading in in the distance during entrance, reaches 100% when fully active
   const laptopOpacity = useTransform(
     [entranceProgress, smoothProgress],
     ([latestEntrance = 0, latestSmooth = 0]: number[]) => {
       if (latestSmooth > 0) {
-        if (latestSmooth >= 0.15) return 1;
-        return 0.15 + (latestSmooth / 0.15) * 0.85;
+        return 1;
       } else {
-        if (latestEntrance <= 0.3) return 0;
-        return ((latestEntrance - 0.3) / 0.7) * 0.15;
+        if (latestEntrance <= 0.45) return 0;
+        return (latestEntrance - 0.45) / 0.55;
+      }
+    },
+  ) as MotionValue<number>;
+
+  const phaseLen = 1 / Math.max(PROJECTS.length * 2 + 3, 1);
+
+  // Laptop Scroll Progress: maps pre-entrance phase (entranceProgress 0.45 -> 1) to (0 -> phaseLen)
+  // so the laptop starts closed/far and is fully open/centered at progress 0, then continues scrolling inside the section
+  const laptopScrollProgress = useTransform(
+    [entranceProgress, smoothProgress],
+    ([latestEntrance = 0, latestSmooth = 0]: number[]) => {
+      if (latestSmooth > 0) {
+        return phaseLen + latestSmooth * (1 - phaseLen);
+      } else {
+        if (latestEntrance <= 0.45) return 0;
+        return ((latestEntrance - 0.45) / 0.55) * phaseLen;
       }
     },
   ) as MotionValue<number>;
@@ -137,7 +152,7 @@ export function ProjectsShowcase() {
           >
             <Suspense fallback={null}>
               <LaptopScene
-                scrollProgress={smoothProgress}
+                scrollProgress={laptopScrollProgress}
                 previewSources={previewSources}
               />
             </Suspense>

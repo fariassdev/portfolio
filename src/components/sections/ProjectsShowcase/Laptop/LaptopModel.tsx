@@ -14,7 +14,11 @@ import {
   LAPTOP_SCALE,
   LID_CLOSED,
 } from './Laptop.constants';
-import { getLaptopTransform, getScreenTransition } from './Laptop.helpers';
+import {
+  getLaptopTransform,
+  getScreenTransition,
+  getPhaseLength,
+} from './Laptop.helpers';
 import type { LaptopScreenHandle } from './Laptop.types';
 import { LaptopScreen } from './LaptopScreen';
 import { useLaptopAnimation } from './use-laptop-animation';
@@ -130,8 +134,7 @@ export const LaptopModel = memo(
         : getLaptopTransform(currentProgress, projectCount, maxSlideDistance);
 
       // Entrance zoom effect: the laptop starts small and grows as we enter the section
-      // Phase length is approx 1 / (projectCount * 2 + 1)
-      const phaseLength = 1 / Math.max(projectCount * 2 + 1, 1);
+      const phaseLength = getPhaseLength(projectCount);
       const entranceScale = Math.min(
         1,
         Math.max(0.2, currentProgress / phaseLength),
