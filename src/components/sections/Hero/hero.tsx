@@ -36,19 +36,19 @@ export function Hero({ sectionRef }: HeroProps) {
     restDelta: 0.0001,
   });
 
-  // Zoom-through: content scales up and disappears as user scrolls
-  const zoomScale = useTransform(smoothProgress, [0, 1], [1, 30]);
-  const zoomOpacity = useTransform(smoothProgress, [0, 0.7, 1], [1, 1, 0]);
+  // Zoom-through: content scales up and disappears as user scrolls, synchronized to finish at 0.75 progress
+  const zoomScale = useTransform(smoothProgress, [0, 0.75], [1, 30]);
+  const zoomOpacity = useTransform(smoothProgress, [0, 0.45, 0.75], [1, 1, 0]);
 
-  // Fade out background radial glow as user scrolls down to projects
-  const glowOpacity = useTransform(smoothProgress, [0, 0.8], [1, 0]);
+  // Fade out background radial glow as user scrolls down, synchronized with content zoom
+  const glowOpacity = useTransform(smoothProgress, [0, 0.45, 0.75], [1, 1, 0]);
 
   // Fade out scroll hint quickly as user scrolls down
   const scrollHintOpacity = useTransform(smoothProgress, [0, 0.15], [1, 0]);
 
   // Disable pointer events once zoom-through completes so it doesn't block interactive elements behind it
   const pointerEvents = useTransform(smoothProgress, (p) =>
-    p >= 0.9 ? 'none' : 'auto',
+    p >= 0.75 ? 'none' : 'auto',
   );
 
   return (

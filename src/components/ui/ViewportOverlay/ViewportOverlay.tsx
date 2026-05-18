@@ -44,15 +44,15 @@ export function ViewportOverlay({
   const BASE_CRT_INTENSITY = 1.0; // Full intensity in Hero
   const MIN_CRT_INTENSITY = 0; // 0% intensity in Projects
 
-  // Opacity fades from full → 0 as user scrolls through Hero into Projects
+  // Opacity fades from full → 0 as user scrolls, synchronized to finish completely by 0.75 progress
   const crtOpacity = useTransform(
     heroProgress,
-    [0, 0.4, 0.8],
+    [0, 0.45, 0.75],
     [BASE_CRT_INTENSITY, BASE_CRT_INTENSITY, MIN_CRT_INTENSITY],
   );
 
-  // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally
-  const crtScale = useTransform(heroProgress, [0, 0.6, 1], [1, 5, 15]);
+  // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally, finishing at 0.75 progress
+  const crtScale = useTransform(heroProgress, [0, 0.45, 0.75], [1, 5, 15]);
 
   // 2. Track Projects Scroll independently
   const { scrollYProgress: projectsScroll } = useScroll({
