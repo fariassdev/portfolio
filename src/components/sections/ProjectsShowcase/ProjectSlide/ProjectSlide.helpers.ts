@@ -39,9 +39,10 @@ export function getProjectSlideState(
 ): ProjectSlideState {
   if (PROJECT_COUNT === 0) return { reveal: 0, blur: 0, active: false };
 
-  // Project i: Reveal starts at phase 2*i + 2, Blur starts at phase 2*i + 4
-  const revealStart = (2 * index + 2) * PHASE_LENGTH;
-  const blurStart = (2 * index + 4) * PHASE_LENGTH;
+  // Project i: Reveal starts at phase 2*index + 1 (when laptop starts to slide in/transition)
+  // Blur starts at phase 2*index + 3 (when laptop starts to transition out)
+  const revealStart = (2 * index + 1) * PHASE_LENGTH;
+  const blurStart = (2 * index + 3) * PHASE_LENGTH;
 
   const activeStart = revealStart;
   const activeEnd = blurStart + PHASE_LENGTH;
