@@ -1,19 +1,17 @@
 'use client';
 
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Suspense, useMemo, type RefObject } from 'react';
+import { Suspense, useMemo } from 'react';
 import {
   HERO_FADE_START,
   HERO_FADE_END,
 } from '@/components/sections/Hero/hero.constants';
 import type { LaptopSceneProps } from '@/components/sections/ProjectsShowcase/Laptop/LaptopScene';
-import {
-  SCROLL_PAGES,
-  PHASE_LENGTH,
-} from '@/components/sections/ProjectsShowcase/ProjectsShowcase.constants';
+import { PHASE_LENGTH } from '@/components/sections/ProjectsShowcase/ProjectsShowcase.constants';
 import { PROJECTS } from '@/components/sections/ProjectsShowcase/ProjectsShowcase.data';
 import { CrtScreen } from '@/components/ui/CrtScreen';
+import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import styles from './ViewportOverlay.module.css';
 
 const LaptopScene = dynamic<LaptopSceneProps>(
@@ -24,28 +22,8 @@ const LaptopScene = dynamic<LaptopSceneProps>(
   { ssr: false },
 );
 
-interface ViewportOverlayProps {
-  heroRef: RefObject<HTMLElement | null>;
-  projectsRef: RefObject<HTMLDivElement | null>;
-}
-
-export function ViewportOverlay({
-  heroRef,
-  projectsRef,
-}: ViewportOverlayProps) {
-  // 1. Track Hero Scroll independently
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Snappy but perfectly smoothed spring configuration for Hero zoom-through
-  const heroProgress = useSpring(heroScroll, {
-    stiffness: 250,
-    damping: 35,
-    mass: 0.5,
-    restDelta: 0.0001,
-  });
+export function ViewportOverlay() {
+  const { heroProgress, projectsProgress } = useScrollTimeline();
 
   // ── Master CRT intensity control ──────────────────────────────
   // Adjust these two constants to regulate ALL overlay effects at once.
@@ -65,36 +43,6 @@ export function ViewportOverlay({
     [0, HERO_FADE_START, HERO_FADE_END],
     [1, 5, 15],
   );
-
-  // 2. Track Projects Scroll independently
-  const { scrollYProgress: projectsScroll } = useScroll({
-    target: projectsRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Snapping logic for project slider animation phases
-  const projectsSnappedProgress = useTransform(projectsScroll, (progress) => {
-    if (progress <= 0) return 0;
-    if (progress >= 1) return 1;
-
-    const scrollPages = SCROLL_PAGES;
-    const phaseLength = PHASE_LENGTH;
-
-    // Do not snap during the title and laptop entrance phases (Phase 0 and 1) to ensure ultra-smooth, progressive scrolling
-    if (progress < 2 * phaseLength) return progress;
-    if (progress > 1 - phaseLength) return progress;
-
-    const phase = Math.round(progress * scrollPages);
-    return phase / scrollPages;
-  });
-
-  // Smooth snapping spring configuration for projects slides
-  const projectsProgress = useSpring(projectsSnappedProgress, {
-    stiffness: 120,
-    damping: 30,
-    mass: 0.8,
-    restDelta: 0.0001,
-  });
 
   // Laptop opening, scale and fade inside the fixed space (tuned to enter during Phase 1)
   const laptopOpacity = useTransform(

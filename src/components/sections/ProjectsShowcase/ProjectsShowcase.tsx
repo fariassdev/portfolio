@@ -1,62 +1,20 @@
 'use client';
 
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-  useSpring,
-} from 'framer-motion';
-import { useRef, useState, type RefObject } from 'react';
+import { motion, useTransform, useMotionValueEvent } from 'framer-motion';
+import { useState } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
+import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import { ProjectSlide } from './ProjectSlide/ProjectSlide';
 import { SCROLL_PAGES, PHASE_LENGTH } from './ProjectsShowcase.constants';
 import { PROJECTS } from './ProjectsShowcase.data';
 import styles from './ProjectsShowcase.module.css';
 
-interface ProjectsShowcaseProps {
-  scrollContainerRef?: RefObject<HTMLDivElement | null>;
-}
-
-export function ProjectsShowcase({
-  scrollContainerRef,
-}: ProjectsShowcaseProps) {
-  const localRef = useRef<HTMLDivElement>(null);
-  const activeRef = scrollContainerRef || localRef;
+export function ProjectsShowcase() {
+  const { projectsRef, projectsProgress } = useScrollTimeline();
   const [shouldAnimateTitle, setShouldAnimateTitle] = useState(false);
 
   const totalSpacerHeight = SCROLL_PAGES * 100;
-
-  // Track scroll progress of this section independently
-  const { scrollYProgress } = useScroll({
-    target: activeRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Snapping project slider animation phases
-  const projectsSnappedProgress = useTransform(scrollYProgress, (progress) => {
-    if (progress <= 0) return 0;
-    if (progress >= 1) return 1;
-
-    const scrollPages = SCROLL_PAGES;
-    const phaseLength = PHASE_LENGTH;
-
-    // Do not snap during the title and laptop entrance phases (Phase 0 and 1) to ensure ultra-smooth, progressive scrolling
-    if (progress < 2 * phaseLength) return progress;
-    if (progress > 1 - phaseLength) return progress;
-
-    const phase = Math.round(progress * scrollPages);
-    return phase / scrollPages;
-  });
-
-  // Smooth snapping spring configuration
-  const projectsProgress = useSpring(projectsSnappedProgress, {
-    stiffness: 120,
-    damping: 30,
-    mass: 0.8,
-    restDelta: 0.0001,
-  });
 
   // Choreographed animation timing constants (tuned so that title enters first, then laptop follows)
   const TITLE_ENTRANCE_END = PHASE_LENGTH * 0.45; // Title settles halfway through Phase 0 (approx 0.04)
@@ -98,7 +56,7 @@ export function ProjectsShowcase({
       aria-label="Selected Projects"
     >
       <div
-        ref={activeRef}
+        ref={projectsRef}
         className={styles.scrollSpacer}
         style={{ height: `${totalSpacerHeight}vh` }}
       >

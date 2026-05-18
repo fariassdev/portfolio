@@ -1,10 +1,10 @@
 'use client';
 
-import { motion, useTransform, useScroll, useSpring } from 'framer-motion';
-import { useRef, type RefObject } from 'react';
+import { motion, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { DecryptText } from '@/components/ui/DecryptText';
 import { SweepText } from '@/components/ui/SweepText';
+import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import {
   HERO_NAME,
   HERO_TITLE,
@@ -16,55 +16,37 @@ import {
 import styles from './hero.module.css';
 import { useTypewriter } from './use-typewriter';
 
-interface HeroProps {
-  sectionRef?: RefObject<HTMLElement | null>;
-}
-
-export function Hero({ sectionRef }: HeroProps) {
-  const localRef = useRef<HTMLElement>(null);
-  const activeRef = sectionRef || localRef;
+export function Hero() {
+  const { heroRef, heroProgress } = useScrollTimeline();
   const { text, currentRole } = useTypewriter({ roles: ROLES });
 
-  const { scrollYProgress } = useScroll({
-    target: activeRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Snappy but perfectly smoothed spring configuration to track scroll in real-time
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 250,
-    damping: 35,
-    mass: 0.5,
-    restDelta: 0.0001,
-  });
-
   // Zoom-through: content scales up and disappears as user scrolls, synchronized to finish at HERO_FADE_END progress
-  const zoomScale = useTransform(smoothProgress, [0, HERO_FADE_END], [1, 30]);
+  const zoomScale = useTransform(heroProgress, [0, HERO_FADE_END], [1, 30]);
   const zoomOpacity = useTransform(
-    smoothProgress,
+    heroProgress,
     [0, HERO_FADE_START, HERO_FADE_END],
     [1, 1, 0],
   );
 
   // Fade out background radial glow as user scrolls down, synchronized with content zoom
   const glowOpacity = useTransform(
-    smoothProgress,
+    heroProgress,
     [0, HERO_FADE_START, HERO_FADE_END],
     [1, 1, 0],
   );
 
   // Fade out scroll hint quickly as user scrolls down
-  const scrollHintOpacity = useTransform(smoothProgress, [0, 0.15], [1, 0]);
+  const scrollHintOpacity = useTransform(heroProgress, [0, 0.15], [1, 0]);
 
   // Disable pointer events once zoom-through completes so it doesn't block interactive elements behind it
-  const pointerEvents = useTransform(smoothProgress, (p) =>
+  const pointerEvents = useTransform(heroProgress, (p) =>
     p >= HERO_FADE_END ? 'none' : 'auto',
   );
 
   return (
     <section
       id="hero"
-      ref={activeRef}
+      ref={heroRef}
       className={styles.heroSection}
       aria-label="Hero"
     >
