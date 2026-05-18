@@ -25,6 +25,7 @@ export const LaptopScene = memo(
         dpr={[1, 1.5]}
         performance={{ min: 0.5 }}
         flat
+        frameloop="demand"
         style={{
           position: 'absolute',
           inset: 0,

@@ -2,7 +2,11 @@
 
 import { useGLTF, Html } from '@react-three/drei';
 import { useFrame, useThree, type ObjectMap } from '@react-three/fiber';
-import { useReducedMotion, type MotionValue } from 'framer-motion';
+import {
+  useReducedMotion,
+  useMotionValueEvent,
+  type MotionValue,
+} from 'framer-motion';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import type { Group, Mesh, MeshStandardMaterial } from 'three';
 import type { GLTF } from 'three-stdlib';
@@ -64,7 +68,7 @@ interface LaptopModelProps {
 export const LaptopModel = memo(
   ({ scrollProgress, previewSources }: LaptopModelProps) => {
     const { nodes, materials } = useGLTF('/models/laptop.glb') as GLTFResult;
-    const { viewport, size } = useThree();
+    const { viewport, size, invalidate } = useThree();
     const reduceMotion = useReducedMotion();
 
     // Layout calculations
@@ -111,6 +115,14 @@ export const LaptopModel = memo(
         lidRef.current.rotation.x = LID_CLOSED;
       }
     }, []);
+
+    useEffect(() => {
+      invalidate();
+    }, [invalidate]);
+
+    useMotionValueEvent(scrollProgress, 'change', () => {
+      invalidate();
+    });
 
     // Continuous animation loop: read motion values and update 3D transforms
     useFrame(() => {
