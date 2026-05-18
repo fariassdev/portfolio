@@ -80,7 +80,8 @@ export function ViewportOverlay({
     const scrollPages = SCROLL_PAGES;
     const phaseLength = PHASE_LENGTH;
 
-    if (progress < phaseLength) return progress;
+    // Do not snap during the title and laptop entrance phases (Phase 0 and 1) to ensure ultra-smooth, progressive scrolling
+    if (progress < 2 * phaseLength) return progress;
     if (progress > 1 - phaseLength) return progress;
 
     const phase = Math.round(progress * scrollPages);

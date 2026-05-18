@@ -42,7 +42,8 @@ export function ProjectsShowcase({
     const scrollPages = SCROLL_PAGES;
     const phaseLength = PHASE_LENGTH;
 
-    if (progress < phaseLength) return progress;
+    // Do not snap during the title and laptop entrance phases (Phase 0 and 1) to ensure ultra-smooth, progressive scrolling
+    if (progress < 2 * phaseLength) return progress;
     if (progress > 1 - phaseLength) return progress;
 
     const phase = Math.round(progress * scrollPages);
@@ -69,11 +70,11 @@ export function ProjectsShowcase({
     [0, 1, 1, 0],
   );
 
-  // Projects Title Y position: slides up from lower position (120px) to settled (0px) quickly, then exits upwards
+  // Projects Title Y position: starts slightly lower (80px), settles in dead center (0px), then slides up to top of screen (-240px)
   const titleY = useTransform(
     projectsProgress,
-    [0, TITLE_ENTRANCE_END, TITLE_EXIT_END],
-    [120, 0, -80],
+    [0, TITLE_ENTRANCE_END, TITLE_EXIT_START, TITLE_EXIT_END],
+    [80, 0, 0, -240],
   );
 
   // Projects Title Scale: zooms in to full size quickly, then continues expanding as it zooms out
