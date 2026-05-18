@@ -40,6 +40,9 @@ export function Hero({ sectionRef }: HeroProps) {
   const zoomScale = useTransform(smoothProgress, [0, 1], [1, 30]);
   const zoomOpacity = useTransform(smoothProgress, [0, 0.7, 1], [1, 1, 0]);
 
+  // Fade out scroll hint quickly as user scrolls down
+  const scrollHintOpacity = useTransform(smoothProgress, [0, 0.15], [1, 0]);
+
   // Disable pointer events once zoom-through completes so it doesn't block interactive elements behind it
   const pointerEvents = useTransform(smoothProgress, (p) =>
     p >= 0.9 ? 'none' : 'auto',
@@ -100,11 +103,13 @@ export function Hero({ sectionRef }: HeroProps) {
           </div>
         </motion.div>
 
-        {/* Scroll hint */}
-        <div className={styles.scrollHint} aria-hidden="true">
-          <div className={styles.arrow} />
-          <span>Scroll</span>
-        </div>
+        {/* Scroll hint — fades out as user scrolls */}
+        <motion.div style={{ opacity: scrollHintOpacity, width: '100%' }}>
+          <div className={styles.scrollHint} aria-hidden="true">
+            <div className={styles.arrow} />
+            <span>Scroll</span>
+          </div>
+        </motion.div>
       </motion.div>
     </section>
   );
