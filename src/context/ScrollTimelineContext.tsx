@@ -1,6 +1,11 @@
 'use client';
 
-import { useScroll, useSpring, type MotionValue } from 'framer-motion';
+import {
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from 'framer-motion';
 import {
   createContext,
   useContext,
@@ -9,6 +14,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { clamp } from '@/helpers/math.helpers';
 
 interface ScrollTimelineContextType {
   // Element references managed by the coordinator
@@ -42,12 +48,15 @@ export function ScrollTimelineProvider({
   });
 
   // Snappy but perfectly smoothed spring configuration for Hero zoom-through
-  const heroProgress = useSpring(heroRawScroll, {
+  const heroProgressSpring = useSpring(heroRawScroll, {
     stiffness: 250,
     damping: 35,
     mass: 0.5,
     restDelta: 0.0001,
   });
+  const heroProgress = useTransform(heroProgressSpring, (value) =>
+    clamp(value, 0, 1),
+  );
 
   // 3. Track Projects Scroll independently
   const { scrollYProgress: projectsRawScroll } = useScroll({
@@ -56,12 +65,15 @@ export function ScrollTimelineProvider({
   });
 
   // Smooth spring configuration for projects slides (perfectly smooth, linear scrolling)
-  const projectsProgress = useSpring(projectsRawScroll, {
+  const projectsProgressSpring = useSpring(projectsRawScroll, {
     stiffness: 120,
     damping: 30,
     mass: 0.8,
     restDelta: 0.0001,
   });
+  const projectsProgress = useTransform(projectsProgressSpring, (value) =>
+    clamp(value, 0, 1),
+  );
 
   const contextValue = useMemo(
     () => ({

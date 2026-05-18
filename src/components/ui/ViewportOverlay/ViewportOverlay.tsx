@@ -29,6 +29,8 @@ export function ViewportOverlay() {
   // Adjust these two constants to regulate ALL overlay effects at once.
   const BASE_CRT_INTENSITY = 1.0; // Full intensity in Hero
   const MIN_CRT_INTENSITY = 0; // 0% intensity in Projects
+  const CRT_SCALE_MID = 4;
+  const CRT_SCALE_MAX = 10;
 
   // Opacity fades from full → 0 as user scrolls, synchronized to finish completely by HERO_FADE_END progress
   const crtOpacity = useTransform(
@@ -41,7 +43,7 @@ export function ViewportOverlay() {
   const crtScale = useTransform(
     heroProgress,
     [0, HERO_FADE_START, HERO_FADE_END],
-    [1, 5, 15],
+    [1, CRT_SCALE_MID, CRT_SCALE_MAX],
   );
 
   // Laptop opening, scale and fade inside the fixed space (tuned to enter during Phase 1)

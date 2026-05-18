@@ -19,9 +19,14 @@ import { useTypewriter } from './use-typewriter';
 export function Hero() {
   const { heroRef, heroProgress } = useScrollTimeline();
   const { text, currentRole } = useTypewriter({ roles: ROLES });
+  const MAX_ZOOM_SCALE = 18;
 
   // Zoom-through: content scales up and disappears as user scrolls, synchronized to finish at HERO_FADE_END progress
-  const zoomScale = useTransform(heroProgress, [0, HERO_FADE_END], [1, 30]);
+  const zoomScale = useTransform(
+    heroProgress,
+    [0, HERO_FADE_END],
+    [1, MAX_ZOOM_SCALE],
+  );
   const zoomOpacity = useTransform(
     heroProgress,
     [0, HERO_FADE_START, HERO_FADE_END],
