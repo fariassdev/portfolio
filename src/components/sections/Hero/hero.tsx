@@ -40,6 +40,9 @@ export function Hero({ sectionRef }: HeroProps) {
   const zoomScale = useTransform(smoothProgress, [0, 1], [1, 30]);
   const zoomOpacity = useTransform(smoothProgress, [0, 0.7, 1], [1, 1, 0]);
 
+  // Fade out background radial glow as user scrolls down to projects
+  const glowOpacity = useTransform(smoothProgress, [0, 0.8], [1, 0]);
+
   // Fade out scroll hint quickly as user scrolls down
   const scrollHintOpacity = useTransform(smoothProgress, [0, 0.15], [1, 0]);
 
@@ -57,7 +60,10 @@ export function Hero({ sectionRef }: HeroProps) {
     >
       <motion.div className={styles.stickyWrapper} style={{ pointerEvents }}>
         {/* Background gradients — decorative, no pointer events */}
-        <div className={styles.backgroundGradients} />
+        <motion.div
+          className={styles.backgroundGradients}
+          style={{ opacity: glowOpacity }}
+        />
 
         {/* Zoom container — driven by scroll progress */}
         <motion.div
