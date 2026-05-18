@@ -32,8 +32,11 @@ export function Hero() {
   const zoomScale = useTransform(smoothProgress, [0, 1], [1, 30]);
   const zoomOpacity = useTransform(smoothProgress, [0, 0.8, 1], [1, 1, 0]);
 
-  // CRT effect fades out slightly before the full zoom
-  const crtOpacity = useTransform(smoothProgress, [0, 0.7, 1], [1, 1, 0]);
+  // CRT screen scales up as user scrolls, pushing the physical bezel off-screen for perfect immersion
+  const crtScale = useTransform(smoothProgress, [0, 0.6, 1], [1, 5, 10]);
+
+  // CRT effect dissolves as we plunge inside the screen (from 0.5 to 0.8 progress)
+  const crtOpacity = useTransform(smoothProgress, [0, 0.5, 0.8], [1, 1, 0]);
 
   return (
     <section
@@ -91,7 +94,7 @@ export function Hero() {
         </motion.div>
 
         {/* CRT screen overlay — rendered after content so it sits on top */}
-        <CrtScreen opacity={crtOpacity} />
+        <CrtScreen opacity={crtOpacity} scale={crtScale} />
 
         {/* Scroll hint */}
         <div className={styles.scrollHint} aria-hidden="true">

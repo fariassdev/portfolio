@@ -114,6 +114,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Glowing phosphor screen text bloom */
+  text-shadow:
+    0 0 4px rgba(197, 255, 74, 0.4),
+    0 0 12px rgba(197, 255, 74, 0.15);
 }
 
 .heroName::before {
@@ -122,6 +126,7 @@
   height: 1px;
   background: var(--color-accent);
   flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(197, 255, 74, 0.6);
 }
 
 .heroRole {
@@ -136,11 +141,19 @@
 
 .staticRole {
   color: var(--color-text);
+  /* Glowing screen bloom for white text */
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.2),
+    0 0 12px rgba(255, 255, 255, 0.08);
 }
 
 .rotatingRole {
   color: var(--color-accent);
   font-weight: 700;
+  /* Glowing green phosphor bloom */
+  text-shadow:
+    0 0 4px rgba(197, 255, 74, 0.45),
+    0 0 12px rgba(197, 255, 74, 0.18);
 }
 
 .cursor {
@@ -151,6 +164,10 @@
   vertical-align: middle;
   margin-left: 2px;
   animation: blink 1s step-end infinite;
+  /* Phosphor terminal glowing blinking cursor shadow */
+  box-shadow:
+    0 0 4px rgba(197, 255, 74, 0.7),
+    0 0 10px rgba(197, 255, 74, 0.35);
 }
 
 .heroDescription {
@@ -159,6 +176,8 @@
   line-height: 1.75;
   max-width: 600px;
   margin-bottom: 40px;
+  /* Extremely subtle phosphor diffusion for retro look while preserving 100% legibility */
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.06);
 }
 
 /* ==================
