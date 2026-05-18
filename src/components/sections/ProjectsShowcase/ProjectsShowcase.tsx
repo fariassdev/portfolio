@@ -11,7 +11,7 @@ import { useRef, useState, type RefObject } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
 import { ProjectSlide } from './ProjectSlide/ProjectSlide';
-import { SCROLL_PAGES } from './ProjectsShowcase.constants';
+import { SCROLL_PAGES, PHASE_LENGTH } from './ProjectsShowcase.constants';
 import { PROJECTS } from './ProjectsShowcase.data';
 import styles from './ProjectsShowcase.module.css';
 
@@ -39,8 +39,8 @@ export function ProjectsShowcase({
     if (progress <= 0) return 0;
     if (progress >= 1) return 1;
 
-    const scrollPages = PROJECTS.length * 2 + 3;
-    const phaseLength = 1 / scrollPages;
+    const scrollPages = SCROLL_PAGES;
+    const phaseLength = PHASE_LENGTH;
 
     if (progress < phaseLength) return progress;
     if (progress > 1 - phaseLength) return progress;
@@ -57,15 +57,31 @@ export function ProjectsShowcase({
     restDelta: 0.0001,
   });
 
-  // Projects Title Opacity: fades in from 0 to 1 during entrance, fades out to 0 as laptop settles
+  // Choreographed animation timing constants (tuned so that title enters first, then laptop follows)
+  const TITLE_ENTRANCE_END = PHASE_LENGTH * 0.45; // Title settles halfway through Phase 0 (approx 0.04)
+  const TITLE_EXIT_START = PHASE_LENGTH * 1.2; // Title stays solid while laptop is opening, starts exiting in Phase 1 (approx 0.11)
+  const TITLE_EXIT_END = PHASE_LENGTH * 1.8; // Title exits fully before Phase 2 starts (approx 0.16)
+
+  // Projects Title Opacity: fades in rapidly, stays solid, then fades out as first project details appear
   const titleOpacity = useTransform(
     projectsProgress,
-    [0, 0.04, 0.08, 0.15],
+    [0, TITLE_ENTRANCE_END * 0.7, TITLE_EXIT_START, TITLE_EXIT_END],
     [0, 1, 1, 0],
   );
 
-  // Projects Title Y position: slides up beautifully as it enters and continues sliding up as it exits
-  const titleY = useTransform(projectsProgress, [0, 0.05, 0.15], [40, 0, -40]);
+  // Projects Title Y position: slides up from lower position (120px) to settled (0px) quickly, then exits upwards
+  const titleY = useTransform(
+    projectsProgress,
+    [0, TITLE_ENTRANCE_END, TITLE_EXIT_END],
+    [120, 0, -80],
+  );
+
+  // Projects Title Scale: zooms in to full size quickly, then continues expanding as it zooms out
+  const titleScale = useTransform(
+    projectsProgress,
+    [0, TITLE_ENTRANCE_END, TITLE_EXIT_END],
+    [0.55, 1.0, 1.05],
+  );
 
   // Trigger title entrance animation when section reaches the projects phase
   useMotionValueEvent(projectsProgress, 'change', (progress) => {
@@ -89,7 +105,7 @@ export function ProjectsShowcase({
           {/* Projects Title */}
           <motion.div
             className={styles.titleWrapper}
-            style={{ opacity: titleOpacity, y: titleY }}
+            style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
           >
             <div className={styles.titleBackground}>
               CATALOG_ID: 2026_PRJ // SRC: PORTFOLIO_V4

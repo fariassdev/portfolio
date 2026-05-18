@@ -51,19 +51,22 @@
 .titleWrapper {
   position: absolute;
   top: 15vh;
-  left: var(--spaceOuter);
-  right: var(--spaceOuter);
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   z-index: 5;
   pointer-events: none;
-  text-align: left;
+  text-align: center;
+  width: 100%;
 }
 
 .titleLabel {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 16px;
   font-family: var(--font-mono), monospace;
   font-size: 12px;
@@ -73,7 +76,8 @@
   margin-bottom: 8px;
 }
 
-.titleLabel::before {
+.titleLabel::before,
+.titleLabel::after {
   content: '';
   width: 40px;
   height: 1px;
@@ -100,9 +104,7 @@
 }
 
 .titleBackground {
-  position: absolute;
-  top: -32px;
-  left: 0;
+  position: relative;
   font-family: var(--font-mono), monospace;
   font-size: 10px;
   color: var(--color-accent);
@@ -111,12 +113,15 @@
   pointer-events: none;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  margin-bottom: 20px;
 }
 
+.titleBackground::before,
 .titleBackground::after {
   content: '';
-  width: 100px;
+  width: 60px;
   height: 1px;
   background: var(--color-accent);
   opacity: 0.2;

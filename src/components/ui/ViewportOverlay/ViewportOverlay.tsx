@@ -8,6 +8,10 @@ import {
   HERO_FADE_END,
 } from '@/components/sections/Hero/hero.constants';
 import type { LaptopSceneProps } from '@/components/sections/ProjectsShowcase/Laptop/LaptopScene';
+import {
+  SCROLL_PAGES,
+  PHASE_LENGTH,
+} from '@/components/sections/ProjectsShowcase/ProjectsShowcase.constants';
 import { PROJECTS } from '@/components/sections/ProjectsShowcase/ProjectsShowcase.data';
 import { CrtScreen } from '@/components/ui/CrtScreen';
 import styles from './ViewportOverlay.module.css';
@@ -73,8 +77,8 @@ export function ViewportOverlay({
     if (progress <= 0) return 0;
     if (progress >= 1) return 1;
 
-    const scrollPages = PROJECTS.length * 2 + 3;
-    const phaseLength = 1 / scrollPages;
+    const scrollPages = SCROLL_PAGES;
+    const phaseLength = PHASE_LENGTH;
 
     if (progress < phaseLength) return progress;
     if (progress > 1 - phaseLength) return progress;
@@ -91,14 +95,17 @@ export function ViewportOverlay({
     restDelta: 0.0001,
   });
 
-  // Laptop opening, scale and fade inside the fixed space
-  const laptopOpacity = useTransform(projectsProgress, [0, 0.05], [0, 1]);
+  // Laptop opening, scale and fade inside the fixed space (tuned to enter during Phase 1)
+  const laptopOpacity = useTransform(
+    projectsProgress,
+    [PHASE_LENGTH, PHASE_LENGTH * 1.8],
+    [0, 1],
+  );
 
-  const phaseLen = 1 / Math.max(PROJECTS.length * 2 + 3, 1);
   const laptopScrollProgress = useTransform(
     projectsProgress,
-    [0, 0.05, 1],
-    [0, phaseLen, 1],
+    [PHASE_LENGTH, PHASE_LENGTH * 1.8, 1],
+    [0, PHASE_LENGTH, 1],
   );
 
   const previewSources = useMemo(
