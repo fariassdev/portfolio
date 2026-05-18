@@ -1,0 +1,46 @@
+/* ============================================================
+   ProjectsShowcase — Styles
+   Design system: dark-first, neon-accent, strong typography
+   ============================================================ */
+
+/* ---- Section & Scroll Spacer ---- */
+
+.section {
+  position: relative;
+  width: 100%;
+}
+
+.scrollSpacer {
+  /* 5 viewport heights of scroll room (set via inline style) */
+  position: relative;
+}
+
+.stickyViewport {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* ---- 3D Canvas Layer ---- */
+
+.canvasWrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ---- Slides Overlay ---- */
+
+.slidesContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}

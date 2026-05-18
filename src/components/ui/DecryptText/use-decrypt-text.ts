@@ -1,105 +1,154 @@
 'use client';
 
 import { useReducedMotion, useSpring } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 const DEFAULT_CHARSET = '!@#$%^&*()_+-=[]{}|;:,.<>?0123456789';
 
 interface UseDecryptTextOptions {
   readonly text: string;
-  readonly isActive: boolean;
+  readonly shouldAnimate: boolean;
   readonly charset?: string;
   readonly delay?: number;
 }
 
-const CharType = {
-  Glyph: 'glyph',
-  Value: 'value',
-} as const;
-
-interface CharItem {
-  readonly type: (typeof CharType)[keyof typeof CharType];
-  readonly value: string;
-}
-
-function shuffle(
-  content: readonly string[],
-  output: readonly CharItem[],
-  position: number,
-  charset: string,
-): CharItem[] {
-  return content.map((value, index) => {
-    if (index < position) {
-      return { type: CharType.Value, value };
-    }
-
-    if (position % 1 < 0.5) {
-      const rand = Math.floor(Math.random() * charset.length);
-      return { type: CharType.Glyph, value: charset[rand] ?? value };
-    }
-
-    return { type: CharType.Glyph, value: output[index]?.value ?? value };
-  });
-}
-
+/**
+ * Drives a character-by-character decrypt/scramble animation.
+ *
+ * Returns:
+ *  - `containerRef` — attach to the DOM element whose innerHTML will be updated
+ *  - `isRunning`    — whether the animation is currently in motion
+ *
+ * The spring animates from 0 → text.length (reveal) and back to 0 (hide).
+ * Characters ahead of the spring position are rendered as random glyphs;
+ * characters behind it show the real value.
+ */
 export function useDecryptText({
   text,
-  isActive,
+  shouldAnimate,
   charset = DEFAULT_CHARSET,
   delay = 0,
 }: UseDecryptTextOptions) {
   const shouldReduceMotion = useReducedMotion();
-  const outputRef = useRef<CharItem[]>([]);
   const containerRef = useRef<HTMLSpanElement>(null);
-  const decoderSpring = useSpring(0, { stiffness: 8, damping: 5 });
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const isAnimatingRef = useRef(false);
 
+  const spring = useSpring(0, { stiffness: 30, damping: 12 });
+
+  const content = useRef(text.split(''));
+  // Keep content in sync if text changes
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    content.current = text.split('');
+  }, [text]);
 
-    const content = text.split('');
+  /**
+   * Renders the current animation frame into the container.
+   * Characters at index < position show the real value;
+   * characters at index >= position show a random glyph.
+   */
+  const render = useCallback(
+    (position: number) => {
+      const el = containerRef.current;
+      if (!el) return;
 
-    const renderOutput = () => {
-      const html = outputRef.current
-        .map((item) => {
-          const escaped = item.value
+      const chars = content.current;
+      let html = '';
+
+      for (let i = 0; i < chars.length; i++) {
+        const char = chars[i]!;
+        const escaped = char
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        if (i < position) {
+          // Resolved character
+          html += `<span data-char="value">${escaped}</span>`;
+        } else {
+          // Scrambled glyph
+          const glyph =
+            charset[Math.floor(Math.random() * charset.length)] ?? char;
+          const escapedGlyph = glyph
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
-          return `<span data-char="${item.type}">${escaped}</span>`;
-        })
-        .join('');
+          html += `<span data-char="glyph">${escapedGlyph}</span>`;
+        }
+      }
 
-      container.innerHTML = html;
-    };
+      el.innerHTML = html;
+    },
+    [charset],
+  );
 
+  /**
+   * Clears the container so no scrambled text is visible.
+   */
+  const clear = useCallback(() => {
+    const el = containerRef.current;
+    if (el) el.innerHTML = '';
+  }, []);
+
+  // Main effect: subscribe to spring and isActive changes
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Reduced motion: show final text immediately
     if (shouldReduceMotion) {
-      outputRef.current = content.map((value) => ({
-        type: CharType.Value,
-        value,
-      }));
-      renderOutput();
+      render(content.current.length);
       return;
     }
 
-    const unsubscribe = decoderSpring.on('change', (value) => {
-      outputRef.current = shuffle(content, outputRef.current, value, charset);
-      renderOutput();
+    // Subscribe to spring value changes → re-render characters
+    const unsubSpring = spring.on('change', (value) => {
+      // When fully settled at 0 and not active, clear the container
+      if (value <= 0.01 && !isAnimatingRef.current) {
+        clear();
+        return;
+      }
+      render(value);
     });
 
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const activate = () => {
+      isAnimatingRef.current = true;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    if (isActive) {
-      timeoutId = setTimeout(() => {
-        decoderSpring.set(content.length);
+      // Render initial scramble immediately so the container isn't empty
+      render(0);
+
+      timeoutRef.current = setTimeout(() => {
+        spring.set(content.current.length);
       }, delay);
-    }
+    };
+
+    const deactivate = () => {
+      isAnimatingRef.current = false;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      spring.set(0);
+    };
+
+    // Wire up animate (boolean)
+    if (shouldAnimate) activate();
+    else deactivate();
 
     return () => {
-      unsubscribe();
-      if (timeoutId !== undefined) clearTimeout(timeoutId);
+      unsubSpring();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [text, isActive, charset, delay, shouldReduceMotion, decoderSpring]);
+  }, [
+    text,
+    shouldAnimate,
+    charset,
+    delay,
+    shouldReduceMotion,
+    spring,
+    render,
+    clear,
+  ]);
 
-  return { containerRef };
+  return { containerRef, progress: spring };
 }
