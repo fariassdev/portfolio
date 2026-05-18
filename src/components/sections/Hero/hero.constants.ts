@@ -11,3 +11,8 @@ export const ROLES = [
   'Problem Solver',
   'Team Player',
 ];
+
+// Scroll-based exit animation settings for the Hero section
+// Adjust these to synchronize and control when all Hero/CRT effects fade out
+export const HERO_FADE_START = 0.5; // Start of fade-out (0.0 to 1.0 progress of Hero scroll)
+export const HERO_FADE_END = 0.9; // Completion of fade-out (0.0 to 1.0 progress of Hero scroll)

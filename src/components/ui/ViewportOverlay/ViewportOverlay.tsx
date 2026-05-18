@@ -3,9 +3,13 @@
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Suspense, useMemo, type RefObject } from 'react';
+import {
+  HERO_FADE_START,
+  HERO_FADE_END,
+} from '@/components/sections/Hero/hero.constants';
+import type { LaptopSceneProps } from '@/components/sections/ProjectsShowcase/Laptop/LaptopScene';
+import { PROJECTS } from '@/components/sections/ProjectsShowcase/ProjectsShowcase.data';
 import { CrtScreen } from '@/components/ui/CrtScreen';
-import type { LaptopSceneProps } from '../../sections/ProjectsShowcase/Laptop/LaptopScene';
-import { PROJECTS } from '../../sections/ProjectsShowcase/ProjectsShowcase.data';
 import styles from './ViewportOverlay.module.css';
 
 const LaptopScene = dynamic<LaptopSceneProps>(
@@ -44,15 +48,19 @@ export function ViewportOverlay({
   const BASE_CRT_INTENSITY = 1.0; // Full intensity in Hero
   const MIN_CRT_INTENSITY = 0; // 0% intensity in Projects
 
-  // Opacity fades from full → 0 as user scrolls, synchronized to finish completely by 0.75 progress
+  // Opacity fades from full → 0 as user scrolls, synchronized to finish completely by HERO_FADE_END progress
   const crtOpacity = useTransform(
     heroProgress,
-    [0, 0.45, 0.75],
+    [0, HERO_FADE_START, HERO_FADE_END],
     [BASE_CRT_INTENSITY, BASE_CRT_INTENSITY, MIN_CRT_INTENSITY],
   );
 
-  // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally, finishing at 0.75 progress
-  const crtScale = useTransform(heroProgress, [0, 0.45, 0.75], [1, 5, 15]);
+  // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally, finishing at HERO_FADE_END progress
+  const crtScale = useTransform(
+    heroProgress,
+    [0, HERO_FADE_START, HERO_FADE_END],
+    [1, 5, 15],
+  );
 
   // 2. Track Projects Scroll independently
   const { scrollYProgress: projectsScroll } = useScroll({
