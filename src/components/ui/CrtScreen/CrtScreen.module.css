@@ -50,12 +50,7 @@
 
 .crtOverlay {
   position: absolute;
-  /* Thick physical retro monitor chassis frame inset from screen boundaries */
-  inset: 12px;
-  border-radius: 36px;
-
-  /* Tinted neutral dark chassis frame (charcoal with a touch of brand green/yellow warmth) */
-  border: clamp(16px, 3.2vw, 42px) solid hsl(76, 8%, 9%);
+  inset: 0;
 
   z-index: 20;
   pointer-events: none;
@@ -74,19 +69,6 @@
     rgba(197, 255, 74, 0.012) 60%,
     rgba(0, 0, 0, 0.45) 100%
   );
-
-  /* Realistic 3D molded plastic bevel chassis and screen-sinking inner shadows */
-  box-shadow:
-    /* Bezel outer boundary border highlights and soft drop shadows on the background */
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 16px 48px rgba(0, 0, 0, 0.9),
-    /* Bezel chassis outer chamfer light reflection (simulating overhead light source) */
-    inset 1px 1px 0 rgba(255, 255, 255, 0.08),
-    inset -1px -1px 0 rgba(0, 0, 0, 0.8),
-    /* The deep recessed bevel inner shadow where screen meets bezel chassis (sinks screen inward!) */
-    inset 0 0 0 2px rgba(0, 0, 0, 0.95),
-    inset 0 0 28px rgba(0, 0, 0, 0.98),
-    inset 0 0 60px rgba(0, 0, 0, 0.95);
 }
 
 /* Authentic Sony Trinitron aperture grille (vertical subpixel mask)
