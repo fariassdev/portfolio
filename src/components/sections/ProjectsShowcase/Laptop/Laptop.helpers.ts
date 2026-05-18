@@ -65,9 +65,16 @@ export function getLaptopTransform(
       1,
     );
     const eased = easeInOut(transitionOutProgress);
+    // Exit vertical offset: starts centered (0) and moves high (initialYOffset) during the final phase
+    const exitYOffset = lerp(
+      0,
+      initialYOffset,
+      clamp((progress - (1 - phaseLen)) / phaseLen, 0, 1),
+    );
+
     return {
       xOffset: lerp(targetX, 0, eased),
-      yOffset: 0,
+      yOffset: exitYOffset,
       yRotation: lerp(targetRotation, 0, eased),
     };
   }

@@ -46,11 +46,11 @@ export function ViewportOverlay() {
     [1, CRT_SCALE_MID, CRT_SCALE_MAX],
   );
 
-  // Laptop opening, scale and fade inside the fixed space (tuned to enter during Phase 1)
+  // Laptop opening/closing, scale and fade inside the fixed space (tuned to enter during Phase 1 and exit during last Phase)
   const laptopOpacity = useTransform(
     projectsProgress,
-    [PHASE_LENGTH, PHASE_LENGTH * 1.8],
-    [0, 1],
+    [PHASE_LENGTH, PHASE_LENGTH * 1.8, 1 - PHASE_LENGTH * 0.8, 1],
+    [0, 1, 1, 0],
   );
 
   const laptopScrollProgress = useTransform(
