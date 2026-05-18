@@ -22,13 +22,15 @@ interface CrtScreenProps {
  */
 export function CrtScreen({ opacity, scale }: CrtScreenProps) {
   return (
-    <motion.div className={styles.crtOverlay} style={{ opacity, scale }}>
-      <div className={styles.scanlines} />
-      <div className={styles.apertureGrille} />
-      <div className={styles.beam} />
-      <div className={styles.glare} />
-      <div className={styles.vignette} />
-      <div className={styles.screenNoise} />
+    <motion.div className={styles.crtWrapper} style={{ opacity, scale }}>
+      <div className={styles.crtOverlay}>
+        <div className={styles.scanlines} />
+        <div className={styles.apertureGrille} />
+        <div className={styles.beam} />
+        <div className={styles.glare} />
+        <div className={styles.vignette} />
+        <div className={styles.screenNoise} />
+      </div>
     </motion.div>
   );
 }

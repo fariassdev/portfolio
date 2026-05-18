@@ -39,9 +39,20 @@ export function ViewportOverlay({
     restDelta: 0.0001,
   });
 
-  // CRT monitor bezel animations (centered fixed scale-up and dissolve)
+  // ── Master CRT intensity control ──────────────────────────────
+  // Adjust these two constants to regulate ALL overlay effects at once.
+  const BASE_CRT_INTENSITY = 1.0; // Full intensity in Hero
+  const MIN_CRT_INTENSITY = 0; // 0% intensity in Projects
+
+  // Opacity fades from full → 0 as user scrolls through Hero into Projects
+  const crtOpacity = useTransform(
+    heroProgress,
+    [0, 0.4, 0.8],
+    [BASE_CRT_INTENSITY, BASE_CRT_INTENSITY, MIN_CRT_INTENSITY],
+  );
+
+  // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally
   const crtScale = useTransform(heroProgress, [0, 0.6, 1], [1, 5, 15]);
-  const crtOpacity = useTransform(heroProgress, [0, 0.4, 0.8], [1, 1, 0]);
 
   // 2. Track Projects Scroll independently
   const { scrollYProgress: projectsScroll } = useScroll({

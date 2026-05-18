@@ -48,7 +48,7 @@
   }
 }
 
-.crtOverlay {
+.crtWrapper {
   position: absolute;
   inset: 0;
 
@@ -56,6 +56,14 @@
   pointer-events: none;
   overflow: hidden;
   will-change: transform, opacity;
+}
+
+.crtOverlay {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+  overflow: hidden;
 
   /* Micro animations: realistic scan flickering and occasional CRT screen scan skew glitches */
   animation:
