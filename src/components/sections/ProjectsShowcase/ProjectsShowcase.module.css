@@ -8,6 +8,7 @@
 .section {
   position: relative;
   width: 100%;
+  scroll-margin-top: -40vh;
 }
 
 .scrollSpacer {
@@ -24,6 +25,14 @@
   overflow: hidden;
   background: var(--color-bg);
   isolation: isolate;
+}
+
+.contentContainer {
+  position: relative;
+  width: 100%;
+  max-width: 1600px;
+  height: 100%;
+  margin: 0 auto;
 }
 
 /* ---- 3D Canvas Layer ---- */

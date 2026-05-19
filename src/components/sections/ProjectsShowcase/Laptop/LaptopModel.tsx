@@ -73,13 +73,28 @@ export const LaptopModel = memo(
 
     // Layout calculations
     const isMobile = size.width < MOBILE_BREAKPOINT;
-    const isTablet = size.width >= MOBILE_BREAKPOINT && size.width < 1040;
 
     const laptopScale = useMemo(() => {
-      if (isMobile) return LAPTOP_SCALE * 0.7;
-      if (isTablet) return LAPTOP_SCALE * 0.8;
-      return LAPTOP_SCALE;
-    }, [isMobile, isTablet]);
+      // Define viewport width bounds for smooth scaling
+      const minWidth = 375;
+      const maxWidth = 1600;
+
+      // Define scale factors (multipliers of base LAPTOP_SCALE)
+      const minScaleFactor = 0.6;
+      const maxScaleFactor = 1.0;
+
+      // Calculate interpolation factor clamped between 0 and 1
+      const t = Math.max(
+        0,
+        Math.min(1, (size.width - minWidth) / (maxWidth - minWidth)),
+      );
+
+      // Perform linear interpolation (lerp) between min and max scale factors
+      const scaleFactor =
+        minScaleFactor + (maxScaleFactor - minScaleFactor) * t;
+
+      return LAPTOP_SCALE * scaleFactor;
+    }, [size.width]);
 
     const laptopPosition = useMemo<[number, number, number]>(() => {
       if (isMobile) return [0, viewport.height * 0.06, 0];

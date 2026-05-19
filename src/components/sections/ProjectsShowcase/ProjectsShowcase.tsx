@@ -3,6 +3,7 @@
 import { motion, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useState } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
+import { ScrollHint } from '@/components/ui/ScrollHint';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
 import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import { ProjectSlide } from './ProjectSlide/ProjectSlide';
@@ -42,10 +43,27 @@ export function ProjectsShowcase() {
     [0.55, 1.0, 1.05],
   );
 
-  // Trigger title entrance animation when section reaches the projects phase
+  // Projects Scroll Hint Opacity: starts invisible, fades in as title settles, then fades out as we scroll to projects
+  const scrollHintOpacity = useTransform(
+    projectsProgress,
+    [
+      0,
+      TITLE_ENTRANCE_END * 0.4,
+      TITLE_ENTRANCE_END,
+      TITLE_EXIT_START * 0.5,
+      TITLE_EXIT_START,
+    ],
+    [0, 0, 1, 1, 0],
+  );
+
+  // Trigger title entrance animation when section reaches the projects phase, and reset when scrolling back up
   useMotionValueEvent(projectsProgress, 'change', (progress) => {
-    if (progress > 0.01 && !shouldAnimateTitle) {
-      setShouldAnimateTitle(true);
+    if (progress > 0.01) {
+      if (!shouldAnimateTitle) {
+        setShouldAnimateTitle(true);
+      }
+    } else if (shouldAnimateTitle) {
+      setShouldAnimateTitle(false);
     }
   });
 
@@ -61,35 +79,43 @@ export function ProjectsShowcase() {
         style={{ height: `${totalSpacerHeight}vh` }}
       >
         <div className={styles.stickyViewport}>
-          {/* Projects Title */}
-          <motion.div
-            className={styles.titleWrapper}
-            style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
-          >
-            <div className={styles.titleBackground}>
-              CATALOG_ID: 2026_PRJ // SRC: PORTFOLIO_V4
-            </div>
-            <div className={styles.titleLabel}>
-              <DecryptText text="Selected" shouldAnimate={shouldAnimateTitle} />
-            </div>
-            <SweepText
-              as="h2"
-              text="Projects"
-              className={styles.projectsTitle}
-              shouldAnimate={shouldAnimateTitle}
-            />
-          </motion.div>
-
-          {/* Project Slides */}
-          <div className={styles.slidesContainer}>
-            {PROJECTS.map((project, index) => (
-              <ProjectSlide
-                key={project.id}
-                project={project}
-                index={index}
-                scrollProgress={projectsProgress}
+          <div className={styles.contentContainer}>
+            {/* Projects Title */}
+            <motion.div
+              className={styles.titleWrapper}
+              style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
+            >
+              <div className={styles.titleBackground}>
+                CATALOG_ID: 2026_PRJ // SRC: PORTFOLIO_V4
+              </div>
+              <div className={styles.titleLabel}>
+                <DecryptText
+                  text="Selected"
+                  shouldAnimate={shouldAnimateTitle}
+                />
+              </div>
+              <SweepText
+                as="h2"
+                text="Projects"
+                className={styles.projectsTitle}
+                shouldAnimate={shouldAnimateTitle}
               />
-            ))}
+            </motion.div>
+
+            {/* Scroll Hint */}
+            <ScrollHint opacity={scrollHintOpacity} />
+
+            {/* Project Slides */}
+            <div className={styles.slidesContainer}>
+              {PROJECTS.map((project, index) => (
+                <ProjectSlide
+                  key={project.id}
+                  project={project}
+                  index={index}
+                  scrollProgress={projectsProgress}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

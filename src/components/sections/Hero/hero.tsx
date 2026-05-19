@@ -3,6 +3,7 @@
 import { motion, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { DecryptText } from '@/components/ui/DecryptText';
+import { ScrollHint } from '@/components/ui/ScrollHint';
 import { SweepText } from '@/components/ui/SweepText';
 import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import {
@@ -107,12 +108,7 @@ export function Hero() {
         </motion.div>
 
         {/* Scroll hint — fades out as user scrolls */}
-        <motion.div style={{ opacity: scrollHintOpacity, width: '100%' }}>
-          <div className={styles.scrollHint} aria-hidden="true">
-            <div className={styles.arrow} />
-            <span>Scroll</span>
-          </div>
-        </motion.div>
+        <ScrollHint opacity={scrollHintOpacity} />
       </motion.div>
     </section>
   );

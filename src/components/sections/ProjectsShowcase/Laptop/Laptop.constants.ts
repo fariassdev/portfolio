@@ -1,7 +1,7 @@
 // Scene Configuration
 export const LID_CLOSED = Math.PI / 2;
 export const LID_OPEN = 0;
-export const LAPTOP_SCALE = 45;
+export const LAPTOP_SCALE = 40;
 export const CAMERA_Z = 900;
 
 // Animation Configuration

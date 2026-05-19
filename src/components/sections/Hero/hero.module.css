@@ -51,6 +51,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  z-index: 2;
 }
 
 .unifiedWrapper {
@@ -208,37 +209,6 @@
 }
 
 /* ==================
-   Scroll Hint
-==================== */
-
-.scrollHint {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  color: var(--color-text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  animation: fadeUp 1s ease 0.5s both;
-  pointer-events: none;
-}
-
-.arrow {
-  width: 20px;
-  height: 20px;
-  border-right: 2px solid var(--color-text-dim);
-  border-bottom: 2px solid var(--color-text-dim);
-  transform: rotate(45deg);
-  animation: floatY 1.5s ease-in-out infinite;
-}
-
-/* ==================
    Responsive
 ==================== */
 
@@ -266,9 +236,5 @@
   .heroDescription {
     font-size: 14px;
     margin-bottom: 32px;
-  }
-
-  .scrollHint {
-    bottom: 20px;
   }
 }

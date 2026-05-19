@@ -71,6 +71,6 @@ describe('Hero Component', () => {
 
   it('renders the scroll indicator', () => {
     render(<Hero />);
-    expect(screen.getByText('Scroll')).toBeTruthy();
+    expect(screen.getByText(/scroll/i)).toBeTruthy();
   });
 });

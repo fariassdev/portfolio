@@ -87,16 +87,6 @@
 
 @media (--mediaTablet) {
   .slide {
-    width: 45%;
-  }
-
-  .slideTitle {
-    font-size: clamp(28px, 4vw, 48px);
-  }
-}
-
-@media (--mediaMobile) {
-  .slide {
     width: 100%;
     top: 50%;
     height: 50vh;

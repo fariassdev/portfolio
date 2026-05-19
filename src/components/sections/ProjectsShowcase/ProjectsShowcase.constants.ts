@@ -1,7 +1,7 @@
 import { PROJECTS } from './ProjectsShowcase.data';
 
 // Scene Configuration
-export const MOBILE_BREAKPOINT = 696;
+export const MOBILE_BREAKPOINT = 1040;
 
 // Derived Animation Values
 export const PROJECT_COUNT = PROJECTS.length;
