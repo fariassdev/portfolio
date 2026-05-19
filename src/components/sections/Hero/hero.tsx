@@ -15,21 +15,33 @@ import {
   HERO_FADE_END,
 } from './hero.constants';
 import styles from './hero.module.css';
-import { useTypewriter } from './use-typewriter';
-
 export function RoleText() {
-  const { text, currentRole } = useTypewriter({ roles: ROLES });
-
   return (
     <h1 className={styles.heroRole}>
       <span className="sr-only" aria-live="polite">
-        {HERO_TITLE} &amp; {currentRole}
+        {HERO_TITLE} &amp; {ROLES.join(', ')}
       </span>
       <span aria-hidden="true">
         <SweepText className={styles.staticRole} text={HERO_TITLE} />
         <span className={styles.staticRole}>{'& '}</span>
-        <span className={styles.rotatingRole}>{text}</span>
-        <span className={styles.cursor} />
+        <span className={styles.typewriterContainer}>
+          {ROLES.map((role, index) => {
+            return (
+              <span
+                key={role}
+                className={styles.typewriterWord}
+                style={
+                  {
+                    '--char-count': role.length,
+                    animationDelay: `${-index * 4}s`,
+                  } as React.CSSProperties
+                }
+              >
+                {role}
+              </span>
+            );
+          })}
+        </span>
       </span>
     </h1>
   );

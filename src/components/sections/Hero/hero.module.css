@@ -157,27 +157,133 @@
     0 0 12px rgba(255, 255, 255, 0.08);
 }
 
-.rotatingRole {
+.typewriterContainer {
+  display: inline-grid;
+  grid-template-columns: 1fr;
+  vertical-align: bottom;
+}
+
+.typewriterWord {
+  grid-area: 1 / 1;
+  justify-self: start;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(30px, 3.8vw, 54px);
+  letter-spacing: normal;
+  width: calc(var(--char-count) * 1ch);
+  max-width: 0;
   color: var(--color-accent);
   font-weight: 700;
   /* Glowing green phosphor bloom */
   text-shadow:
-    0 0 4px rgba(197, 255, 74, 0.45),
-    0 0 12px rgba(197, 255, 74, 0.18);
+    0 0 4px rgba(197, 255, 74, 0.2),
+    0 0 12px rgba(197, 255, 74, 0.1);
+
+  /* Caret cursor simulation */
+  border-right: 3px solid transparent;
+  padding-right: 0;
+  box-sizing: border-box;
+
+  /* Drop-shadow glow for the cursor itself to match retro phosphor theme */
+  filter: drop-shadow(0 0 2px rgba(197, 255, 74, 0.6));
+
+  /* Apply typewriter loop */
+  animation: typewriter 16s infinite;
 }
 
-.cursor {
-  display: inline-block;
-  width: 3px;
-  height: 0.85em;
-  background: var(--color-accent);
-  vertical-align: middle;
-  margin-left: 2px;
-  animation: blink 1s step-end infinite;
-  /* Phosphor terminal glowing blinking cursor shadow */
-  box-shadow:
-    0 0 4px rgba(197, 255, 74, 0.7),
-    0 0 10px rgba(197, 255, 74, 0.35);
+@keyframes typewriter {
+  /* Typing (0% to 11.25% of 16s loop -> 0s to 1.8s) */
+  0% {
+    max-width: 0;
+    padding-right: 0;
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+    animation-timing-function: steps(var(--char-count), end);
+  }
+  11.25% {
+    max-width: 100%;
+    padding-right: 4px;
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+    animation-timing-function: step-end;
+  }
+  /* Hold & Blink cursor (11.25% to 21.25% of 16s loop -> 1.8s to 3.4s) */
+  11.25%,
+  13.75%,
+  16.25%,
+  18.75%,
+  21.25% {
+    max-width: 100%;
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+    padding-right: 4px;
+  }
+  12.50%,
+  15.00%,
+  17.50%,
+  20.00% {
+    max-width: 100%;
+    border-color: transparent;
+    opacity: 1;
+    visibility: visible;
+    padding-right: 4px;
+  }
+  /* Deleting (21.25% to 24.375% of 16s loop -> 3.4s to 3.9s) */
+  21.25% {
+    max-width: 100%;
+    padding-right: 4px;
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+    animation-timing-function: steps(var(--char-count), end);
+  }
+  24.375% {
+    max-width: 0;
+    padding-right: 0;
+    border-color: var(--color-accent);
+    opacity: 1;
+    visibility: visible;
+    animation-timing-function: step-end;
+  }
+  /* Pause before next & Inactive state (24.38% to 100% of 16s loop -> 3.9s to 16s) */
+  24.38%,
+  100% {
+    max-width: 0;
+    padding-right: 0;
+    border-color: transparent;
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriterWord {
+    animation: fadeRoles 16s infinite;
+    width: auto !important;
+    max-width: none !important;
+    border-right: none !important;
+    filter: none !important;
+  }
+}
+
+@keyframes fadeRoles {
+  0% {
+    opacity: 0;
+  }
+  /* Fade in instantly and hold */
+  2%,
+  18.75% {
+    opacity: 1;
+  }
+  /* Fade out before next role starts */
+  23.75%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .heroDescription {
