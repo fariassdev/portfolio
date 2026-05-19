@@ -7,7 +7,7 @@ import {
 } from 'framer-motion';
 import { useRef } from 'react';
 import { LID_OPEN, LID_CLOSED } from './Laptop.constants';
-import { getScreenTransition } from './Laptop.helpers';
+import { getScreenTransition, getPhaseLength } from './Laptop.helpers';
 import type { LaptopAnimationState, TransitionCallback } from './Laptop.types';
 
 /**
@@ -29,7 +29,7 @@ export function useLaptopAnimation(
   const reduceMotion = useReducedMotion();
 
   // Calculate phase length for animation timing
-  const phaseLength = 1 / Math.max(projectCount * 2 + 1, 1);
+  const phaseLength = getPhaseLength(projectCount);
 
   /**
    * Lid rotation animation:

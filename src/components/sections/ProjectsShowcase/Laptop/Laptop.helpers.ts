@@ -6,7 +6,7 @@ import type { LaptopTransform, ScreenTransition } from './Laptop.types';
  * Calculates the length of a single animation phase.
  */
 export function getPhaseLength(projectCount: number): number {
-  return 1 / Math.max(projectCount * 2 + 5, 1);
+  return 1 / Math.max(projectCount * 2 + 3, 1);
 }
 
 /**
