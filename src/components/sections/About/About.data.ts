@@ -16,11 +16,9 @@ export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
     company: 'Z1 Digital Studio → Five Koalas (spin-off)',
     location: 'Seville, Spain (Remote)',
     bulletPoints: [
-      'Developed and optimized backend services for Waking Up, a leading meditation platform with 300K to 500K active users worldwide, serving millions globally.',
-      "Led the critical migration of Making Sense's subscription and user system (from piano.io to a custom platform with Braintree), doubling monthly revenue from $500K to $1M while ensuring zero payment failures or duplicated accounts.",
-      'Implemented comprehensive observability with Datadog, prevented N+1 query issues using DataLoaders, and optimized overall performance with Redis caching.',
-      'Designed GraphQL APIs (Apollo Server) and RESTful services with an iterative-incremental product mindset, collaborating closely with product, design, data analytics, and mobile teams.',
-      'Established CI/CD pipelines and maintained high code quality standards through unit and integration testing with Jest and Mocha.',
+      'Led the critical backend migration of Making Sense billing system, doubling monthly subscription revenue from $500K to $1M with zero downtime.',
+      'Optimized GraphQL and REST APIs serving 500K active users for Waking Up using Redis caching and DataLoader pattern.',
+      'Established Datadog observability pipelines, comprehensive Jest testing, and high-performance CI/CD workflows.',
     ],
     technologies: [
       { name: 'Node.js', iconClass: 'devicon-nodejs-plain' },
@@ -41,12 +39,12 @@ export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
     tag: 'v1.5.0',
     type: 'docs',
     message: "docs(education): complete Bachelor's Degree in Computer Science",
-    role: 'B.S. in Computer Science Graduate',
+    role: 'B.S. in Computer Science Student',
     company: 'Universitat Oberta de Catalunya (UOC)',
     location: 'Spain (Online)',
     bulletPoints: [
-      "Successfully completed a Bachelor's Degree in Computer Science while working full-time as a Backend Engineer on high-demand international projects.",
-      'Developed "Senda" as a Final Degree Project: a guided meditation platform featuring generative AI (Google Gemini API), synthetic neural audio, and hexagonal architecture (FastAPI + React/Next.js), receiving Honors (Matrícula de Honor).',
+      "Balancing a full-time senior engineering role while completing a Bachelor's Degree in Computer Science.",
+      'Developed "Senda" (TFG): AI-guided meditation platform with FastAPI and Next.js, powered by Google Gemini API and KokoroTTS, receiving Honors.',
     ],
     technologies: [
       { name: 'Python', iconClass: 'devicon-python-plain' },
@@ -68,9 +66,9 @@ export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
     company: 'Homeria Open Solutions',
     location: 'Spain (Hybrid)',
     bulletPoints: [
-      "Developed high-scale food delivery platforms for Burger King and Foster's Hollywood in Spain and Portugal using TypeScript (Node.js + Angular) and Java (Spring Framework) stacks.",
-      'Designed and managed auto-scaling cloud infrastructure on AWS using IAM, EC2, Lambda, Fargate, RDS, DMS, DynamoDB, and API Gateway.',
-      'Managed Infrastructure as Code (IaC) using Terraform, Docker, Vagrant, and Ansible in a cross-functional agile team with a T-shaped mindset.',
+      "Architected food delivery APIs for Burger King and Foster's Hollywood in Spain and Portugal using Node.js, Spring Framework, and Angular.",
+      'Designed self-scaling AWS cloud infrastructure using Terraform IaC, Fargate, Lambda, and DynamoDB.',
+      'Streamlined development cycles by introducing standardized Docker and Ansible environments.',
     ],
     technologies: [
       { name: 'TypeScript', iconClass: 'devicon-typescript-plain' },
@@ -91,12 +89,11 @@ export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
     message:
       'build(academics): obtain Higher Vocational Diploma & work as network technician',
     role: 'Network & Systems Technician / DAW Graduate',
-    company: 'Town Hall (Cáceres) / DAW Vocational Studies',
+    company: 'Town Hall (Cáceres) / Vocational Studies',
     location: 'Cáceres, Spain (On-site)',
     bulletPoints: [
-      'Maintained local municipal network infrastructure, proxies, public access points, and unified environments on-site full-time.',
-      'Completed a Higher Vocational Diploma in Web Application Development (DAW), receiving the Regional Extraordinary Prize for the highest academic performance in the region.',
-      'Successfully balanced full-time studies and on-site work, developing strong self-discipline and problem-solving skills under pressure.',
+      'Maintained municipal servers, networks, public proxies, and active directory systems full-time.',
+      'Graduated DAW with the Regional Extraordinary Prize (highest academic performance in the region).',
     ],
     technologies: [
       { name: 'Git', iconClass: 'devicon-git-plain' },
@@ -117,8 +114,8 @@ export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
     company: 'Sony PSP Scene Community',
     location: 'Cáceres, Spain',
     bulletPoints: [
-      'Discovered programming entirely self-taught at age 12 with LUA, developing a fully functional homebrew game for the Sony PSP and designing its graphical interfaces in Photoshop.',
-      'Reverse-engineered consoles (PSP, Xbox, Wii) at an early age to understand their hardware architecture, enable homebrew execution, and provide support in Spanish-speaking Scene forums.',
+      'Discovered programming self-taught at age 12 with LUA, developing a fully playable homebrew game for the PSP.',
+      'Reverse-engineered consoles (PSP, Xbox, Wii) to understand system architecture and modify game files.',
     ],
     technologies: [{ name: 'Git', iconClass: 'devicon-git-plain' }],
   },

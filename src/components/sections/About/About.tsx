@@ -164,6 +164,7 @@ export function About() {
             >
               {/* Left Panel: Git Graph Timeline */}
               <div className={styles.gitGraphPanel}>
+                <div className={styles.profileBio}>{ABOUT_ME_BIO}</div>
                 <div className={styles.gitTreeWrapper}>
                   {/* Vertical Trunk Line */}
                   <div className={styles.gitLinesContainer}>
@@ -269,16 +270,6 @@ export function About() {
                   </div>
 
                   <div className={styles.terminalContent}>
-                    {/* Persistent Profile Copy */}
-                    <div className={styles.cliCommand}>
-                      <span className={styles.cliPromptUser}>fariassdev</span>
-                      <span className={styles.cliPromptSign}>:~$</span>
-                      <span className={styles.cliText}>cat profile.txt</span>
-                    </div>
-                    <p style={{ color: '#8b949e', marginBottom: '24px' }}>
-                      {ABOUT_ME_BIO}
-                    </p>
-
                     {/* Active Commit Diff */}
                     <div className={styles.cliCommand}>
                       <span className={styles.cliPromptUser}>fariassdev</span>
@@ -335,23 +326,11 @@ export function About() {
                           </div>
                         </div>
 
-                        <div className={styles.diffHeader}>
-                          diff --git a/career/experience b/career/experience
-                        </div>
                         <div
                           className={styles.diffHeader}
-                          style={{ marginTop: 0 }}
+                          style={{ marginBottom: '12px' }}
                         >
-                          index {activeCommit.hash}..fariassdev 100644
-                        </div>
-                        <div style={{ color: '#ff5f56', padding: '2px 0' }}>
-                          --- a/career/experience
-                        </div>
-                        <div style={{ color: '#3fb950', padding: '2px 0' }}>
-                          +++ b/career/experience
-                        </div>
-                        <div style={{ color: '#58a6ff', margin: '8px 0' }}>
-                          @@ -1,0 +1,{activeCommit.bulletPoints.length + 3} @@
+                          diff --git a/career/experience b/career/experience
                         </div>
 
                         <div className={styles.diffLineAdd}>
