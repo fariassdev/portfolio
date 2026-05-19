@@ -14,7 +14,7 @@ vi.mock(import('framer-motion'), async (importOriginal) => {
 describe('ScrollHint Component', () => {
   it('renders the scroll text', () => {
     render(<ScrollHint />);
-    expect(screen.getByText('Scroll')).toBeTruthy();
+    expect(screen.getByText(/scroll/i)).toBeTruthy();
   });
 
   it('renders with optional motion value opacity', () => {

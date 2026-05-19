@@ -15,8 +15,15 @@ export function ScrollHint({ opacity, className }: ScrollHintProps) {
       style={{ opacity }}
     >
       <div className={styles.scrollHint} aria-hidden="true">
-        <div className={styles.arrow} />
-        <span>Scroll</span>
+        <span className={styles.prompt}>$</span>
+        <span className={styles.command}>scroll</span>
+        <span className={styles.flag}>--down</span>
+        <span className={styles.promptCursor} />
+        <span className={styles.arrowContainer}>
+          <span className={styles.bracket}>[</span>
+          <span className={styles.arrow}>↓</span>
+          <span className={styles.bracket}>]</span>
+        </span>
       </div>
     </motion.div>
   );
