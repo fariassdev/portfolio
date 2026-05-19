@@ -29,8 +29,6 @@ export function ViewportOverlay() {
   // Adjust these two constants to regulate ALL overlay effects at once.
   const BASE_CRT_INTENSITY = 1.0; // Full intensity in Hero
   const MIN_CRT_INTENSITY = 0; // 0% intensity in Projects
-  const CRT_SCALE_MID = 4;
-  const CRT_SCALE_MAX = 10;
 
   // Opacity fades from full → 0 as user scrolls, synchronized to finish completely by HERO_FADE_END progress
   const crtOpacity = useTransform(
@@ -44,13 +42,6 @@ export function ViewportOverlay() {
     damping: 20,
     mass: 0.4,
   });
-
-  // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally, finishing at HERO_FADE_END progress
-  const crtScale = useTransform(
-    heroProgress,
-    [0, HERO_FADE_START, HERO_FADE_END],
-    [1, CRT_SCALE_MID, CRT_SCALE_MAX],
-  );
 
   // Laptop opening/closing, scale and fade inside the fixed space (tuned to enter during Phase 1 and exit during last Phase)
   const laptopOpacity = useTransform(
@@ -73,7 +64,7 @@ export function ViewportOverlay() {
   return (
     <div className={styles.viewportOverlay}>
       {/* CRT screen overlay — sits on top of 3D laptop but behind HTML text content */}
-      <CrtScreen opacity={crtOpacitySmoothed} scale={crtScale} />
+      <CrtScreen opacity={crtOpacitySmoothed} />
 
       {/* 3D Laptop Scene */}
       <motion.div
