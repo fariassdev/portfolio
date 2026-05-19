@@ -42,10 +42,14 @@ export function ProjectsShowcase() {
     [0.55, 1.0, 1.05],
   );
 
-  // Trigger title entrance animation when section reaches the projects phase
+  // Trigger title entrance animation when section reaches the projects phase, and reset when scrolling back up
   useMotionValueEvent(projectsProgress, 'change', (progress) => {
-    if (progress > 0.01 && !shouldAnimateTitle) {
-      setShouldAnimateTitle(true);
+    if (progress > 0.01) {
+      if (!shouldAnimateTitle) {
+        setShouldAnimateTitle(true);
+      }
+    } else if (shouldAnimateTitle) {
+      setShouldAnimateTitle(false);
     }
   });
 
