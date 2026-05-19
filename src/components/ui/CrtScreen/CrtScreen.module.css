@@ -27,22 +27,62 @@
   );
 }
 
-/* High-fidelity horizontal scanlines
-   Perfect scale and blending to look authentic without mix-blend-mode performance cost */
-.scanlines {
+/* Optimized scrolling cathode refresh scanline
+   Runs entirely on the GPU compositor via transform translate, keeping CPU load at 0% */
+.scanline {
   position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
+  top: 0;
+  left: 5%;
+  width: 90%;
+  height: 6vh;
+  /* Retro phosphor green sweep: a narrow sharp beam peak with a soft trailing decay */
+  background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.35) 0px,
-    rgba(0, 0, 0, 0.35) 1.2px,
-    transparent 1.2px,
-    transparent 2.4px
+    rgba(197, 255, 74, 0) 0%,
+    rgba(197, 255, 74, 0.01) 20%,
+    rgba(197, 255, 74, 0.06) 50%,
+    rgba(197, 255, 74, 0.14) 60%,
+    /* subtle exciting beam peak */ rgba(197, 255, 74, 0.04) 65%,
+    rgba(197, 255, 74, 0.01) 85%,
+    rgba(197, 255, 74, 0) 100%
   );
-  background-size: 100% 2.4px;
+  /* Horizontal masking to fade the scanline near screen bezels for a premium look */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000000 15%,
+    #000000 85%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000000 15%,
+    #000000 85%,
+    transparent 100%
+  );
   z-index: 3;
   pointer-events: none;
-  opacity: 0.95;
+  opacity: 0.35;
+  will-change: transform;
+  animation: scanlineSweep 10s linear infinite;
+}
+
+@keyframes scanlineSweep {
+  0% {
+    transform: translateY(-8vh);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* Disable sweep animation under prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .scanline {
+    animation: none;
+    display: none;
+  }
 }
 
 /* Convex glass surface reflection simulation */

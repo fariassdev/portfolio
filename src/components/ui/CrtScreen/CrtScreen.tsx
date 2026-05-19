@@ -24,7 +24,7 @@ export function CrtScreen({ opacity }: CrtScreenProps) {
   return (
     <motion.div className={styles.crtWrapper} style={{ opacity }}>
       <div className={styles.crtOverlay}>
-        <div className={styles.scanlines} />
+        <div className={styles.scanline} />
         <div className={styles.glare} />
         <div className={styles.vignette} />
       </div>
