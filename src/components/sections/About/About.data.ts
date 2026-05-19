@@ -1,7 +1,7 @@
 import type { ExperienceCommit } from './About.types';
 
 export const ABOUT_ME_BIO =
-  'Since I was very young, I have been passionate about technology. At age 9, I wanted to understand how consoles worked internally, and by age 12, I was teaching myself to program my first games in LUA. My professional career is characterized by solving complex problems, optimizing high-performance architectures, and designing scalable cloud infrastructures, always with a strong focus on technical quality, observability, and a pragmatic, product-oriented mindset.';
+  'Driven by a strong curiosity for system internals and computing, I taught myself to program early on. Today, my professional career is characterized by solving complex backend challenges, optimizing high-performance APIs, and designing scalable cloud infrastructures. I approach software development with a strict focus on technical quality, deep observability, and a pragmatic, product-oriented mindset.';
 
 export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
   {
@@ -109,13 +109,13 @@ export const EXPERIENCE_COMMITS: ExperienceCommit[] = [
     tag: 'v0.1.0-alpha',
     type: 'feat',
     message:
-      'feat(origins): reverse engineer game consoles and develop LUA game for PSP',
-    role: 'Self-taught Developer & Scene Enthusiast',
-    company: 'Sony PSP Scene Community',
+      'feat(origins): early self-taught programming and system fundamentals',
+    role: 'Self-Taught Systems Exploration',
+    company: 'Open Source & System Exploration',
     location: 'Cáceres, Spain',
     bulletPoints: [
-      'Discovered programming self-taught at age 12 with LUA, developing a fully playable homebrew game for the PSP.',
-      'Reverse-engineered consoles (PSP, Xbox, Wii) to understand system architecture and modify game files.',
+      'Began self-taught exploration of programming concepts, learning system scripting and software modification.',
+      'Acquired early knowledge of system architectures, compiler basics, and system internals by experimenting with hardware firmware.',
     ],
     technologies: [{ name: 'Git', iconClass: 'devicon-git-plain' }],
   },

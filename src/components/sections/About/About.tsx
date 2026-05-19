@@ -58,23 +58,38 @@ export function About() {
     [0, 0, 1, 1, 0],
   );
 
-  // Split-Screen Presentation Layer animations
-  const presentationOpacity = useTransform(
+  // Biography Showcase Layer animations (Stage 2)
+  const bioOpacity = useTransform(
     experienceProgress,
-    [TITLE_EXIT_START, TITLE_EXIT_END, 0.95, 0.99],
+    [0.18, 0.23, 0.33, 0.38],
     [0, 1, 1, 0],
   );
 
-  const presentationY = useTransform(
+  const bioY = useTransform(
     experienceProgress,
-    [TITLE_EXIT_START, TITLE_EXIT_END],
-    [40, 0],
+    [0.18, 0.23, 0.33, 0.38],
+    [40, 0, 0, -40],
   );
+
+  const bioScale = useTransform(
+    experienceProgress,
+    [0.18, 0.23, 0.33, 0.38],
+    [0.95, 1, 1, 1.02],
+  );
+
+  // Split-Screen Presentation Layer animations (Stage 3)
+  const presentationOpacity = useTransform(
+    experienceProgress,
+    [0.38, 0.44, 0.95, 0.99],
+    [0, 1, 1, 0],
+  );
+
+  const presentationY = useTransform(experienceProgress, [0.38, 0.44], [40, 0]);
 
   // Dynamic Neon Line growth animation
   const trunkHeight = useTransform(
     experienceProgress,
-    [0.2, 0.92],
+    [0.38, 0.92],
     ['0%', '100%'],
   );
 
@@ -87,14 +102,15 @@ export function About() {
     }
 
     // Determine active commit index based on current scroll progress
-    let nextIndex = 0;
-    if (progress >= 0.84) nextIndex = 4;
-    else if (progress >= 0.68) nextIndex = 3;
-    else if (progress >= 0.52) nextIndex = 2;
-    else if (progress >= 0.36) nextIndex = 1;
-    else nextIndex = 0;
+    let nextIndex = -1;
+    if (progress >= 0.86) nextIndex = 4;
+    else if (progress >= 0.74) nextIndex = 3;
+    else if (progress >= 0.62) nextIndex = 2;
+    else if (progress >= 0.5) nextIndex = 1;
+    else if (progress >= 0.38) nextIndex = 0;
+    else nextIndex = -1;
 
-    if (nextIndex !== activeCommitIndex) {
+    if (nextIndex !== -1 && nextIndex !== activeCommitIndex) {
       setActiveCommitIndex(nextIndex);
     }
   });
@@ -157,6 +173,106 @@ export function About() {
             {/* Scroll Hint */}
             <ScrollHint opacity={scrollHintOpacity} />
 
+            {/* Bio Showcase Layer (Stage 2) */}
+            <motion.div
+              className={styles.bioOverlay}
+              style={{ opacity: bioOpacity, y: bioY, scale: bioScale }}
+            >
+              <div className={styles.ideWindow}>
+                <div className={styles.ideHeader}>
+                  <div className={styles.ideControls}>
+                    <span
+                      className={`${styles.ideDot} ${styles.ideDotClose}`}
+                    />
+                    <span
+                      className={`${styles.ideDot} ${styles.ideDotMinimize}`}
+                    />
+                    <span
+                      className={`${styles.ideDot} ${styles.ideDotMaximize}`}
+                    />
+                  </div>
+                  <div className={styles.ideTab}>
+                    <span className={styles.ideTabIcon}>TS</span>
+                    <span className={styles.ideTabName}>profile.ts</span>
+                  </div>
+                  <div style={{ width: '48px', opacity: 0 }} />
+                </div>
+                <div className={styles.ideBody}>
+                  <div className={styles.ideLineNumbers}>
+                    {Array.from({ length: 16 }).map((_, i) => (
+                      <div key={i} className={styles.ideLineNumber}>
+                        {i + 1}
+                      </div>
+                    ))}
+                  </div>
+                  <pre className={styles.ideCode}>
+                    <code>
+                      <span className={styles.keyword}>import</span> {'{'}{' '}
+                      <span className={styles.type}>Developer</span> {'}'}{' '}
+                      <span className={styles.keyword}>from</span>{' '}
+                      <span className={styles.string}>{"'fariassdev'"}</span>;
+                      <br />
+                      <br />
+                      <span className={styles.comment}>
+                        {
+                          '// A self-taught backend engineer driven by system internals and scale'
+                        }
+                      </span>
+                      <br />
+                      <span className={styles.keyword}>export const</span>{' '}
+                      <span className={styles.variable}>farias</span>:{' '}
+                      <span className={styles.type}>Developer</span> = {'{'}
+                      <br />
+                      &nbsp;&nbsp;
+                      <span className={styles.property}>origins</span>:{' '}
+                      <span className={styles.string}>
+                        {"'Self-taught programming & systems scripting'"}
+                      </span>
+                      ,<br />
+                      &nbsp;&nbsp;<span className={styles.property}>focus</span>
+                      : [<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;
+                      <span className={styles.string}>
+                        {'Observability'}
+                      </span>, <br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;
+                      <span className={styles.string}>
+                        {'Pragmatic Scaling'}
+                      </span>
+                      , <br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;
+                      <span className={styles.string}>
+                        {'Cloud Architecture'}
+                      </span>
+                      <br />
+                      &nbsp;&nbsp;],
+                      <br />
+                      &nbsp;&nbsp;
+                      <span className={styles.property}>backstory</span>:{' '}
+                      <span className={styles.string}>
+                        `Driven by a strong curiosity for system internals and
+                        computing,
+                        <br />
+                        &nbsp;&nbsp;I taught myself to program early on. Today,
+                        my professional
+                        <br />
+                        &nbsp;&nbsp;career is characterized by solving complex
+                        backend challenges,
+                        <br />
+                        &nbsp;&nbsp;optimizing high-performance APIs, and
+                        designing scalable cloud
+                        <br />
+                        &nbsp;&nbsp;infrastructures, always with a strong
+                        product-driven mindset.`
+                      </span>
+                      <br />
+                      {'};'}
+                    </code>
+                  </pre>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Desktop Presentation Layer */}
             <motion.div
               className={styles.presentationLayer}
@@ -164,7 +280,6 @@ export function About() {
             >
               {/* Left Panel: Git Graph Timeline */}
               <div className={styles.gitGraphPanel}>
-                <div className={styles.profileBio}>{ABOUT_ME_BIO}</div>
                 <div className={styles.gitTreeWrapper}>
                   {/* Vertical Trunk Line */}
                   <div className={styles.gitLinesContainer}>
@@ -246,7 +361,7 @@ export function About() {
               <div className={styles.inspectorPanel}>
                 <div
                   className={`${styles.terminalWindow} ${
-                    experienceProgress.get() >= 0.2
+                    experienceProgress.get() >= 0.38
                       ? styles.terminalWindowActive
                       : ''
                   }`}

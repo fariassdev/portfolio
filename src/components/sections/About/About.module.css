@@ -142,29 +142,165 @@
   position: relative;
 }
 
-.profileBio {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-  opacity: 0.8;
-  max-width: 360px;
-  padding-left: 24px;
-  position: relative;
+.bioOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  pointer-events: none;
+  padding: 0 40px;
 }
 
-.profileBio::before {
-  content: '//';
-  position: absolute;
-  left: 0;
-  color: var(--color-accent);
+.ideWindow {
+  width: 100%;
+  max-width: 760px;
+  background: rgba(10, 10, 12, 0.7);
+  border: 1px solid rgba(0, 242, 254, 0.15);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(0, 242, 254, 0.05);
+  backdrop-filter: blur(20px);
+}
+
+.ideHeader {
+  height: 40px;
+  background: rgba(18, 18, 22, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.ideControls {
+  display: flex;
+  gap: 8px;
+}
+
+.ideDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ideDotClose {
+  background: #ff5f56;
+}
+
+.ideDotMinimize {
+  background: #ffbd2e;
+}
+
+.ideDotMaximize {
+  background: #27c93f;
+}
+
+.ideTab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 10, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: none;
+  padding: 0 12px;
+  height: 28px;
+  border-radius: 6px 6px 0 0;
+  margin-top: 12px;
   font-family: var(--font-mono), monospace;
-  opacity: 0.6;
+  font-size: 11px;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.ideTabIcon {
+  font-size: 8px;
   font-weight: bold;
+  background: #3178c6;
+  color: white;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.ideTabName {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.ideBody {
+  display: flex;
+  padding: 24px;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(11px, 1.6vw, 13px);
+  line-height: 1.65;
+  overflow-x: auto;
+}
+
+.ideLineNumbers {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  padding-right: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--color-text-muted);
+  opacity: 0.25;
+  user-select: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.ideLineNumber {
+  /* Aligns perfectly due to shared layout details */
+}
+
+.ideCode {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-text);
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Syntax Highlighting */
+.ideCode .keyword {
+  color: #ff79c6; /* pink */
+  font-weight: bold;
+}
+
+.ideCode .type {
+  color: #8be9fd; /* cyan */
+}
+
+.ideCode .string {
+  color: #50fa7b; /* green */
+}
+
+.ideCode .comment {
+  color: #6272a4; /* comment gray */
+  font-style: italic;
+}
+
+.ideCode .variable {
+  color: #f8f8f2;
+}
+
+.ideCode .property {
+  color: #ffb86c; /* orange */
 }
 
 .gitTreeWrapper {
   position: relative;
-  height: 60%;
+  height: 80%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -761,7 +897,8 @@
     overflow: visible;
   }
 
-  .presentationLayer {
+  .presentationLayer,
+  .bioOverlay {
     display: none;
   }
 
