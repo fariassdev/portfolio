@@ -17,6 +17,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://fernandoas.com'),
   title: {
     template: '%s | Senior Software Developer | Fernando Arias Santos',
     default: 'Fernando Arias Santos | Senior Software Developer',
@@ -32,6 +33,9 @@ export const metadata: Metadata = {
     'Software Engineer',
     'Fernando Arias Santos',
   ],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     url: 'https://fernandoas.com',
@@ -64,7 +68,10 @@ export default function RootLayout({
     jobTitle: 'Senior Software Developer',
     description:
       'Senior Software Developer focused on Backend Architecture and User Experience.',
-    sameAs: ['https://github.com/fariassdev'],
+    sameAs: [
+      'https://github.com/fariassdev',
+      'https://www.linkedin.com/in/fernando-arias-santos-5a49a010b',
+    ],
     knowsAbout: [
       'Backend Development',
       'System Architecture',
