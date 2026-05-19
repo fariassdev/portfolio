@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useTransform } from 'framer-motion';
+import { motion, useSpring, useTransform } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { Suspense, useMemo } from 'react';
 import {
@@ -39,6 +39,12 @@ export function ViewportOverlay() {
     [BASE_CRT_INTENSITY, BASE_CRT_INTENSITY, MIN_CRT_INTENSITY],
   );
 
+  const crtOpacitySmoothed = useSpring(crtOpacity, {
+    stiffness: 120,
+    damping: 20,
+    mass: 0.4,
+  });
+
   // Scale zooms up so fine effects (scanlines, pixels, vignette) dissolve naturally, finishing at HERO_FADE_END progress
   const crtScale = useTransform(
     heroProgress,
@@ -67,7 +73,7 @@ export function ViewportOverlay() {
   return (
     <div className={styles.viewportOverlay}>
       {/* CRT screen overlay — sits on top of 3D laptop but behind HTML text content */}
-      <CrtScreen opacity={crtOpacity} scale={crtScale} />
+      <CrtScreen opacity={crtOpacitySmoothed} scale={crtScale} />
 
       {/* 3D Laptop Scene */}
       <motion.div
