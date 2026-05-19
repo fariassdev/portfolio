@@ -20,12 +20,12 @@ interface ScrollTimelineContextType {
   // Element references managed by the coordinator
   heroRef: RefObject<HTMLElement | null>;
   projectsRef: RefObject<HTMLDivElement | null>;
-  experienceRef: RefObject<HTMLDivElement | null>;
+  aboutRef: RefObject<HTMLDivElement | null>;
 
   // Pre-smoothed, phase-snapped motion values
   heroProgress: MotionValue<number>;
   projectsProgress: MotionValue<number>;
-  experienceProgress: MotionValue<number>;
+  aboutProgress: MotionValue<number>;
 }
 
 const ScrollTimelineContext = createContext<ScrollTimelineContextType | null>(
@@ -42,7 +42,7 @@ export function ScrollTimelineProvider({
   // 1. Instantiating DOM element references
   const heroRef = useRef<HTMLElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
-  const experienceRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
 
   // 2. Track Hero Scroll independently
   const { scrollYProgress: heroRawScroll } = useScroll({
@@ -78,20 +78,20 @@ export function ScrollTimelineProvider({
     clamp(value, 0, 1),
   );
 
-  // 4. Track Experience Scroll independently
-  const { scrollYProgress: experienceRawScroll } = useScroll({
-    target: experienceRef,
+  // 4. Track About Scroll independently
+  const { scrollYProgress: aboutRawScroll } = useScroll({
+    target: aboutRef,
     offset: ['start start', 'end end'],
   });
 
-  // Smooth spring configuration for experience timeline (identical scroll dynamics to projects)
-  const experienceProgressSpring = useSpring(experienceRawScroll, {
+  // Smooth spring configuration for About timeline (identical scroll dynamics to projects)
+  const aboutProgressSpring = useSpring(aboutRawScroll, {
     stiffness: 120,
     damping: 30,
     mass: 0.8,
     restDelta: 0.0001,
   });
-  const experienceProgress = useTransform(experienceProgressSpring, (value) =>
+  const aboutProgress = useTransform(aboutProgressSpring, (value) =>
     clamp(value, 0, 1),
   );
 
@@ -99,18 +99,18 @@ export function ScrollTimelineProvider({
     () => ({
       heroRef,
       projectsRef,
-      experienceRef,
+      aboutRef,
       heroProgress,
       projectsProgress,
-      experienceProgress,
+      aboutProgress,
     }),
     [
       heroRef,
       projectsRef,
-      experienceRef,
+      aboutRef,
       heroProgress,
       projectsProgress,
-      experienceProgress,
+      aboutProgress,
     ],
   );
 

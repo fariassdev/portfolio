@@ -18,20 +18,6 @@ export default function Home() {
         <Hero />
         <ProjectsShowcase />
         <About />
-
-        <section
-          id="stack"
-          style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-        >
-          <h2>Stack Section</h2>
-        </section>
-
-        <section
-          id="contact"
-          style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-        >
-          <h2>Contact Section</h2>
-        </section>
       </div>
     </ScrollTimelineProvider>
   );

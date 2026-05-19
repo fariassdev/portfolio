@@ -22,7 +22,7 @@ interface TerminalLine {
 }
 
 export function About() {
-  const { experienceRef, experienceProgress } = useScrollTimeline();
+  const { aboutRef, aboutProgress } = useScrollTimeline();
   const [shouldAnimateTitle, setShouldAnimateTitle] = useState(false);
 
   // Terminal states
@@ -59,51 +59,51 @@ export function About() {
 
   // Title transitions (Stage 1)
   const titleOpacity = useTransform(
-    experienceProgress,
+    aboutProgress,
     [0, TITLE_ENTRANCE_END * 0.7, TITLE_EXIT_START, TITLE_EXIT_END],
     [0, 1, 1, 0],
   );
 
   const titleY = useTransform(
-    experienceProgress,
+    aboutProgress,
     [0, TITLE_ENTRANCE_END, TITLE_EXIT_START, TITLE_EXIT_END],
     [80, 0, 0, -240],
   );
 
   const titleScale = useTransform(
-    experienceProgress,
+    aboutProgress,
     [0, TITLE_ENTRANCE_END, TITLE_EXIT_END],
     [0.55, 1.0, 1.05],
   );
 
   const scrollHintOpacity = useTransform(
-    experienceProgress,
+    aboutProgress,
     SCROLL_HINT_TIMING,
     [0, 0, 1, 1, 0],
   );
 
   // Layout Container Transition (Stage 2)
   const layoutOpacity = useTransform(
-    experienceProgress,
+    aboutProgress,
     LAYOUT_TIMING_OPACITY,
     [0, 1, 1, 0],
   );
 
   const layoutY = useTransform(
-    experienceProgress,
+    aboutProgress,
     LAYOUT_TIMING_OPACITY,
     [180, 0, 0, -80],
   );
 
   // Zoom-up OS window opening animation driven by scroll progression
   const layoutScale = useTransform(
-    experienceProgress,
+    aboutProgress,
     LAYOUT_TIMING_OPACITY,
     [0.6, 1, 1, 0.85],
   );
 
   // Handle title animation state on scroll
-  useMotionValueEvent(experienceProgress, 'change', (progress) => {
+  useMotionValueEvent(aboutProgress, 'change', (progress) => {
     if (progress > 0.01) {
       if (!shouldAnimateTitle) setShouldAnimateTitle(true);
     } else if (shouldAnimateTitle) {
@@ -373,9 +373,9 @@ export function About() {
   ];
 
   return (
-    <section id="experience" className={styles.section} aria-label="About Me">
+    <section id="about" className={styles.section} aria-label="About Me">
       <div
-        ref={experienceRef}
+        ref={aboutRef}
         className={styles.scrollSpacer}
         style={{ height: `${TOTAL_SPACER_HEIGHT}vh` }}
       >
