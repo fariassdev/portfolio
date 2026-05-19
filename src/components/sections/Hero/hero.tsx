@@ -25,6 +25,9 @@ export function RoleText() {
         <SweepText className={styles.staticRole} text={HERO_TITLE} />
         <span className={styles.staticRole}>{'& '}</span>
         <span className={styles.typewriterContainer}>
+          <span className={styles.initialCursor} aria-hidden="true">
+            &nbsp;
+          </span>
           {ROLES.map((role, index) => {
             return (
               <span
@@ -33,7 +36,7 @@ export function RoleText() {
                 style={
                   {
                     '--char-count': role.length,
-                    animationDelay: `${-index * 4}s`,
+                    animationDelay: `${2 + index * 4}s`,
                   } as React.CSSProperties
                 }
               >
