@@ -3,6 +3,7 @@
 import { motion, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useState } from 'react';
 import { DecryptText } from '@/components/ui/DecryptText/decrypt-text';
+import { ScrollHint } from '@/components/ui/ScrollHint';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
 import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import { ProjectSlide } from './ProjectSlide/ProjectSlide';
@@ -40,6 +41,19 @@ export function ProjectsShowcase() {
     projectsProgress,
     [0, TITLE_ENTRANCE_END, TITLE_EXIT_END],
     [0.55, 1.0, 1.05],
+  );
+
+  // Projects Scroll Hint Opacity: starts invisible, fades in as title settles, then fades out as we scroll to projects
+  const scrollHintOpacity = useTransform(
+    projectsProgress,
+    [
+      0,
+      TITLE_ENTRANCE_END * 0.4,
+      TITLE_ENTRANCE_END,
+      TITLE_EXIT_START * 0.5,
+      TITLE_EXIT_START,
+    ],
+    [0, 0, 1, 1, 0],
   );
 
   // Trigger title entrance animation when section reaches the projects phase, and reset when scrolling back up
@@ -83,6 +97,9 @@ export function ProjectsShowcase() {
               shouldAnimate={shouldAnimateTitle}
             />
           </motion.div>
+
+          {/* Scroll Hint */}
+          <ScrollHint opacity={scrollHintOpacity} />
 
           {/* Project Slides */}
           <div className={styles.slidesContainer}>

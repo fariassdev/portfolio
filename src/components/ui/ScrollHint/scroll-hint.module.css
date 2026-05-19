@@ -1,0 +1,62 @@
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes fadeUpHint {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 24px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.scrollHintContainer {
+  position: absolute;
+  bottom: 32px;
+  left: 0;
+  width: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  animation: fadeUpHint 1s ease 0.5s both;
+  pointer-events: none;
+}
+
+.arrow {
+  width: 20px;
+  height: 20px;
+  border-right: 2px solid var(--color-text-dim);
+  border-bottom: 2px solid var(--color-text-dim);
+  transform: rotate(45deg);
+  animation: floatY 1.5s ease-in-out infinite;
+}
+
+@media (max-width: 696px) {
+  .scrollHintContainer {
+    bottom: 20px;
+  }
+}
