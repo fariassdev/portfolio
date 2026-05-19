@@ -188,7 +188,10 @@ export function About() {
           text: '  clear      - Clear the console output history',
         },
         { type: 'output', text: '  sudo       - Try gaining superuser powers' },
-        { type: 'output', text: '  matrix     - Enter the Matrix simulation' },
+        {
+          type: 'output',
+          text: '  coffee     - Brew a fresh cup of coffee for the developer',
+        },
       );
     } else if (cmd === 'bio' || cmd === 'cat bio.md') {
       newLogs.push(
@@ -223,7 +226,7 @@ export function About() {
                              UPTIME: 4h 52m
                              SHELL: zsh 5.9
                              ROLE: Senior Software Developer
-                             STACK: Node.js, Go, TS, Postgres, AWS
+                             STACK: Node.js, TS, Postgres, AWS, Python
                              FOCUS: Backend Architecture / UX`,
       });
     } else if (cmd === 'github') {
@@ -261,12 +264,27 @@ export function About() {
           text: 'ERROR: Permission denied. Nice try! You do not have superuser privileges.',
         },
       );
-    } else if (cmd === 'matrix') {
+    } else if (cmd === 'coffee' || cmd === 'brew') {
       newLogs.push(
-        { type: 'success', text: 'Wake up, Neo...' },
-        { type: 'success', text: 'The Matrix has you...' },
-        { type: 'success', text: 'Follow the white rabbit.' },
-        { type: 'success', text: 'Knock, knock, Neo.' },
+        {
+          type: 'output',
+          text: '[INFO] Initializing espresso_maker_daemon...',
+        },
+        { type: 'output', text: '[INFO] Grinding premium Arabica beans...' },
+        { type: 'output', text: '[INFO] Heating water to 94.5°C...' },
+        {
+          type: 'output',
+          text: '[INFO] Extracting double shot espresso under 9 bars of pressure...',
+        },
+        { type: 'error', text: "HTTP/1.1 418 I'm a Teapot" },
+        {
+          type: 'error',
+          text: 'System Error: The coffee maker is actually a teapot.',
+        },
+        {
+          type: 'success',
+          text: '☕ Tip: Feed the developer code or cookies to recover.',
+        },
       );
     } else {
       newLogs.push({
@@ -469,14 +487,21 @@ export function About() {
                             pressure.
                           </p>
                           <p className={styles.paragraph}>
-                            Outside of work, I’m passionate about{' '}
+                            Outside of work, I enjoy practicing{' '}
                             <span className={styles.boldWord}>
-                              systems experimentation
+                              all kinds of sports
                             </span>
-                            , playing video games, and exploring computer
-                            history. I also have a deep appreciation for
-                            hardware hacking, network setups, and solving
-                            interesting system anomalies.
+                            , traveling, and hanging out with friends. I&apos;m
+                            also deeply fascinated by the{' '}
+                            <span className={styles.boldWord}>
+                              latest AI advancements
+                            </span>{' '}
+                            and constantly learning and experimenting within the
+                            expanding{' '}
+                            <span className={styles.accentWord}>
+                              AI ecosystem
+                            </span>
+                            .
                           </p>
                         </div>
                       </div>
