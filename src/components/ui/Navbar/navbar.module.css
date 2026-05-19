@@ -105,7 +105,7 @@
   font-size: clamp(0.72rem, 1.6vw, 0.85rem);
   font-weight: 600;
   color: var(--color-text-muted);
-  transition: color 0.2s ease;
+  transition: color 0.2s var(--ease-out-expo);
   position: relative;
   z-index: 1;
   letter-spacing: 0.05em;
@@ -220,8 +220,8 @@
     padding: 1rem;
     border-radius: 0;
     transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
+      color 0.2s var(--ease-out-expo),
+      background-color 0.2s var(--ease-out-expo);
     letter-spacing: 0.05em;
     border-left: 2px solid transparent;
   }
