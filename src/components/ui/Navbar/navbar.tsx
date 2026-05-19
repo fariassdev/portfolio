@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { navItems } from './navbar.constants';
 import styles from './navbar.module.css';
@@ -14,9 +15,36 @@ export function Navbar() {
     isMobileMenuOpen,
   ) as React.RefObject<HTMLDivElement | null>;
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className={styles.header} role="banner" aria-label="Site Header">
+    <header
+      className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}
+      role="banner"
+      aria-label="Site Header"
+    >
       <nav className={styles.navbar} aria-label="Main navigation">
+        {/* Terminal Logo Prompt */}
+        <a
+          href="#hero"
+          className={styles.logoPrompt}
+          onClick={(e) => handleClick(e, '#hero')}
+          aria-label="Back to top"
+        >
+          <span className={styles.promptUser}>fariassdev</span>
+          <span className={styles.promptLocation}>:~$</span>
+          <span className={styles.promptCursor} />
+        </a>
+
         {/* Desktop Navigation */}
         <ul className={styles.navList}>
           {navItems.map((item) => {
@@ -25,8 +53,8 @@ export function Navbar() {
               <li key={item.href} className={styles.navItem}>
                 {isActive && (
                   <motion.div
-                    layoutId="navbar-active-pill"
-                    className={styles.activePill}
+                    layoutId="navbar-active-underline"
+                    className={styles.activeUnderline}
                     transition={
                       shouldReduceMotion
                         ? { duration: 0 }
