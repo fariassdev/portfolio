@@ -24,6 +24,7 @@ interface TerminalLine {
 export function About() {
   const { aboutRef, aboutProgress } = useScrollTimeline();
   const [shouldAnimateTitle, setShouldAnimateTitle] = useState(false);
+  const [isFullyDeployed, setIsFullyDeployed] = useState(false);
 
   // Terminal states
   const [terminalHistory, setTerminalHistory] = useState<TerminalLine[]>([]);
@@ -86,28 +87,30 @@ export function About() {
   const layoutOpacity = useTransform(
     aboutProgress,
     LAYOUT_TIMING_OPACITY,
-    [0, 1, 1, 0],
+    [0, 1],
   );
 
-  const layoutY = useTransform(
-    aboutProgress,
-    LAYOUT_TIMING_OPACITY,
-    [180, 0, 0, -80],
-  );
+  const layoutY = useTransform(aboutProgress, LAYOUT_TIMING_OPACITY, [180, 0]);
 
   // Zoom-up OS window opening animation driven by scroll progression
   const layoutScale = useTransform(
     aboutProgress,
     LAYOUT_TIMING_OPACITY,
-    [0.6, 1, 1, 0.85],
+    [0.6, 1],
   );
 
-  // Handle title animation state on scroll
+  // Handle title animation state and deployed scroll status
   useMotionValueEvent(aboutProgress, 'change', (progress) => {
     if (progress > 0.01) {
       if (!shouldAnimateTitle) setShouldAnimateTitle(true);
     } else if (shouldAnimateTitle) {
       setShouldAnimateTitle(false);
+    }
+
+    // Fully deployed when progress is at or past the end of LAYOUT_TIMING_OPACITY's entrance phase (0.70)
+    const deployed = progress >= LAYOUT_TIMING_OPACITY[1]!;
+    if (deployed !== isFullyDeployed) {
+      setIsFullyDeployed(deployed);
     }
   });
 
@@ -437,7 +440,14 @@ export function About() {
                   </div>
 
                   {/* Terminal Body */}
-                  <div className={styles.terminalBody} ref={terminalBodyRef}>
+                  <div
+                    className={styles.terminalBody}
+                    ref={terminalBodyRef}
+                    style={{
+                      overflowY: isFullyDeployed ? 'auto' : 'hidden',
+                      pointerEvents: isFullyDeployed ? 'auto' : 'none',
+                    }}
+                  >
                     <div className={styles.terminalContentWrapper}>
                       {/* Startup line */}
                       <div className={styles.terminalLine}>
