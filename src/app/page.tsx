@@ -1,5 +1,6 @@
 'use client';
 
+import { About } from '@/components/sections/About';
 import { Hero } from '@/components/sections/Hero';
 import { ProjectsShowcase } from '@/components/sections/ProjectsShowcase';
 import { ViewportOverlay } from '@/components/ui/ViewportOverlay';
@@ -16,32 +17,7 @@ export default function Home() {
         {/* Fully decoupled semantic layout sections */}
         <Hero />
         <ProjectsShowcase />
-
-        <section
-          id="stack"
-          style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-        >
-          <h2>Stack Section</h2>
-        </section>
-
-        <section
-          id="experience"
-          style={{
-            minHeight: '100vh',
-            width: '100%',
-            padding: '100px 20px',
-            background: 'rgba(255,255,255,0.05)',
-          }}
-        >
-          <h2>Experience Section</h2>
-        </section>
-
-        <section
-          id="contact"
-          style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-        >
-          <h2>Contact Section</h2>
-        </section>
+        <About />
       </div>
     </ScrollTimelineProvider>
   );

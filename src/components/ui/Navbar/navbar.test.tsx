@@ -39,8 +39,6 @@ describe('Navbar Component', () => {
     const hrefs = links.map((link) => link.getAttribute('href'));
     expect(hrefs).toContain('#home');
     expect(hrefs).toContain('#projects');
-    expect(hrefs).toContain('#stack');
-    expect(hrefs).toContain('#experience');
-    expect(hrefs).toContain('#contact');
+    expect(hrefs).toContain('#about');
   });
 });
