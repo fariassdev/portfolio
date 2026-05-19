@@ -12,7 +12,7 @@ import { ScrollHint } from '@/components/ui/ScrollHint';
 import { SweepText } from '@/components/ui/SweepText/sweep-text';
 import { useScrollTimeline } from '@/context/ScrollTimelineContext';
 import { SCROLL_PAGES, COMMIT_PHASES } from './About.constants';
-import { EXPERIENCE_COMMITS, ABOUT_ME_BIO } from './About.data';
+import { EXPERIENCE_COMMITS } from './About.data';
 import styles from './About.module.css';
 
 export function About() {
@@ -278,287 +278,207 @@ export function About() {
               className={styles.presentationLayer}
               style={{ opacity: presentationOpacity, y: presentationY }}
             >
-              {/* Left Panel: Git Graph Timeline */}
-              <div className={styles.gitGraphPanel}>
-                <div className={styles.gitTreeWrapper}>
-                  {/* Vertical Trunk Line */}
-                  <div className={styles.gitLinesContainer}>
-                    <div className={styles.gitLineTrunkMuted} />
-                    <motion.div
-                      className={styles.gitLineTrunkActive}
-                      style={{ height: trunkHeight }}
+              <div
+                className={`${styles.unifiedTerminalWindow} ${
+                  experienceProgress.get() >= 0.38
+                    ? styles.unifiedTerminalWindowActive
+                    : ''
+                }`}
+              >
+                {/* Traffic Light Header */}
+                <div className={styles.terminalHeader}>
+                  <div className={styles.terminalControls}>
+                    <div
+                      className={`${styles.terminalDot} ${styles.terminalDotClose}`}
+                    />
+                    <div
+                      className={`${styles.terminalDot} ${styles.terminalDotMinimize}`}
+                    />
+                    <div
+                      className={`${styles.terminalDot} ${styles.terminalDotMaximize}`}
                     />
                   </div>
-
-                  {/* Git Commit Rows */}
-                  {EXPERIENCE_COMMITS.map((commit, index) => {
-                    const phase = COMMIT_PHASES[index]!;
-                    // Dot is lit if scroll has passed the milestone threshold
-                    const isLit = experienceProgress.get() >= phase.min;
-                    const isFocused = activeCommitIndex === index;
-
-                    return (
-                      <div
-                        key={commit.hash}
-                        className={`${styles.gitGraphRow} ${isFocused ? styles.gitGraphRowActive : ''}`}
-                        onClick={() => handleNodeClick(index)}
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`View experience at ${commit.company}`}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            handleNodeClick(index);
-                          }
-                        }}
-                      >
-                        {/* Node Dot Column */}
-                        <div className={styles.gitGraphRowNodeCol}>
-                          {isFocused && (
-                            <motion.div
-                              layoutId="about-node-pulse"
-                              className={styles.gitNodePulse}
-                              transition={{
-                                type: 'spring',
-                                stiffness: 300,
-                                damping: 25,
-                              }}
-                            />
-                          )}
-                          <div
-                            className={`${styles.gitGraphNodeDot} ${isLit ? styles.gitGraphNodeDotActive : ''}`}
-                          />
-                        </div>
-
-                        {/* Hash Column */}
-                        <div className={styles.gitGraphRowHash}>
-                          {commit.hash}
-                        </div>
-
-                        {/* Message & Tag Column */}
-                        <div className={styles.gitGraphRowMsgCol}>
-                          <span
-                            className={`${styles.gitGraphRowMsg} ${isFocused ? styles.gitGraphRowMsgActive : ''}`}
-                          >
-                            {commit.message}
-                          </span>
-                          {commit.tag && (
-                            <span className={styles.gitGraphRowTag}>
-                              {commit.tag}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Date Column */}
-                        <div className={styles.gitGraphRowDate}>
-                          {commit.date}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className={styles.terminalTitle}>
+                    git-tui -- experience -- branch/main
+                  </div>
+                  <div className={styles.terminalShellName}>zsh</div>
                 </div>
-              </div>
 
-              {/* Right Panel: Terminal Commit Diff Inspector */}
-              <div className={styles.inspectorPanel}>
-                <div
-                  className={`${styles.terminalWindow} ${
-                    experienceProgress.get() >= 0.38
-                      ? styles.terminalWindowActive
-                      : ''
-                  }`}
-                >
-                  <div className={styles.terminalHeader}>
-                    <div className={styles.terminalControls}>
-                      <div
-                        className={`${styles.terminalDot} ${styles.terminalDotClose}`}
-                      />
-                      <div
-                        className={`${styles.terminalDot} ${styles.terminalDotMinimize}`}
-                      />
-                      <div
-                        className={`${styles.terminalDot} ${styles.terminalDotMaximize}`}
-                      />
+                {/* Split Pane Terminal Body */}
+                <div className={styles.terminalBody}>
+                  {/* Left Pane: Git Graph History List */}
+                  <div className={styles.unifiedGitPane}>
+                    <div className={styles.gitTreeWrapper}>
+                      {/* Vertical Trunk Line */}
+                      <div className={styles.gitLinesContainer}>
+                        <div className={styles.gitLineTrunkMuted} />
+                        <motion.div
+                          className={styles.gitLineTrunkActive}
+                          style={{ height: trunkHeight }}
+                        />
+                      </div>
+
+                      {/* Git Commit Rows */}
+                      {EXPERIENCE_COMMITS.map((commit, index) => {
+                        const phase = COMMIT_PHASES[index]!;
+                        // Dot is lit if scroll has passed the milestone threshold
+                        const isLit = experienceProgress.get() >= phase.min;
+                        const isFocused = activeCommitIndex === index;
+
+                        return (
+                          <div
+                            key={commit.hash}
+                            className={`${styles.gitGraphRow} ${isFocused ? styles.gitGraphRowActive : ''}`}
+                            onClick={() => handleNodeClick(index)}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`View experience at ${commit.company}`}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                handleNodeClick(index);
+                              }
+                            }}
+                          >
+                            {/* Node Dot Column */}
+                            <div className={styles.gitGraphRowNodeCol}>
+                              {isFocused && (
+                                <motion.div
+                                  layoutId="about-node-pulse"
+                                  className={styles.gitNodePulse}
+                                  transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    damping: 25,
+                                  }}
+                                />
+                              )}
+                              <div
+                                className={`${styles.gitGraphNodeDot} ${isLit ? styles.gitGraphNodeDotActive : ''}`}
+                              />
+                            </div>
+
+                            {/* Hash Column */}
+                            <div className={styles.gitGraphRowHash}>
+                              {commit.hash}
+                            </div>
+
+                            {/* Message & Tag Column */}
+                            <div className={styles.gitGraphRowMsgCol}>
+                              <span
+                                className={`${styles.gitGraphRowMsg} ${isFocused ? styles.gitGraphRowMsgActive : ''}`}
+                              >
+                                {commit.message}
+                              </span>
+                              {commit.tag && (
+                                <span className={styles.gitGraphRowTag}>
+                                  {commit.tag}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Date Column */}
+                            <div className={styles.gitGraphRowDate}>
+                              {commit.date}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className={styles.terminalTitle}>
-                      git-commit-inspector -- {activeCommit.hash}
-                    </div>
-                    <div className={styles.terminalShellName}>zsh</div>
                   </div>
 
-                  <div className={styles.terminalContent}>
-                    {/* Active Commit Diff */}
-                    <div className={styles.cliCommand}>
-                      <span className={styles.cliPromptUser}>fariassdev</span>
-                      <span className={styles.cliPromptSign}>:~$</span>
-                      <span className={styles.cliText}>
-                        git show {activeCommit.hash}
-                      </span>
-                    </div>
+                  {/* Right Pane: TUI Inspector Panel (Commit diff details) */}
+                  <div className={styles.unifiedInspectorPane}>
+                    <div className={styles.terminalContent}>
+                      {/* Active Commit Diff Command */}
+                      <div className={styles.cliCommand}>
+                        <span className={styles.cliPromptUser}>fariassdev</span>
+                        <span className={styles.cliPromptSign}>:~$</span>
+                        <span className={styles.cliText}>
+                          git show {activeCommit.hash}
+                        </span>
+                      </div>
 
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={activeCommit.hash}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.25, ease: 'easeOut' }}
-                      >
-                        <div className={styles.terminalMetaRow}>
-                          <span className={styles.terminalMetaItem}>
-                            <span style={{ color: '#ffbd2e' }}>commit</span>{' '}
-                            {activeCommit.hash}
-                          </span>
-                          {activeCommit.tag && (
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={activeCommit.hash}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.25, ease: 'easeOut' }}
+                        >
+                          <div className={styles.terminalMetaRow}>
                             <span className={styles.terminalMetaItem}>
-                              <span style={{ color: 'var(--color-accent)' }}>
-                                tag:
-                              </span>{' '}
-                              {activeCommit.tag}
+                              <span style={{ color: '#ffbd2e' }}>commit</span>{' '}
+                              {activeCommit.hash}
                             </span>
-                          )}
-                          <span className={styles.terminalMetaItem}>
-                            {activeCommit.date}
-                          </span>
-                        </div>
-
-                        <h3 className={styles.terminalRoleTitle}>
-                          {activeCommit.role}
-                        </h3>
-                        <div className={styles.terminalCompanyRow}>
-                          @ {activeCommit.company}
-                          <span className={styles.terminalLocationLabel}>
-                            {activeCommit.location}
-                          </span>
-                        </div>
-
-                        <div className={styles.achievementsBlock}>
-                          <div className={styles.achievementsTitle}>
-                            diff --git a/achievements b/achievements
+                            {activeCommit.tag && (
+                              <span className={styles.terminalMetaItem}>
+                                <span style={{ color: 'var(--color-accent)' }}>
+                                  tag:
+                                </span>{' '}
+                                {activeCommit.tag}
+                              </span>
+                            )}
+                            <span className={styles.terminalMetaItem}>
+                              {activeCommit.date}
+                            </span>
                           </div>
-                          <ul className={styles.achievementsList}>
-                            {activeCommit.bulletPoints.map((bullet, i) => (
-                              <li key={i} className={styles.achievementLine}>
-                                <span className={styles.achievementPlus}>
-                                  +
-                                </span>
-                                <span className={styles.achievementText}>
-                                  {bullet}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
 
-                        {/* Technologies Tags */}
-                        {activeCommit.technologies &&
-                          activeCommit.technologies.length > 0 && (
-                            <div className={styles.techStackBlock}>
-                              {activeCommit.technologies.map((tech) => (
-                                <span
-                                  key={tech.name}
-                                  className={styles.techTag}
-                                >
-                                  {tech.iconClass && (
-                                    <i
-                                      className={`${tech.iconClass} colored`}
-                                      aria-hidden="true"
-                                    />
-                                  )}
-                                  <span>{tech.name}</span>
-                                </span>
-                              ))}
+                          <h3 className={styles.terminalRoleTitle}>
+                            {activeCommit.role}
+                          </h3>
+                          <div className={styles.terminalCompanyRow}>
+                            @ {activeCommit.company}
+                            <span className={styles.terminalLocationLabel}>
+                              {activeCommit.location}
+                            </span>
+                          </div>
+
+                          <div className={styles.achievementsBlock}>
+                            <div className={styles.achievementsTitle}>
+                              diff --git a/achievements b/achievements
                             </div>
-                          )}
-                      </motion.div>
-                    </AnimatePresence>
+                            <ul className={styles.achievementsList}>
+                              {activeCommit.bulletPoints.map((bullet, i) => (
+                                <li key={i} className={styles.achievementLine}>
+                                  <span className={styles.achievementPlus}>
+                                    +
+                                  </span>
+                                  <span className={styles.achievementText}>
+                                    {bullet}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Technologies Tags */}
+                          {activeCommit.technologies &&
+                            activeCommit.technologies.length > 0 && (
+                              <div className={styles.techStackBlock}>
+                                {activeCommit.technologies.map((tech) => (
+                                  <span
+                                    key={tech.name}
+                                    className={styles.techTag}
+                                  >
+                                    {tech.iconClass && (
+                                      <i
+                                        className={`${tech.iconClass} colored`}
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                    <span>{tech.name}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               </div>
             </motion.div>
-
-            {/* Mobile / Fallback Layout (Stacked) */}
-            <div className={styles.mobileLayout}>
-              {/* Profile Copy */}
-              <div className={styles.mobileBioCard}>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    color: 'var(--color-accent)',
-                    marginBottom: '8px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                  }}
-                >
-                  {'// Professional Profile'}
-                </div>
-                {ABOUT_ME_BIO}
-              </div>
-
-              {/* Mobile Timeline */}
-              <div className={styles.mobileTimeline}>
-                <div className={styles.mobileTimelineLine} />
-
-                {EXPERIENCE_COMMITS.map((commit) => (
-                  <div key={commit.hash} className={styles.mobileCommitCard}>
-                    <div className={styles.mobileCommitDot} />
-
-                    <div className={styles.mobileCommitHeader}>
-                      <div className={styles.mobileHashTagRow}>
-                        <span className={styles.mobileHash}>
-                          commit {commit.hash}
-                        </span>
-                        {commit.tag && (
-                          <span className={styles.mobileTag}>{commit.tag}</span>
-                        )}
-                      </div>
-                      <h3 className={styles.mobileRole}>{commit.role}</h3>
-                      <div className={styles.mobileMetaInfo}>
-                        <strong>{commit.company}</strong> | {commit.location} (
-                        {commit.date})
-                      </div>
-                      <div
-                        style={{
-                          fontFamily: 'var(--font-mono)',
-                          fontSize: '11px',
-                          color: '#ffbd2e',
-                          marginTop: '6px',
-                        }}
-                      >
-                        {commit.message}
-                      </div>
-                    </div>
-
-                    <ul className={styles.mobileBulletList}>
-                      {commit.bulletPoints.map((bullet, i) => (
-                        <li key={i} className={styles.mobileBulletPoint}>
-                          {bullet}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {commit.technologies && commit.technologies.length > 0 && (
-                      <div className={styles.mobileTechStack}>
-                        {commit.technologies.map((tech) => (
-                          <span
-                            key={tech.name}
-                            className={styles.mobileTechTag}
-                          >
-                            {tech.iconClass && (
-                              <i
-                                className={`${tech.iconClass} colored`}
-                                aria-hidden="true"
-                              />
-                            )}
-                            <span>{tech.name}</span>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>
