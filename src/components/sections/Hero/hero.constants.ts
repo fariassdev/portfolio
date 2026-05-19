@@ -3,13 +3,13 @@ export const HERO_NAME = 'Fernando Arias Santos';
 export const HERO_TITLE = 'Senior Backend Engineer';
 
 export const HERO_DESCRIPTION =
-  'Building distributed systems that scale to hundreds of thousands of users. TypeScript · Node.js · GraphQL · React · Kubernetes. 6+ years shipping production systems.';
+  'Software engineer with 8+ years of experience building distributed systems and scalable APIs. Focused on performance, reliability, and robust architectures using TypeScript, Node.js, and AWS.';
 
 export const ROLES = [
-  'System Architect',
   'Web Developer',
+  'System Architect',
   'Problem Solver',
-  'Team Player',
+  'AI Enthusiast',
 ];
 
 // Scroll-based exit animation settings for the Hero section
