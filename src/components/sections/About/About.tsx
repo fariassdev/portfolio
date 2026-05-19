@@ -287,68 +287,51 @@ export function About() {
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
                       >
-                        <div className={styles.commitMetaBlock}>
-                          <div className={styles.commitLineMeta}>
-                            <span className={styles.metaLabel}>commit</span>
-                            <span className={styles.metaValueHash}>
-                              {activeCommit.hash}
-                              {activeCommit.tag && (
-                                <span className={styles.metaValueTag}>
-                                  {' '}
-                                  (tag: {activeCommit.tag})
+                        <div className={styles.terminalMetaRow}>
+                          <span className={styles.terminalMetaItem}>
+                            <span style={{ color: '#ffbd2e' }}>commit</span>{' '}
+                            {activeCommit.hash}
+                          </span>
+                          {activeCommit.tag && (
+                            <span className={styles.terminalMetaItem}>
+                              <span style={{ color: 'var(--color-accent)' }}>
+                                tag:
+                              </span>{' '}
+                              {activeCommit.tag}
+                            </span>
+                          )}
+                          <span className={styles.terminalMetaItem}>
+                            {activeCommit.date}
+                          </span>
+                        </div>
+
+                        <h3 className={styles.terminalRoleTitle}>
+                          {activeCommit.role}
+                        </h3>
+                        <div className={styles.terminalCompanyRow}>
+                          @ {activeCommit.company}
+                          <span className={styles.terminalLocationLabel}>
+                            {activeCommit.location}
+                          </span>
+                        </div>
+
+                        <div className={styles.achievementsBlock}>
+                          <div className={styles.achievementsTitle}>
+                            diff --git a/achievements b/achievements
+                          </div>
+                          <ul className={styles.achievementsList}>
+                            {activeCommit.bulletPoints.map((bullet, i) => (
+                              <li key={i} className={styles.achievementLine}>
+                                <span className={styles.achievementPlus}>
+                                  +
                                 </span>
-                              )}
-                            </span>
-                          </div>
-                          <div className={styles.commitLineMeta}>
-                            <span className={styles.metaLabel}>Author:</span>
-                            <span className={styles.metaValue}>
-                              {activeCommit.author}
-                            </span>
-                          </div>
-                          <div className={styles.commitLineMeta}>
-                            <span className={styles.metaLabel}>Date:</span>
-                            <span className={styles.metaValue}>
-                              {activeCommit.date}
-                            </span>
-                          </div>
-                          <div
-                            className={styles.commitLineMeta}
-                            style={{ marginTop: '12px' }}
-                          >
-                            <span className={styles.metaLabel}>Msg:</span>
-                            <span
-                              className={styles.metaValue}
-                              style={{ color: '#ffbd2e', fontWeight: 600 }}
-                            >
-                              {activeCommit.message}
-                            </span>
-                          </div>
+                                <span className={styles.achievementText}>
+                                  {bullet}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-
-                        <div
-                          className={styles.diffHeader}
-                          style={{ marginBottom: '12px' }}
-                        >
-                          diff --git a/career/experience b/career/experience
-                        </div>
-
-                        <div className={styles.diffLineAdd}>
-                          + [Role] {activeCommit.role}
-                        </div>
-                        <div className={styles.diffLineAdd}>
-                          + [Company] {activeCommit.company}
-                        </div>
-                        <div className={styles.diffLineAdd}>
-                          + [Location] {activeCommit.location}
-                        </div>
-                        <div className={styles.diffLineNormal}> </div>
-
-                        {activeCommit.bulletPoints.map((bullet, i) => (
-                          <div key={i} className={styles.diffLineAdd}>
-                            + {bullet}
-                          </div>
-                        ))}
 
                         {/* Technologies Tags */}
                         {activeCommit.technologies &&

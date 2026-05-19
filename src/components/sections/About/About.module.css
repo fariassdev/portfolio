@@ -461,56 +461,100 @@
   color: var(--color-text);
 }
 
-/* Git commit fields styling */
-.commitMetaBlock {
-  margin-bottom: 20px;
-  color: #c9d1d9;
-}
-
-.commitLineMeta {
+.terminalMetaRow {
   display: flex;
-  margin-bottom: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.metaLabel {
-  color: #8b949e;
-  width: 80px;
+.terminalMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminalRoleTitle {
+  font-size: clamp(20px, 4vw, 24px);
+  font-weight: 900;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.terminalCompanyRow {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-accent);
+  margin-top: 4px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.terminalLocationLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono), monospace;
+  opacity: 0.7;
+  padding-left: 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.achievementsBlock {
+  margin-bottom: 24px;
+}
+
+.achievementsTitle {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: #58a6ff;
+  opacity: 0.8;
+  margin-bottom: 12px;
+}
+
+.achievementsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.achievementLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  background: rgba(46, 160, 67, 0.04);
+  border-radius: 6px;
+  padding: 8px 12px;
+  border: 1px solid rgba(46, 160, 67, 0.08);
+}
+
+.achievementPlus {
+  color: #3fb950;
+  font-weight: bold;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
   flex-shrink: 0;
 }
 
-.metaValue {
+.achievementText {
   color: var(--color-text);
-}
-
-.metaValueHash {
-  color: #ffbd2e;
-}
-
-.metaValueTag {
-  color: var(--color-accent);
-  font-weight: 500;
-}
-
-/* Git Diff presentation */
-.diffHeader {
-  color: #58a6ff;
-  margin-top: 16px;
-  margin-bottom: 12px;
-  opacity: 0.9;
-}
-
-.diffLineAdd {
-  color: #3fb950;
-  background: rgba(46, 160, 67, 0.06);
-  padding: 2px 6px;
-  margin: 2px -6px;
-  border-radius: 3px;
-  word-break: break-word;
-}
-
-.diffLineNormal {
-  color: var(--color-text-muted);
-  padding: 2px 0;
 }
 
 .techStackBlock {
