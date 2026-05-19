@@ -122,7 +122,7 @@ export const LaptopModel = memo(
     }, [isMobileOnly, isTablet, viewport.height]);
 
     // Media paths with fallback
-    const fallbackMediaPath = '/images/senda/course-details.png';
+    const fallbackMediaPath = '/videos/senda_demo.webm';
     const mediaPaths = useMemo<readonly string[]>(
       () => (previewSources.length > 0 ? previewSources : [fallbackMediaPath]),
       [previewSources],
