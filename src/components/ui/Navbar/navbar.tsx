@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { navItems } from './navbar.constants';
 import styles from './navbar.module.css';
@@ -14,8 +15,23 @@ export function Navbar() {
     isMobileMenuOpen,
   ) as React.RefObject<HTMLDivElement | null>;
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className={styles.header} role="banner" aria-label="Site Header">
+    <header
+      className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}
+      role="banner"
+      aria-label="Site Header"
+    >
       <nav className={styles.navbar} aria-label="Main navigation">
         {/* Terminal Logo Prompt */}
         <a

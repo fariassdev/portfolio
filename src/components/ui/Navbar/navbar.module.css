@@ -3,13 +3,23 @@
   top: 0;
   z-index: 100;
   height: var(--headerHeight);
+  background-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    -webkit-backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Translucent terminal panel fades in on scroll */
+.header.scrolled {
   background-color: color-mix(in srgb, var(--color-bg) 80%, transparent);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
-  transition:
-    border-color var(--durationM) ease,
-    background-color var(--durationM) ease;
 }
 
 .navbar {
@@ -23,12 +33,12 @@
   position: relative;
 }
 
-/* Terminal Logo Prompt styling */
+/* Terminal Logo Prompt styling with fluid clamp scaling */
 .logoPrompt {
   display: flex;
   align-items: center;
   font-family: var(--font-mono), monospace;
-  font-size: 0.95rem;
+  font-size: clamp(1rem, 1vw, 1.75rem);
   font-weight: 700;
   text-decoration: none;
   color: var(--color-text);
@@ -70,7 +80,7 @@
 .navList {
   display: flex;
   list-style: none;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
   background-color: transparent;
   backdrop-filter: none;
@@ -79,12 +89,10 @@
   box-shadow: none;
   margin: 0;
   padding: 0;
-  height: 100%;
 }
 
 .navItem {
   position: relative;
-  height: 100%;
   display: flex;
   align-items: center;
 }
@@ -92,10 +100,9 @@
 .navLink {
   display: flex;
   align-items: center;
-  height: 100%;
-  padding: 0 0.75rem;
+  padding: 0.35rem 0.6rem;
   font-family: var(--font-mono), monospace;
-  font-size: 0.85rem;
+  font-size: clamp(0.72rem, 1.6vw, 0.85rem);
   font-weight: 600;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
@@ -112,15 +119,16 @@
   color: var(--color-accent);
 }
 
+/* Redesigned to sit tightly under text bounds instead of header bottom */
 .activeUnderline {
   position: absolute;
-  bottom: 0;
-  left: 0.75rem;
-  right: 0.75rem;
+  bottom: -4px;
+  left: 0.6rem;
+  right: 0.6rem;
   height: 2px;
   background-color: var(--color-accent);
   z-index: 2;
-  box-shadow: 0 0 8px var(--color-accent);
+  box-shadow: 0 0 6px var(--color-accent);
 }
 
 .mobileNavToggle {
