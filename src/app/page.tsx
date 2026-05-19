@@ -18,13 +18,6 @@ export default function Home() {
         <ProjectsShowcase />
 
         <section
-          id="stack"
-          style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
-        >
-          <h2>Stack Section</h2>
-        </section>
-
-        <section
           id="experience"
           style={{
             minHeight: '100vh',
@@ -34,6 +27,13 @@ export default function Home() {
           }}
         >
           <h2>Experience Section</h2>
+        </section>
+
+        <section
+          id="stack"
+          style={{ minHeight: '100vh', width: '100%', padding: '100px 20px' }}
+        >
+          <h2>Stack Section</h2>
         </section>
 
         <section
