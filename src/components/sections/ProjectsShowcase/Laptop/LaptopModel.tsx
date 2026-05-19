@@ -75,31 +75,51 @@ export const LaptopModel = memo(
     const isMobile = size.width < MOBILE_BREAKPOINT;
 
     const laptopScale = useMemo(() => {
-      // Define viewport width bounds for smooth scaling
+      if (isMobile) {
+        // Center-aligned mobile/tablet layout scales more gently to prevent large overlap
+        const minWidth = 375;
+        const maxWidth = MOBILE_BREAKPOINT;
+
+        const minScaleFactor = 0.55;
+        const maxScaleFactor = 0.7;
+
+        const t = Math.max(
+          0,
+          Math.min(1, (size.width - minWidth) / (maxWidth - minWidth)),
+        );
+
+        const scaleFactor =
+          minScaleFactor + (maxScaleFactor - minScaleFactor) * t;
+
+        return LAPTOP_SCALE * scaleFactor;
+      }
+
+      // Desktop side-by-side layout uses original scaling bounds
       const minWidth = 375;
       const maxWidth = 1600;
 
-      // Define scale factors (multipliers of base LAPTOP_SCALE)
       const minScaleFactor = 0.6;
       const maxScaleFactor = 1.0;
 
-      // Calculate interpolation factor clamped between 0 and 1
       const t = Math.max(
         0,
         Math.min(1, (size.width - minWidth) / (maxWidth - minWidth)),
       );
 
-      // Perform linear interpolation (lerp) between min and max scale factors
       const scaleFactor =
         minScaleFactor + (maxScaleFactor - minScaleFactor) * t;
 
       return LAPTOP_SCALE * scaleFactor;
-    }, [size.width]);
+    }, [isMobile, size.width]);
+
+    const isMobileOnly = size.width < 696;
+    const isTablet = size.width >= 696 && size.width < MOBILE_BREAKPOINT;
 
     const laptopPosition = useMemo<[number, number, number]>(() => {
-      if (isMobile) return [0, viewport.height * 0.06, 0];
-      return [0, -80, 0];
-    }, [isMobile, viewport.height]);
+      if (isMobileOnly) return [0, viewport.height * 0.15, 0]; // Mobile: laptop is positioned higher to leave room for text below
+      if (isTablet) return [0, viewport.height * 0.05, 0]; // Tablet: laptop is positioned lower to balance the spacious layout
+      return [0, -80, 0]; // Desktop: side-by-side vertical offset
+    }, [isMobileOnly, isTablet, viewport.height]);
 
     // Media paths with fallback
     const fallbackMediaPath = '/images/senda/course-details.png';

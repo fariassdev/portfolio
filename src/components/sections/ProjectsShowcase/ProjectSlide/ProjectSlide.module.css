@@ -88,9 +88,9 @@
 @media (--mediaTablet) {
   .slide {
     width: 100%;
-    top: 50%;
-    height: 50vh;
-    padding: 24px var(--spaceOuter);
+    top: 48%; /* Lower starting position for tablet to clear the scaled 3D laptop */
+    height: 52vh;
+    padding: 1rem var(--spaceOuter);
     justify-content: flex-start;
     align-items: flex-start;
     text-align: left;
@@ -107,11 +107,14 @@
   }
 
   .slideContent {
-    margin-top: 40px;
+    margin-top: 2rem;
     display: flex;
     flex-direction: column;
     gap: 12px;
     width: 100%;
+    max-width: 640px; /* Limit line length for premium typographic layout */
+    margin-left: auto; /* Center content horizontally on tablet */
+    margin-right: auto;
   }
 
   .slideTitle {
@@ -134,6 +137,19 @@
   .techStack {
     margin-top: 8px;
     gap: 6px;
+  }
+}
+
+@media (--mediaMobile) {
+  .slide {
+    top: 35%; /* Restore your optimized mobile vertical position */
+    height: 65vh;
+  }
+
+  .slideContent {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
