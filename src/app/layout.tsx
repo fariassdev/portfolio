@@ -3,6 +3,7 @@ import { Space_Grotesk, Space_Mono } from 'next/font/google';
 import './globals.css';
 import 'devicon/devicon.min.css';
 import { Navbar } from '@/components/ui/Navbar';
+import { SmoothScroll } from '@/components/ui/SmoothScroll';
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-sans',
@@ -83,20 +84,22 @@ export default function RootLayout({
         />
       </head>
       <body className={`${spaceGrotesk.variable} ${spaceMono.variable}`}>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only skip-link"
-          aria-label="Skip to main content"
-        >
-          Skip to main content
-        </a>
-        <Navbar />
-        <main id="main-content" role="main" aria-label="Main Content">
-          {children}
-        </main>
-        <footer id="main-footer" role="contentinfo" aria-label="Site Footer">
-          {/* Footer content will be implemented in future stories */}
-        </footer>
+        <SmoothScroll>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only skip-link"
+            aria-label="Skip to main content"
+          >
+            Skip to main content
+          </a>
+          <Navbar />
+          <main id="main-content" role="main" aria-label="Main Content">
+            {children}
+          </main>
+          <footer id="main-footer" role="contentinfo" aria-label="Site Footer">
+            {/* Footer content will be implemented in future stories */}
+          </footer>
+        </SmoothScroll>
       </body>
     </html>
   );

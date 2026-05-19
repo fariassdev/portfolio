@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from 'framer-motion';
+import { useScroll, useTransform, type MotionValue } from 'framer-motion';
 import {
   createContext,
   useContext,
@@ -50,14 +45,8 @@ export function ScrollTimelineProvider({
     offset: ['start start', 'end end'],
   });
 
-  // Snappy but perfectly smoothed spring configuration for Hero zoom-through
-  const heroProgressSpring = useSpring(heroRawScroll, {
-    stiffness: 250,
-    damping: 35,
-    mass: 0.5,
-    restDelta: 0.0001,
-  });
-  const heroProgress = useTransform(heroProgressSpring, (value) =>
+  // Since Lenis already smooths scrolling, we don't need useSpring over useScroll anymore
+  const heroProgress = useTransform(heroRawScroll, (value) =>
     clamp(value, 0, 1),
   );
 
@@ -67,14 +56,8 @@ export function ScrollTimelineProvider({
     offset: ['start start', 'end end'],
   });
 
-  // Smooth spring configuration for projects slides (perfectly smooth, linear scrolling)
-  const projectsProgressSpring = useSpring(projectsRawScroll, {
-    stiffness: 120,
-    damping: 30,
-    mass: 0.8,
-    restDelta: 0.0001,
-  });
-  const projectsProgress = useTransform(projectsProgressSpring, (value) =>
+  // Since Lenis already smooths scrolling, we don't need useSpring over useScroll anymore
+  const projectsProgress = useTransform(projectsRawScroll, (value) =>
     clamp(value, 0, 1),
   );
 
@@ -84,14 +67,8 @@ export function ScrollTimelineProvider({
     offset: ['start start', 'end end'],
   });
 
-  // Smooth spring configuration for About timeline (identical scroll dynamics to projects)
-  const aboutProgressSpring = useSpring(aboutRawScroll, {
-    stiffness: 120,
-    damping: 30,
-    mass: 0.8,
-    restDelta: 0.0001,
-  });
-  const aboutProgress = useTransform(aboutProgressSpring, (value) =>
+  // Since Lenis already smooths scrolling, we don't need useSpring over useScroll anymore
+  const aboutProgress = useTransform(aboutRawScroll, (value) =>
     clamp(value, 0, 1),
   );
 
