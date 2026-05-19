@@ -1,20 +1,25 @@
-export const SCROLL_PAGES = 4.5; // Slightly increase scroll spacer for even smoother animations (450vh)
+/**
+ * Scroll journey and timing configuration for the About section.
+ */
 
-// Scroll progress thresholds mapped to each experience milestone
-export const STAGES = {
-  TITLE: { min: 0.0, max: 0.18 },
-  BIO: { min: 0.18, max: 0.38 },
-  Z1: { min: 0.38, max: 0.5, index: 0 },
-  UOC: { min: 0.5, max: 0.62, index: 1 },
-  HOMERIA: { min: 0.62, max: 0.74, index: 2 },
-  AYTO: { min: 0.74, max: 0.86, index: 3 },
-  ORIGINS: { min: 0.86, max: 0.98, index: 4 },
-};
+// Scroll spacer height representing 3.5 pages (350vh) of scroll journey
+export const SCROLL_PAGES = 3.5;
+export const TOTAL_SPACER_HEIGHT = SCROLL_PAGES * 100;
 
-export const COMMIT_PHASES = [
-  { min: 0.38, max: 0.5, hash: 'c4b8a192' },
-  { min: 0.5, max: 0.62, hash: 'e2b4d9a1' },
-  { min: 0.62, max: 0.74, hash: 'a8f9e038' },
-  { min: 0.74, max: 0.86, hash: 'd3c4e12a' },
-  { min: 0.86, max: 0.98, hash: '7b2a901e' },
+// Title transition thresholds (Stage 1)
+export const TITLE_ENTRANCE_END = 0.05;
+export const TITLE_EXIT_START = 0.12;
+export const TITLE_EXIT_END = 0.2;
+
+// Terminal section transitions
+export const LAYOUT_TIMING_OPACITY = [0.2, 0.25, 0.95, 0.99];
+export const LAYOUT_TIMING_Y = [0.2, 0.25];
+
+// Scroll hint transition timing
+export const SCROLL_HINT_TIMING = [
+  0,
+  TITLE_ENTRANCE_END * 0.4,
+  TITLE_ENTRANCE_END,
+  TITLE_EXIT_START * 0.5,
+  TITLE_EXIT_START,
 ];

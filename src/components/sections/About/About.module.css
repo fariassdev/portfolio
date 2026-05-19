@@ -1,8 +1,3 @@
-/* ============================================================
-   About / Experience — Styles
-   Design system: dark-first, neon-accent, Git CLI aesthetic
-   ============================================================ */
-
 .section {
   position: relative;
   width: 100%;
@@ -33,6 +28,7 @@
   padding: 0 40px;
   display: flex;
   flex-direction: column;
+  z-index: 2;
 }
 
 /* ---- Title Overlay ---- */
@@ -114,753 +110,82 @@
   opacity: 0.2;
 }
 
-/* ---- Presentation Layer (Split-Screen) ---- */
+/* ---- Editorial Layout (Sticky Split-Screen) ---- */
 
-.presentationLayer {
+.editorialLayout {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0 40px;
   z-index: 2;
 }
 
-.bioOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 4;
-  pointer-events: none;
-  padding: 0 40px;
-}
+/* ---- Centered Editorial Prose Column ---- */
 
-.ideWindow {
-  width: 100%;
-  max-width: 760px;
-  background: rgba(10, 10, 12, 0.7);
-  border: 1px solid rgba(0, 242, 254, 0.15);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(0, 242, 254, 0.05);
-  backdrop-filter: blur(20px);
-}
-
-.ideHeader {
-  height: 40px;
-  background: rgba(18, 18, 22, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-}
-
-.ideControls {
-  display: flex;
-  gap: 8px;
-}
-
-.ideDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.ideDotClose {
-  background: #ff5f56;
-}
-
-.ideDotMinimize {
-  background: #ffbd2e;
-}
-
-.ideDotMaximize {
-  background: #27c93f;
-}
-
-.ideTab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(10, 10, 12, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-bottom: none;
-  padding: 0 12px;
-  height: 28px;
-  border-radius: 6px 6px 0 0;
-  margin-top: 12px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  color: var(--color-text);
-  border-bottom: 2px solid var(--color-accent);
-}
-
-.ideTabIcon {
-  font-size: 8px;
-  font-weight: bold;
-  background: #3178c6;
-  color: white;
-  padding: 1px 3px;
-  border-radius: 2px;
-}
-
-.ideTabName {
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-
-.ideBody {
-  display: flex;
-  padding: 24px;
-  font-family: var(--font-mono), monospace;
-  font-size: clamp(11px, 1.6vw, 13px);
-  line-height: 1.65;
-  overflow-x: auto;
-}
-
-.ideLineNumbers {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-  padding-right: 20px;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--color-text-muted);
-  opacity: 0.25;
-  user-select: none;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.ideLineNumber {
-  /* Aligns perfectly due to shared layout details */
-}
-
-.ideCode {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--color-text);
-  tab-size: 2;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-/* Syntax Highlighting */
-.ideCode .keyword {
-  color: #ff79c6; /* pink */
-  font-weight: bold;
-}
-
-.ideCode .type {
-  color: #8be9fd; /* cyan */
-}
-
-.ideCode .string {
-  color: #50fa7b; /* green */
-}
-
-.ideCode .comment {
-  color: #6272a4; /* comment gray */
-  font-style: italic;
-}
-
-.ideCode .variable {
-  color: #f8f8f2;
-}
-
-.ideCode .property {
-  color: #ffb86c; /* orange */
-}
-
-.gitTreeWrapper {
+.proseContainer {
   position: relative;
   width: 100%;
+  max-width: 70ch;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  height: auto;
-  padding: 10px 0;
+  gap: 32px;
+  margin: 0 auto;
 }
 
-/* Vertical Git Branch Lines */
-.gitLinesContainer {
-  position: absolute;
-  left: 24px; /* Centers line perfectly with the row's node dots */
-  top: 26px; /* Aligns with the center of the first row's dot */
-  bottom: 26px; /* Aligns with the center of the last row's dot */
-  width: 2px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.gitLineTrunkMuted {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 1px;
-}
-
-.gitLineTrunkActive {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: var(--color-accent);
-  box-shadow: 0 0 10px var(--color-accent);
-  border-radius: 1px;
-  transform-origin: top;
-  transition: height 0.05s linear;
-  z-index: 2;
-}
-
-/* Interactive Git Graph Table Row */
-.gitGraphRow {
+.proseBlock {
   position: relative;
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: var(--font-mono), monospace;
-  font-size: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid transparent;
-  gap: 16px;
-  user-select: none;
-  z-index: 2;
-}
-
-.gitGraphRow:hover {
-  background: rgba(0, 242, 254, 0.03);
-  transform: translateX(3px);
-}
-
-.gitGraphRowActive {
-  background: rgba(0, 242, 254, 0.05);
-  border-color: rgba(0, 242, 254, 0.12);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-/* Node Dot Column */
-.gitGraphRowNodeCol {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.gitGraphNodeDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #252836;
-  border: 2px solid var(--color-bg);
-  z-index: 3;
-  transition: all 0.25s ease;
-}
-
-.gitGraphNodeDotActive {
-  background: var(--color-accent);
-  box-shadow: 0 0 10px var(--color-accent);
-  transform: scale(1.25);
-}
-
-.gitNodePulse {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid var(--color-accent);
-  opacity: 0.8;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* Hash Column */
-.gitGraphRowHash {
-  color: #ffbd2e; /* Muted gold hash */
-  font-weight: 500;
-  opacity: 0.7;
-  flex-shrink: 0;
-  width: 65px;
-  transition: opacity 0.2s ease;
-}
-
-.gitGraphRowActive .gitGraphRowHash {
-  opacity: 1;
-}
-
-/* Message & Tag Column */
-.gitGraphRowMsgCol {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.gitGraphRowMsg {
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.2s ease;
-}
-
-.gitGraphRowMsgActive {
+  width: 100%;
+  pointer-events: auto;
   color: var(--color-text);
-  font-weight: 600;
 }
 
-.gitGraphRowTag {
-  background: rgba(0, 242, 254, 0.08);
+.paragraph {
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(15px, 1.2vw + 11px, 19px);
+  line-height: 1.75;
+  color: var(--color-text);
+  opacity: 0.9;
+  position: relative;
+}
+
+.boldWord {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.accentWord {
+  font-weight: 700;
   color: var(--color-accent);
-  border: 1px solid rgba(0, 242, 254, 0.2);
-  font-size: 9px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  flex-shrink: 0;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
-/* Date Column */
-.gitGraphRowDate {
-  color: var(--color-text-muted);
-  opacity: 0.4;
-  font-size: 11px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  text-align: right;
-  width: 80px;
-  transition: opacity 0.2s ease;
-}
+/* ---- Premium CTA Paragraph ---- */
 
-.gitGraphRowActive .gitGraphRowDate {
-  opacity: 0.75;
-}
-
-/* ---- Unified TUI Terminal Window ---- */
-
-.unifiedTerminalWindow {
-  width: 100%;
-  max-width: 1200px;
-  height: 82%;
-  background: rgba(10, 10, 12, 0.75);
-  border: 1px solid rgba(0, 242, 254, 0.15);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(0, 242, 254, 0.04);
-  backdrop-filter: blur(20px);
-  transition:
-    border-color 0.4s ease,
-    box-shadow 0.4s ease;
-}
-
-.unifiedTerminalWindowActive {
-  border-color: rgba(0, 242, 254, 0.35);
-  box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.7),
-    0 0 50px rgba(0, 242, 254, 0.08);
-}
-
-.terminalBody {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.unifiedGitPane {
-  width: 100%;
-  height: 225px;
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  flex-direction: column;
-  padding: 12px 20px;
-  overflow: hidden; /* Prevent scrollbar completely */
-  background: rgba(8, 8, 10, 0.35);
-}
-
-.unifiedInspectorPane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.terminalHeader {
-  height: 40px;
-  background: rgba(18, 18, 22, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-}
-
-.terminalControls {
-  display: flex;
-  gap: 8px;
-}
-
-.terminalDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.terminalDotClose {
-  background: #ff5f56;
-}
-
-.terminalDotMinimize {
-  background: #ffbd2e;
-}
-
-.terminalDotMaximize {
-  background: #27c93f;
-}
-
-.terminalTitle {
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  letter-spacing: 0.05em;
-  opacity: 0.8;
-}
-
-.terminalShellName {
-  font-family: var(--font-mono), monospace;
-  font-size: 10px;
-  color: var(--color-accent);
-  opacity: 0.6;
-}
-
-.terminalContent {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  font-family: var(--font-mono), monospace;
-  font-size: 13px;
+.ctaParagraph {
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(18px, 1.5vw + 14px, 24px);
+  font-weight: 700;
   line-height: 1.5;
   color: var(--color-text);
-  scroll-behavior: smooth;
-}
-
-/* Custom Scrollbar for Terminal */
-.terminalContent::-webkit-scrollbar {
-  width: 6px;
-}
-
-.terminalContent::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.terminalContent::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-}
-
-.terminalContent::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* CLI command display */
-.cliCommand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text);
-  margin-bottom: 20px;
-  font-weight: 600;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
-  padding-bottom: 12px;
-}
-
-.cliPromptUser {
-  color: var(--color-accent);
-}
-
-.cliPromptSign {
-  color: var(--color-text-muted);
-  opacity: 0.6;
-}
-
-.cliText {
-  color: var(--color-text);
-}
-
-.terminalMetaRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  opacity: 0.6;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.terminalMetaItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.terminalRoleTitle {
-  font-size: clamp(20px, 4vw, 24px);
-  font-weight: 900;
-  color: var(--color-text);
-  margin: 0;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-}
-
-.terminalCompanyRow {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-accent);
-  margin-top: 4px;
-  margin-bottom: 24px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.terminalLocationLabel {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  font-family: var(--font-mono), monospace;
-  opacity: 0.7;
-  padding-left: 8px;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.achievementsBlock {
-  margin-bottom: 24px;
-}
-
-.achievementsTitle {
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  color: #58a6ff;
-  opacity: 0.8;
-  margin-bottom: 12px;
-}
-
-.achievementsList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.achievementLine {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-  background: rgba(46, 160, 67, 0.04);
-  border-radius: 6px;
-  padding: 8px 12px;
-  border: 1px solid rgba(46, 160, 67, 0.08);
-}
-
-.achievementPlus {
-  color: #3fb950;
-  font-weight: bold;
-  font-family: var(--font-mono), monospace;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.achievementText {
-  color: var(--color-text);
-}
-
-.techStackBlock {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.05);
-}
-
-.techTag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--color-text);
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
-}
-
-.techTag:hover {
-  background: rgba(0, 242, 254, 0.04);
-  border-color: rgba(0, 242, 254, 0.2);
-  color: var(--color-accent);
-}
-
-.techTag i {
-  font-size: 13px;
-}
-
-/* ============================================================
-   Responsive Adaptations (Unified TUI Terminal Layout)
-   ============================================================ */
-
-@media (max-width: 1024px) {
-  .presentationLayer {
-    padding: 0 20px;
-  }
-  .bioOverlay {
-    padding: 0 20px;
-  }
-}
+/* ---- Responsive Adaptations ---- */
 
 @media (max-width: 768px) {
-  .presentationLayer {
-    padding: 0 12px;
-  }
-  .bioOverlay {
-    padding: 0 12px;
-  }
-  .unifiedTerminalWindow {
-    height: 88%; /* Slightly taller on tablet/mobile to show more diff content */
-  }
-  .unifiedGitPane {
-    height: 210px; /* Marginally tighter to give diff pane more height */
-    padding: 8px 12px;
-  }
-  .terminalContent {
-    padding: 16px;
-  }
-  .terminalRoleTitle {
-    font-size: 20px;
-  }
-  .achievementsTitle {
-    font-size: 11px;
-  }
-  .achievementText {
-    font-size: 12px;
+  .contentContainer {
+    padding: 0 24px;
   }
 }
 
 @media (max-width: 480px) {
-  .presentationLayer {
-    padding: 0 8px;
-  }
-  .bioOverlay {
-    padding: 0 8px;
-  }
-  .unifiedTerminalWindow {
-    height: 92%;
-    border-radius: 8px;
-  }
-  .terminalHeader {
-    height: 36px;
-    padding: 0 10px;
-  }
-  .terminalTitle {
-    font-size: 9px;
-  }
-  .terminalShellName {
-    display: none; /* Hide shell name on extra narrow viewports */
-  }
-  .unifiedGitPane {
-    height: 195px;
-    padding: 6px 8px;
-  }
-  .gitGraphRow {
-    padding: 5px 8px;
-    gap: 8px;
-    font-size: 11px;
-    border-radius: 4px;
-  }
-  .gitGraphRowHash {
-    width: 50px;
-  }
-  .gitGraphRowDate {
-    width: 60px;
-    font-size: 10px;
-  }
-  .gitLinesContainer {
-    left: 16px; /* Aligns dot centers (8px padding + 8px half node-width) */
-    top: 17px;
-    bottom: 17px;
-  }
-  .ideWindow {
-    border-radius: 8px;
-  }
-  .ideCode {
-    font-size: 10px;
-    line-height: 1.4;
-  }
-  .ideLineNumbers {
-    font-size: 10px;
-    line-height: 1.4;
-    padding: 12px 6px;
-  }
-  .terminalContent {
-    padding: 12px;
-  }
-  .terminalRoleTitle {
-    font-size: 17px;
-    line-height: 1.25;
-  }
-  .terminalCompanyRow {
-    font-size: 12px;
-  }
-  .achievementsBlock {
-    margin-top: 16px;
-  }
-  .achievementLine {
-    gap: 6px;
-  }
-  .achievementText {
-    font-size: 11px;
-    line-height: 1.4;
-  }
-  .techTag {
-    font-size: 10px;
-    padding: 3px 6px;
+  .contentContainer {
+    padding: 0 16px;
   }
 }
