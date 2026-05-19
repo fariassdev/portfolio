@@ -20,10 +20,12 @@ interface ScrollTimelineContextType {
   // Element references managed by the coordinator
   heroRef: RefObject<HTMLElement | null>;
   projectsRef: RefObject<HTMLDivElement | null>;
+  experienceRef: RefObject<HTMLDivElement | null>;
 
   // Pre-smoothed, phase-snapped motion values
   heroProgress: MotionValue<number>;
   projectsProgress: MotionValue<number>;
+  experienceProgress: MotionValue<number>;
 }
 
 const ScrollTimelineContext = createContext<ScrollTimelineContextType | null>(
@@ -40,6 +42,7 @@ export function ScrollTimelineProvider({
   // 1. Instantiating DOM element references
   const heroRef = useRef<HTMLElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
+  const experienceRef = useRef<HTMLDivElement>(null);
 
   // 2. Track Hero Scroll independently
   const { scrollYProgress: heroRawScroll } = useScroll({
@@ -75,14 +78,40 @@ export function ScrollTimelineProvider({
     clamp(value, 0, 1),
   );
 
+  // 4. Track Experience Scroll independently
+  const { scrollYProgress: experienceRawScroll } = useScroll({
+    target: experienceRef,
+    offset: ['start start', 'end end'],
+  });
+
+  // Smooth spring configuration for experience timeline (identical scroll dynamics to projects)
+  const experienceProgressSpring = useSpring(experienceRawScroll, {
+    stiffness: 120,
+    damping: 30,
+    mass: 0.8,
+    restDelta: 0.0001,
+  });
+  const experienceProgress = useTransform(experienceProgressSpring, (value) =>
+    clamp(value, 0, 1),
+  );
+
   const contextValue = useMemo(
     () => ({
       heroRef,
       projectsRef,
+      experienceRef,
       heroProgress,
       projectsProgress,
+      experienceProgress,
     }),
-    [heroRef, projectsRef, heroProgress, projectsProgress],
+    [
+      heroRef,
+      projectsRef,
+      experienceRef,
+      heroProgress,
+      projectsProgress,
+      experienceProgress,
+    ],
   );
 
   return (
