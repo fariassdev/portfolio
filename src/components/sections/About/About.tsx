@@ -290,7 +290,7 @@ export function About() {
                     />
                   </div>
 
-                  {/* Git Commit Nodes */}
+                  {/* Git Commit Rows */}
                   {EXPERIENCE_COMMITS.map((commit, index) => {
                     const phase = COMMIT_PHASES[index]!;
                     // Dot is lit if scroll has passed the milestone threshold
@@ -300,7 +300,7 @@ export function About() {
                     return (
                       <div
                         key={commit.hash}
-                        className={styles.gitNode}
+                        className={`${styles.gitGraphRow} ${isFocused ? styles.gitGraphRowActive : ''}`}
                         onClick={() => handleNodeClick(index)}
                         role="button"
                         tabIndex={0}
@@ -311,7 +311,8 @@ export function About() {
                           }
                         }}
                       >
-                        <div className={styles.gitNodeDotWrapper}>
+                        {/* Node Dot Column */}
+                        <div className={styles.gitGraphRowNodeCol}>
                           {isFocused && (
                             <motion.div
                               layoutId="about-node-pulse"
@@ -324,32 +325,32 @@ export function About() {
                             />
                           )}
                           <div
-                            className={`${styles.gitNodeDot} ${isLit ? styles.gitNodeDotActive : ''}`}
+                            className={`${styles.gitGraphNodeDot} ${isLit ? styles.gitGraphNodeDotActive : ''}`}
                           />
                         </div>
 
-                        <div className={styles.gitNodeDetails}>
+                        {/* Hash Column */}
+                        <div className={styles.gitGraphRowHash}>
+                          {commit.hash}
+                        </div>
+
+                        {/* Message & Tag Column */}
+                        <div className={styles.gitGraphRowMsgCol}>
                           <span
-                            className={`${styles.gitNodeMeta} ${isLit ? styles.gitNodeMetaActive : ''}`}
-                          >
-                            <span
-                              className={`${styles.gitNodeHash} ${isLit ? styles.gitNodeHashActive : ''}`}
-                            >
-                              {commit.hash}
-                            </span>
-                            <span>•</span>
-                            <span>{commit.date}</span>
-                            {commit.tag && (
-                              <span className={styles.gitNodeTag}>
-                                {commit.tag}
-                              </span>
-                            )}
-                          </span>
-                          <span
-                            className={`${styles.gitNodeMsg} ${isFocused ? styles.gitNodeMsgActive : ''}`}
+                            className={`${styles.gitGraphRowMsg} ${isFocused ? styles.gitGraphRowMsgActive : ''}`}
                           >
                             {commit.message}
                           </span>
+                          {commit.tag && (
+                            <span className={styles.gitGraphRowTag}>
+                              {commit.tag}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Date Column */}
+                        <div className={styles.gitGraphRowDate}>
+                          {commit.date}
                         </div>
                       </div>
                     );

@@ -133,7 +133,8 @@
 /* ---- Left Panel: Git Graph ---- */
 
 .gitGraphPanel {
-  flex: 0 0 35%;
+  flex: 0 0 42%;
+  max-width: 520px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -300,30 +301,31 @@
 
 .gitTreeWrapper {
   position: relative;
-  height: 80%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding-left: 60px;
+  gap: 6px;
+  height: auto;
+  padding: 16px 0;
 }
 
 /* Vertical Git Branch Lines */
 .gitLinesContainer {
   position: absolute;
-  left: 20px;
-  top: 10px;
-  bottom: 10px;
-  width: 4px;
+  left: 24px; /* Centers line perfectly with the row's node dots */
+  top: 26px; /* Aligns with the center of the first row's dot */
+  bottom: 26px; /* Aligns with the center of the last row's dot */
+  width: 2px;
   pointer-events: none;
+  z-index: 1;
 }
 
 .gitLineTrunkMuted {
   position: absolute;
   inset: 0;
   width: 100%;
-  background: var(--color-border-muted);
-  opacity: 0.15;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 1px;
 }
 
 .gitLineTrunkActive {
@@ -331,133 +333,142 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(
-    to bottom,
-    var(--color-accent) 0%,
-    rgba(0, 242, 254, 0.8) 50%,
-    var(--color-accent) 100%
-  );
-  border-radius: 2px;
-  box-shadow:
-    0 0 10px var(--color-accent),
-    0 0 20px rgba(0, 242, 254, 0.4);
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent);
+  border-radius: 1px;
   transform-origin: top;
   transition: height 0.05s linear;
-}
-
-/* Interactive Git Nodes */
-.gitNode {
-  position: relative;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 12px 16px;
-  border-radius: 8px;
-  transition:
-    background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.2s ease;
-  user-select: none;
-}
-
-.gitNode:hover {
-  background: rgba(0, 242, 254, 0.04);
-  transform: translateX(4px);
-}
-
-.gitNodeDotWrapper {
-  position: absolute;
-  left: 12px; /* Centers dot with the line at 20px (20px - 8px radius offset) */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
-
-.gitNodeDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-border-muted);
-  border: 2px solid var(--color-bg);
-  transition: all 0.3s ease;
   z-index: 2;
 }
 
-.gitNodeDotActive {
+/* Interactive Git Graph Table Row */
+.gitGraphRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  gap: 16px;
+  user-select: none;
+  z-index: 2;
+}
+
+.gitGraphRow:hover {
+  background: rgba(0, 242, 254, 0.03);
+  transform: translateX(3px);
+}
+
+.gitGraphRowActive {
+  background: rgba(0, 242, 254, 0.05);
+  border-color: rgba(0, 242, 254, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Node Dot Column */
+.gitGraphRowNodeCol {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gitGraphNodeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #252836;
+  border: 2px solid var(--color-bg);
+  z-index: 3;
+  transition: all 0.25s ease;
+}
+
+.gitGraphNodeDotActive {
   background: var(--color-accent);
-  border-color: var(--color-bg);
-  box-shadow: 0 0 12px var(--color-accent);
-  transform: scale(1.3);
+  box-shadow: 0 0 10px var(--color-accent);
+  transform: scale(1.25);
 }
 
 .gitNodePulse {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 1px solid var(--color-accent);
   opacity: 0.8;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
 
-.gitNodeDetails {
-  display: flex;
-  flex-direction: column;
-  padding-left: 28px;
-}
-
-.gitNodeMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  color: var(--color-text-muted);
-  transition: color 0.3s ease;
-}
-
-.gitNodeMetaActive {
-  color: var(--color-accent);
-}
-
-.gitNodeHash {
-  color: var(--color-text-muted);
+/* Hash Column */
+.gitGraphRowHash {
+  color: #ffbd2e; /* Muted gold hash */
   font-weight: 500;
-  opacity: 0.6;
+  opacity: 0.7;
+  flex-shrink: 0;
+  width: 65px;
+  transition: opacity 0.2s ease;
 }
 
-.gitNodeHashActive {
-  color: var(--color-accent);
+.gitGraphRowActive .gitGraphRowHash {
   opacity: 1;
 }
 
-.gitNodeTag {
-  background: rgba(0, 242, 254, 0.1);
-  color: var(--color-accent);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 9px;
-  border: 1px solid rgba(0, 242, 254, 0.2);
-  letter-spacing: 0.05em;
+/* Message & Tag Column */
+.gitGraphRowMsgCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.gitNodeMsg {
-  font-size: 14px;
-  font-weight: 500;
+.gitGraphRowMsg {
   color: var(--color-text-muted);
-  margin-top: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 280px;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.gitNodeMsgActive {
+.gitGraphRowMsgActive {
   color: var(--color-text);
   font-weight: 600;
+}
+
+.gitGraphRowTag {
+  background: rgba(0, 242, 254, 0.08);
+  color: var(--color-accent);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+/* Date Column */
+.gitGraphRowDate {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+  width: 80px;
+  transition: opacity 0.2s ease;
+}
+
+.gitGraphRowActive .gitGraphRowDate {
+  opacity: 0.75;
 }
 
 /* ---- Right Panel: Commit Inspector Terminal ---- */
@@ -881,12 +892,13 @@
 
 @media (max-width: 1024px) {
   .presentationLayer {
-    gap: 30px;
+    gap: 20px;
     padding: 0 20px;
   }
 
   .gitGraphPanel {
-    flex: 0 0 40%;
+    flex: 0 0 45%;
+    max-width: 440px;
   }
 }
 
