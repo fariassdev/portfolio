@@ -35,9 +35,9 @@ export function Navbar() {
       <nav className={styles.navbar} aria-label="Main navigation">
         {/* Terminal Logo Prompt */}
         <a
-          href="#hero"
+          href="#home"
           className={styles.logoPrompt}
-          onClick={(e) => handleClick(e, '#hero')}
+          onClick={(e) => handleClick(e, '#home')}
           aria-label="Back to top"
         >
           <span className={styles.promptUser}>fariassdev</span>

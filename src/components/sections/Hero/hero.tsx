@@ -50,7 +50,7 @@ export function Hero() {
 
   return (
     <section
-      id="hero"
+      id="home"
       ref={heroRef}
       className={styles.heroSection}
       aria-label="Hero"

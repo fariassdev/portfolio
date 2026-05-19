@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { navItems } from './navbar.constants';
 
 export const useConnect = () => {
-  const [activeSection, setActiveSection] = useState('#hero');
+  const [activeSection, setActiveSection] = useState('#home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);

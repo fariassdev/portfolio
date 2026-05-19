@@ -1,4 +1,5 @@
 import { render, screen, act } from '@testing-library/react';
+import { motionValue } from 'framer-motion';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Hero } from './hero';
 import { HERO_NAME, HERO_TITLE, ROLES } from './hero.constants';
@@ -11,6 +12,13 @@ vi.mock(import('framer-motion'), async (importOriginal) => {
     useInView: vi.fn(() => true),
   };
 });
+
+vi.mock('@/context/ScrollTimelineContext', () => ({
+  useScrollTimeline: () => ({
+    heroRef: { current: null },
+    heroProgress: motionValue(0),
+  }),
+}));
 
 describe('Hero Component', () => {
   beforeEach(() => {
