@@ -114,41 +114,187 @@
 
 .editorialLayout {
   position: absolute;
-  inset: 0;
+  top: var(--headerHeight);
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 40px;
+  padding: 0;
   z-index: 2;
 }
 
-/* ---- Centered Editorial Prose Column ---- */
+/* ---- Centered Editorial Prose Column / Terminal Window ---- */
 
 .proseContainer {
   position: relative;
   width: 100%;
-  max-width: 70ch;
+  max-width: 100%;
+  height: 100%;
+  margin: 0;
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  margin: 0 auto;
 }
 
-.proseBlock {
-  position: relative;
+.terminalWindow {
+  background: rgba(8, 8, 8, 0.95);
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent) 15%, var(--color-border));
+  border-radius: 0;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   width: 100%;
-  pointer-events: auto;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terminalContentWrapper {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminalHeader {
+  background: rgba(13, 13, 13, 0.9);
+  border-bottom: 1px solid var(--color-border-muted);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.terminalButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.terminalDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-text-dim);
+  opacity: 0.6;
+}
+
+.terminalDotRed {
+  background: #ff5f56;
+}
+
+.terminalDotYellow {
+  background: #ffbd2e;
+}
+
+.terminalDotGreen {
+  background: #27c93f;
+}
+
+.terminalTitle {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.terminalTab {
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
+  color: var(--color-accent);
+  opacity: 0.8;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.terminalBody {
+  padding: 32px 40px;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--color-text);
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.terminalBody::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminalBody::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
+}
+
+/* ---- Terminal Outputs & Command Lines ---- */
+
+.terminalLine {
+  margin-bottom: 12px;
+}
+
+.terminalPrompt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.promptUser {
+  color: var(--color-accent);
+}
+
+.promptLoc {
+  color: var(--color-text-muted);
+}
+
+.promptSymbol {
+  color: var(--color-text);
+}
+
+.terminalCommandText {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.terminalOutput {
+  color: var(--color-text-muted);
+  font-family: var(--font-sans), sans-serif;
+  font-size: clamp(14.5px, 0.9vw + 11.5px, 16px);
+  line-height: 1.75;
+  margin-bottom: 20px;
+  padding: 22px 26px;
+  background: rgba(
+    197,
+    255,
+    74,
+    0.02
+  ); /* Extremely subtle accent-tint glow background! */
+  border: 1px solid rgba(197, 255, 74, 0.04);
+  border-left: 3px solid var(--color-accent); /* Neon highlight line! */
+  border-radius: 0 8px 8px 0;
+  box-shadow:
+    inset 0 0 30px rgba(197, 255, 74, 0.01),
+    0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .paragraph {
-  font-family: var(--font-sans), sans-serif;
-  font-size: clamp(15px, 1.2vw + 11px, 19px);
-  line-height: 1.75;
-  color: var(--color-text);
-  opacity: 0.9;
-  position: relative;
+  margin-bottom: 16px;
+}
+
+.paragraph:last-child {
+  margin-bottom: 0;
 }
 
 .boldWord {
@@ -162,30 +308,275 @@
   text-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
 
+/* ---- CLI Interactive Menu ---- */
+
+.cliMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.cliMenuTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 6px;
+}
+
+.cliOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .cliOptionsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .cliOptionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cliOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(20, 20, 20, 0.4);
+  border: 1px solid var(--color-border);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.cliOption:hover,
+.cliOptionActive {
+  background: rgba(197, 255, 74, 0.04);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  transform: translateY(-3px); /* Hover elevates cards up! */
+  box-shadow: 0 6px 20px rgba(197, 255, 74, 0.08);
+}
+
+.cliOptionArrow {
+  opacity: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  transform: translateX(-4px);
+}
+
+.cliOption:hover .cliOptionArrow,
+.cliOptionActive .cliOptionArrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cliOptionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cliOptionLabel {
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+.cliOptionValue {
+  font-size: 11px;
+  color: var(--color-accent);
+  opacity: 0.85;
+  word-break: break-all;
+}
+
+.cliOption:hover .cliOptionValue,
+.cliOptionActive .cliOptionValue {
+  opacity: 1;
+}
+
+.cliOptionIcon {
+  margin-left: auto;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  color: var(--color-text-dim);
+  transition: color 0.2s ease;
+}
+
+.cliOption:hover .cliOptionIcon,
+.cliOptionActive .cliOptionIcon {
+  color: var(--color-accent);
+}
+
+/* ---- Terminal Command Input Easter Egg ---- */
+
+.terminalInputLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  border-top: 1px dashed var(--color-border-muted);
+  padding-top: 18px;
+}
+
+.commandForm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.commandInput {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  caret-color: var(--color-accent);
+  padding: 2px 0;
+}
+
+.inputHelp {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  background: rgba(13, 13, 13, 0.95);
+  border-top: 1px solid var(--color-border-muted);
+  padding: 10px 24px;
+  text-align: right;
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono), monospace;
+  user-select: none;
+}
+
+/* ---- Easter Egg Outputs ---- */
+
+.cliOutputItem {
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  animation: fade-in 0.2s ease;
+}
+
+.cliOutputItemError {
+  color: #ff5f56;
+}
+
+.cliOutputItemSuccess {
+  color: var(--color-accent);
+}
+
+.cliOutputItemInput {
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+/* ---- Neofetch Layout ---- */
+
+.neofetchContainer {
+  display: flex;
+  gap: 24px;
+  padding: 12px;
+  background: rgba(20, 20, 20, 0.3);
+  border-radius: 8px;
+  border: 1px solid var(--color-border-muted);
+  margin-bottom: 12px;
+}
+
+.neofetchLogo {
+  color: var(--color-accent);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre;
+  user-select: none;
+}
+
+.neofetchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.neofetchTitle {
+  color: var(--color-accent);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.neofetchLabel {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.neofetchVal {
+  color: var(--color-text);
+}
+
 /* ---- Premium CTA Paragraph ---- */
 
 .ctaParagraph {
-  font-family: var(--font-sans), sans-serif;
-  font-size: clamp(18px, 1.5vw + 14px, 24px);
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.5;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  color: var(--color-accent);
+  margin-top: 12px;
+  border-top: 1px dashed var(--color-border-muted);
+  padding-top: 12px;
 }
 
 /* ---- Responsive Adaptations ---- */
 
+@media (max-width: 1024px) {
+  .proseContainer {
+    max-width: 100%;
+    height: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .contentContainer {
     padding: 0 24px;
+  }
+  .proseContainer {
+    height: 100%;
+    max-width: 100%;
+  }
+  .terminalBody {
+    padding: 24px 20px;
+    flex: 1;
+    max-height: none;
+  }
+  .inputHelp {
+    padding: 8px 20px;
   }
 }
 
 @media (max-width: 480px) {
   .contentContainer {
     padding: 0 16px;
+  }
+  .terminalBody {
+    padding: 20px 16px;
+    flex: 1;
+    max-height: none;
+  }
+  .inputHelp {
+    padding: 6px 16px;
   }
 }
