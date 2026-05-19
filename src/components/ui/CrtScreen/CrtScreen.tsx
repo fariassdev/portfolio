@@ -20,16 +20,13 @@ interface CrtScreenProps {
  *
  * All children are `pointer-events: none` — this overlay is purely decorative.
  */
-export function CrtScreen({ opacity, scale }: CrtScreenProps) {
+export function CrtScreen({ opacity }: CrtScreenProps) {
   return (
-    <motion.div className={styles.crtWrapper} style={{ opacity, scale }}>
+    <motion.div className={styles.crtWrapper} style={{ opacity }}>
       <div className={styles.crtOverlay}>
-        <div className={styles.scanlines} />
-        <div className={styles.apertureGrille} />
-        <div className={styles.beam} />
+        <div className={styles.scanline} />
         <div className={styles.glare} />
         <div className={styles.vignette} />
-        <div className={styles.screenNoise} />
       </div>
     </motion.div>
   );
