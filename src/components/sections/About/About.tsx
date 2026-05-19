@@ -58,6 +58,58 @@ export function About() {
     }
   }, [terminalHistory]);
 
+  // Handle nested scrolling and scroll-chaining with Lenis
+  useEffect(() => {
+    const el = terminalBodyRef.current;
+    if (!el) return;
+
+    let touchStartY = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      const isScrollingUp = e.deltaY < 0;
+      const isScrollingDown = e.deltaY > 0;
+      const isAtTop = el.scrollTop <= 0;
+      const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+
+      if ((isScrollingUp && !isAtTop) || (isScrollingDown && !isAtBottom)) {
+        // Stop event from bubbling to Lenis's global listener, let native scroll happen
+        e.stopPropagation();
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartY = e.touches[0]!.clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const touchCurrentY = e.touches[0]!.clientY;
+      const deltaY = touchStartY - touchCurrentY; // Positive is scrolling down (content up), negative is scrolling up
+
+      const isScrollingUp = deltaY < 0;
+      const isScrollingDown = deltaY > 0;
+      const isAtTop = el.scrollTop <= 0;
+      const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+
+      if ((isScrollingUp && !isAtTop) || (isScrollingDown && !isAtBottom)) {
+        // Stop event from bubbling to Lenis's global listener, let native scroll happen
+        e.stopPropagation();
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: true });
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
   // Title transitions (Stage 1)
   const titleOpacity = useTransform(
     aboutProgress,
