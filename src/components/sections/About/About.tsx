@@ -239,15 +239,15 @@ export function About() {
     } else if (cmd === 'linkedin') {
       newLogs.push({ type: 'output', text: 'Opening LinkedIn profile...' });
       window.open(
-        'https://www.linkedin.com/in/fernando-arias-santos/',
+        'https://www.linkedin.com/in/fernando-arias-santos-5a49a010b',
         '_blank',
         'noopener,noreferrer',
       );
     } else if (cmd === 'email') {
-      navigator.clipboard.writeText('hello@fernandoas.com');
+      navigator.clipboard.writeText('ferarias.santos@gmail.com');
       newLogs.push({
         type: 'success',
-        text: '✔ Email hello@fernandoas.com copied to clipboard!',
+        text: '✔ Email ferarias.santos@gmail.com copied to clipboard!',
       });
     } else if (cmd === 'resume') {
       newLogs.push({ type: 'output', text: 'Opening resume.pdf...' });
@@ -318,8 +318,8 @@ export function About() {
     {
       id: 'linkedin',
       label: 'LinkedIn',
-      value: 'linkedin.com/in/fariassdev',
-      url: 'https://www.linkedin.com/in/fernando-arias-santos/',
+      value: 'linkedin.com/in/fernando-arias-santos',
+      url: 'https://www.linkedin.com/in/fernando-arias-santos-5a49a010b/',
       icon: (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
@@ -329,7 +329,7 @@ export function About() {
     {
       id: 'email',
       label: 'Email',
-      value: 'hello@fernandoas.com',
+      value: 'ferarias.santos@gmail.com',
       icon: (
         <svg
           width="16"
@@ -350,7 +350,7 @@ export function About() {
       id: 'resume',
       label: 'Resume',
       value: 'download_cv.pdf',
-      url: '/resume.pdf',
+      url: '/Resume_Fernando_Arias_Santos.pdf',
       icon: (
         <svg
           width="16"
