@@ -17,9 +17,26 @@ import {
 import styles from './hero.module.css';
 import { useTypewriter } from './use-typewriter';
 
+export function RoleText() {
+  const { text, currentRole } = useTypewriter({ roles: ROLES });
+
+  return (
+    <h1 className={styles.heroRole}>
+      <span className="sr-only" aria-live="polite">
+        {HERO_TITLE} &amp; {currentRole}
+      </span>
+      <span aria-hidden="true">
+        <SweepText className={styles.staticRole} text={HERO_TITLE} />
+        <span className={styles.staticRole}>{'& '}</span>
+        <span className={styles.rotatingRole}>{text}</span>
+        <span className={styles.cursor} />
+      </span>
+    </h1>
+  );
+}
+
 export function Hero() {
   const { heroRef, heroProgress } = useScrollTimeline();
-  const { text, currentRole } = useTypewriter({ roles: ROLES });
   const MAX_ZOOM_SCALE = 18;
 
   // Zoom-through: content scales up and disappears as user scrolls, synchronized to finish at HERO_FADE_END progress
@@ -73,17 +90,7 @@ export function Hero() {
               <DecryptText text={HERO_NAME} />
             </p>
 
-            <h1 className={styles.heroRole}>
-              <span className="sr-only" aria-live="polite">
-                {HERO_TITLE} &amp; {currentRole}
-              </span>
-              <span aria-hidden="true">
-                <SweepText className={styles.staticRole} text={HERO_TITLE} />
-                <span className={styles.staticRole}>{'& '}</span>
-                <span className={styles.rotatingRole}>{text}</span>
-                <span className={styles.cursor} />
-              </span>
-            </h1>
+            <RoleText />
 
             <p className={styles.heroDescription}>{HERO_DESCRIPTION}</p>
 
