@@ -97,7 +97,7 @@ export function Hero() {
               </Button>
               <Button
                 variant="secondary"
-                href={'/cv.pdf'}
+                href={'/Resume_Fernando_Arias_Santos.pdf'}
                 download={true}
                 aria-label="View Resume"
               >

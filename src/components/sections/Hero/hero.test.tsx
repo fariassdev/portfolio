@@ -65,7 +65,9 @@ describe('Hero Component', () => {
     render(<Hero />);
     const resumeLink = screen.getByRole('link', { name: /View Resume/i });
     expect(resumeLink).toBeTruthy();
-    expect(resumeLink.getAttribute('href')).toBe('/cv.pdf');
+    expect(resumeLink.getAttribute('href')).toBe(
+      '/Resume_Fernando_Arias_Santos.pdf',
+    );
     expect(resumeLink.hasAttribute('download')).toBe(true);
   });
 
