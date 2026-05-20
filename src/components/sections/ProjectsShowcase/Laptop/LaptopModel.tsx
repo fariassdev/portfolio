@@ -142,6 +142,7 @@ export const LaptopModel = memo(
         // Callback when project index changes
         screenRef.current?.transitionTo(fromIndex, toIndex);
       },
+      isMobile,
     );
 
     // Initialize lid to closed state

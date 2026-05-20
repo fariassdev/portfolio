@@ -6,6 +6,10 @@ import {
   useTransform,
 } from 'framer-motion';
 import { useRef } from 'react';
+import {
+  SWEEP_START_PERCENT_DESKTOP,
+  SWEEP_START_PERCENT_MOBILE,
+} from '../ProjectSlide/ProjectSlide.constants';
 import { LID_OPEN, LID_CLOSED } from './Laptop.constants';
 import { getScreenTransition, getPhaseLength } from './Laptop.helpers';
 import type { LaptopAnimationState, TransitionCallback } from './Laptop.types';
@@ -18,6 +22,7 @@ import type { LaptopAnimationState, TransitionCallback } from './Laptop.types';
  * @param projectCount - Number of projects
  * @param mediaCount - Number of media textures
  * @param onTransition - Callback when project index changes
+ * @param isMobile - Whether the device screen is mobile width
  * @returns Unified laptop animation state
  */
 export function useLaptopAnimation(
@@ -25,6 +30,7 @@ export function useLaptopAnimation(
   projectCount: number,
   mediaCount: number,
   onTransition: TransitionCallback,
+  isMobile?: boolean,
 ): LaptopAnimationState {
   const reduceMotion = useReducedMotion();
 
@@ -70,10 +76,33 @@ export function useLaptopAnimation(
 
     const transition = getScreenTransition(progress, projectCount, mediaCount);
 
-    // Determine which project the user is "looking at"
-    // (blend > 0.5 means we're closer to the destination)
+    // Calculate transition progress (0 to 1) between slides
+    const phaseLen = getPhaseLength(projectCount);
+    const transitionZoneStart = phaseLen * 3;
+    const transitionsCount = projectCount - 1;
+    let activeTransition = Math.floor(
+      (progress - transitionZoneStart) / (phaseLen * 2),
+    );
+    activeTransition = Math.min(
+      Math.max(activeTransition, 0),
+      transitionsCount - 1,
+    );
+    const transitionStart =
+      transitionZoneStart + activeTransition * phaseLen * 2;
+    const transitionProgress = Math.min(
+      Math.max((progress - transitionStart) / phaseLen, 0),
+      1,
+    );
+
+    const threshold = isMobile
+      ? SWEEP_START_PERCENT_MOBILE
+      : SWEEP_START_PERCENT_DESKTOP;
+
+    // Determine which project the user is "looking at" based on responsive threshold
     const targetProjectIndex =
-      transition.blend > 0.5 ? transition.toIndex : transition.fromIndex;
+      transitionProgress > threshold
+        ? transition.toIndex
+        : transition.fromIndex;
 
     // Only trigger transition when project changes
     if (targetProjectIndex !== lastProjectRef.current) {
