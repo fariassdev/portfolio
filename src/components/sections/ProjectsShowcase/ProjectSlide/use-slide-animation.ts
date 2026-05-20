@@ -5,11 +5,17 @@ import {
 } from 'framer-motion';
 import { clamp } from '@/helpers/math.helpers';
 import { getLaptopTransform } from '../Laptop/Laptop.helpers';
-import { PROJECT_COUNT, PHASE_LENGTH } from '../ProjectsShowcase.constants';
+import {
+  PROJECT_COUNT,
+  PHASE_LENGTH,
+  MOBILE_BREAKPOINT,
+} from '../ProjectsShowcase.constants';
 import {
   SLIDE_CLIP_MAX_OFFSET,
-  SWEEP_START_PERCENT,
-  FADE_DURATION_PERCENT,
+  SWEEP_START_PERCENT_MOBILE,
+  SWEEP_START_PERCENT_DESKTOP,
+  FADE_DURATION_PERCENT_MOBILE,
+  FADE_DURATION_PERCENT_DESKTOP,
 } from './ProjectSlide.constants';
 import { getProjectSlideState, getSlideClipPath } from './ProjectSlide.helpers';
 import type { SlideAnimationState } from './ProjectSlide.types';
@@ -64,24 +70,29 @@ export function useSlideAnimation(
     return getSlideClipPath(laptopTransform.xOffset, side);
   });
 
-  // Mobile entrance animation (opacity): fades in/out over first 20% of reveal/blur
+  // Mobile entrance animation (opacity): fades in/out over first 10% of reveal/blur
   const mobileEntranceOpacity = useTransform(slideState, (state) => {
-    const fadeIn = clamp(state.reveal / FADE_DURATION_PERCENT, 0, 1);
-    const fadeOut = clamp(1 - state.blur / FADE_DURATION_PERCENT, 0, 1);
+    const fadeIn = clamp(state.reveal / FADE_DURATION_PERCENT_MOBILE, 0, 1);
+    const fadeOut = clamp(1 - state.blur / FADE_DURATION_PERCENT_MOBILE, 0, 1);
     return Math.min(fadeIn, fadeOut);
   });
 
-  // Master trigger for text animations: starts at SWEEP_START_PERCENT reveal
-  // and resets when the slide is 50% blurred to allow re-triggering when scrolling back.
-  const shouldAnimateText = useTransform(
-    slideState,
-    (state) => state.reveal >= SWEEP_START_PERCENT && state.blur <= 0.5,
-  );
+  // Master trigger for text animations: starts at SWEEP_START_PERCENT_MOBILE (0.1) on mobile
+  // or SWEEP_START_PERCENT_DESKTOP (0.5) on desktop reveal, and resets when the slide is 50% blurred
+  // to allow re-triggering when scrolling back.
+  const shouldAnimateText = useTransform(slideState, (state) => {
+    const isMobile =
+      typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT;
+    const sweepStart = isMobile
+      ? SWEEP_START_PERCENT_MOBILE
+      : SWEEP_START_PERCENT_DESKTOP;
+    return state.reveal >= sweepStart && state.blur <= 0.5;
+  });
 
   // Content opacity with dual-phase fading (fade in + fade out)
   const contentOpacity = useTransform(slideState, (state) => {
-    const fadeIn = clamp(state.reveal / FADE_DURATION_PERCENT, 0, 1);
-    const fadeOut = clamp(1 - state.blur / FADE_DURATION_PERCENT, 0, 1);
+    const fadeIn = clamp(state.reveal / FADE_DURATION_PERCENT_DESKTOP, 0, 1);
+    const fadeOut = clamp(1 - state.blur / FADE_DURATION_PERCENT_DESKTOP, 0, 1);
     return Math.min(fadeIn, fadeOut);
   });
 
