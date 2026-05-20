@@ -151,6 +151,14 @@
     margin-left: 0;
     margin-right: 0;
   }
+
+  .techName {
+    display: none;
+  }
+
+  .techTag {
+    padding: 6px;
+  }
 }
 
 .slideButtons {
