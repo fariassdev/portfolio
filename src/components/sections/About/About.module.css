@@ -1,7 +1,7 @@
 .section {
   position: relative;
   width: 100%;
-  scroll-margin-top: 0;
+  scroll-margin-top: -25vh;
 }
 
 .scrollSpacer {
