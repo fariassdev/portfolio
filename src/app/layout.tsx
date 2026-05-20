@@ -16,8 +16,16 @@ const spaceMono = Space_Mono({
   weight: ['400', '700'],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : undefined) ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+  'https://fernandoas.com';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://fernandoas.com'),
+  metadataBase: new URL(siteUrl),
   title: {
     template: '%s | Senior Software Developer | Fernando Arias Santos',
     default: 'Fernando Arias Santos | Senior Software Developer',
@@ -38,7 +46,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    url: 'https://fernandoas.com',
+    url: siteUrl,
     title: 'Fernando Arias Santos | Senior Software Developer',
     description:
       'Technical showcase of Backend Architecture and Frontend performance optimization.',
@@ -46,6 +54,10 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Fernando Arias Santos | Senior Software Developer',
+        type: 'image/png',
       },
     ],
   },
