@@ -14,6 +14,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   overflow: visible; /* Allow overflowing layout to slide up naturally on unpin */
   background: var(--color-bg);
   isolation: isolate;
@@ -45,6 +46,7 @@
   text-align: center;
   width: 100%;
   height: 100vh;
+  height: 100dvh;
 }
 
 .titleLabel {
@@ -401,6 +403,12 @@
   text-transform: uppercase;
 }
 
+.bottomRevealSpacer {
+  display: none;
+  width: 100%;
+  pointer-events: none;
+}
+
 /* ---- Responsive Adaptations ---- */
 
 @media (max-width: 1200px) {
@@ -438,10 +446,8 @@
   }
 
   .bottomRevealSpacer {
-    display: block !important;
-    height: 20vh;
-    width: 100%;
-    pointer-events: none;
+    display: block;
+    height: 4vh; /* Mantiene un espacio muy pequeño y limpio en tablets */
   }
 }
 
@@ -460,10 +466,9 @@
   }
 
   .bottomRevealSpacer {
-    display: block !important;
-    height: 50vh;
-    width: 100%;
-    pointer-events: none;
+    display: block;
+    /* Crece dinámicamente y de forma considerable en resoluciones móviles muy pequeñas */
+    height: clamp(15vh, calc(160vh - 160vw), 120vh);
   }
 }
 
@@ -519,8 +524,4 @@
   .contactValue {
     font-size: 10px;
   }
-}
-
-.bottomRevealSpacer {
-  display: none;
 }

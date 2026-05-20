@@ -173,10 +173,16 @@
     display: none;
   }
 
+  .logoPrompt {
+    display: flex;
+    font-size: clamp(0.95rem, 4vw, 1.15rem);
+  }
+
   .mobileNavToggle {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
   }
 
   .mobileNavOverlay {

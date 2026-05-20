@@ -113,7 +113,7 @@
 
 @media (max-width: 696px) {
   .scrollHintContainer {
-    bottom: 28px;
+    bottom: 40px;
   }
   .scrollHint {
     font-size: 10px;
