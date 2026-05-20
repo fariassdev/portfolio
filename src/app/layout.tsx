@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     title: 'Fernando Arias Santos | Senior Software Developer',
     description:
-      'Technical showcase of Backend Architecture and Frontend performance optimization.',
+      'Senior Software Developer specializing in Backend Architecture, Performance and Frontend Excellence. Explore my technical portfolio and projects.',
     siteName: 'Fernando Arias Santos',
     images: [
       {
