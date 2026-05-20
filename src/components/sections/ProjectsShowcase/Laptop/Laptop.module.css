@@ -162,3 +162,47 @@
 .screenLayerCRTOn {
   animation: crtOn 0.35s ease-in-out forwards;
 }
+
+/* ---- Responsive Mobile Adjustments ---- */
+
+@keyframes crtOffMobile {
+  0% {
+    transform: scaleX(1) scaleY(1);
+  }
+  30% {
+    transform: scaleX(1) scaleY(0.002);
+  }
+  50% {
+    transform: scaleX(0) scaleY(0.002);
+  }
+  100% {
+    transform: scaleX(0) scaleY(0.002);
+  }
+}
+
+@keyframes crtOnMobile {
+  0% {
+    transform: scaleX(0) scaleY(0.002);
+  }
+  50% {
+    transform: scaleX(1) scaleY(0.002);
+  }
+  100% {
+    transform: scaleX(1) scaleY(1);
+  }
+}
+
+@media (max-width: 1040px) {
+  .crtOverlay,
+  .screenNoise {
+    display: none !important;
+  }
+
+  .screenLayerCRTOff {
+    animation: crtOffMobile 0.35s ease-in-out forwards !important;
+  }
+
+  .screenLayerCRTOn {
+    animation: crtOnMobile 0.35s ease-in-out forwards !important;
+  }
+}
